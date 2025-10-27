@@ -3,6 +3,9 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Routing\Router;
+
+use App\Http\Middleware\RoleMiddleware;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Register role middleware alias here so we don't need to modify Kernel.php
+        if ($this->app->runningInConsole() === false) {
+            $router = $this->app->make(Router::class);
+            $router->aliasMiddleware('role', RoleMiddleware::class);
+        }
     }
 }
