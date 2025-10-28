@@ -7,4 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Izin extends Model
 {
     protected $table = 'izin';
+
+    protected $primaryKey = 'id_izin';
 }

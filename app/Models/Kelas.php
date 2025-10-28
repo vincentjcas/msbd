@@ -8,6 +8,7 @@ class Kelas extends Model
 {
     protected $table = 'kelas';
 
-    // Add fillable if you want mass assignment
+    protected $primaryKey = 'id_kelas';
+
     protected $fillable = ['nama_kelas'];
 }

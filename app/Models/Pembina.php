@@ -7,4 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Pembina extends Model
 {
     protected $table = 'pembina';
+
+    protected $primaryKey = 'id_pembina';
 }
