@@ -6,7 +6,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\StafController;
 use App\Http\Controllers\KepalaSekolahController;
 use App\Http\Controllers\PembinaController;
 
@@ -33,9 +32,6 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
-
-    // Staf Dashboard
-    Route::get('/staf/dashboard', [StafController::class, 'dashboard'])->name('staf.dashboard')->middleware('role:staf');
 
     // Kepala Sekolah Dashboard
     Route::get('/kepala-sekolah/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('kepala_sekolah.dashboard')->middleware('role:kepala_sekolah');

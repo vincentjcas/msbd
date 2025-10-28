@@ -18,7 +18,6 @@ class UserSeeder extends Seeder
             ['name' => 'Admin Demo', 'email' => 'admin@example.com', 'role' => 'admin'],
             ['name' => 'Guru Demo', 'email' => 'guru@example.com', 'role' => 'guru'],
             ['name' => 'Siswa Demo', 'email' => 'siswa@example.com', 'role' => 'siswa'],
-            ['name' => 'Staf Demo', 'email' => 'staf@example.com', 'role' => 'staf'],
             ['name' => 'Pembina Demo', 'email' => 'pembina@example.com', 'role' => 'pembina'],
         ];
 
