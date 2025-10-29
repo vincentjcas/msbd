@@ -4,25 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KepalaSekolah extends Model
+class LogAktivitas extends Model
 {
-    protected $table = 'kepala_sekolah';
-    protected $primaryKey = 'id_kepsek';
+    protected $table = 'log_aktivitas';
+    protected $primaryKey = 'id_log';
     public $timestamps = false;
 
     protected $fillable = [
+        'tipe_aktivitas',
         'id_user',
-        'nip',
-        'periode_mulai',
-        'periode_selesai',
-        'alamat',
-        'tanggal_lahir',
+        'deskripsi',
+        'ip_address',
+        'user_agent',
     ];
 
     protected $casts = [
-        'periode_mulai' => 'date',
-        'periode_selesai' => 'date',
-        'tanggal_lahir' => 'date',
         'created_at' => 'datetime',
     ];
 
@@ -32,4 +28,3 @@ class KepalaSekolah extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 }
-
