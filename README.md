@@ -1,61 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Rizhaqi Laundry Website
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Kelompok 7 :
+- **Dolly Efredi Bukit**                        - 241402021 - *Project Manager, Backend*
+- **Arialdi Manday**                            - 241402006 - *UI/UX*
+- **Cindy Samosir**                             - 241402009 - *Frontend*
+- **Vincent Josechristian Andreas Simbolon**    - 241402039 - *Backend*
+- **Chaterine Eklesia Maryati**                 - 241402123 - *Frontend*
 
-## About Laravel
+## Description
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Website Sistem Informasi Manajemen Sekolah SMK Yapim Biru-Biru merupakan aplikasi berbasis web yang dirancang untuk membantu digitalisasi proses akademik dan administrasi sekolah.
+Sistem ini mengintegrasikan berbagai fitur seperti presensi digital guru dan siswa, pengelolaan materi pembelajaran dan tugas, serta dashboard pemantauan aktivitas sekolah secara real-time.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Tujuan utamanya adalah meningkatkan efisiensi, akurasi, dan transparansi dalam pengelolaan data sekolah dengan menerapkan konsep Manajemen Sistem Basis Data berbasis web.
+Proyek ini dikembangkan menggunakan Laravel (PHP Framework), MySQL, CSS, dan JavaScript.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+User dan Perannya:
 
-## Learning Laravel
+1. Admin
+- Memiliki akses teknis penuh terhadap sistem. Admin bertanggung jawab mengelola database, membuat akun pengguna (kepala sekolah, guru, siswa, pembina), mengatur jadwal, serta melakukan backup data dan pemeliharaan sistem.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Kepala Sekolah
+- Dapat memantau keseluruhan aktivitas akademik dan kehadiran guru maupun siswa. Kepala sekolah juga memiliki hak untuk menyetujui izin, mengevaluasi laporan, serta mengunduh rekap data untuk dokumentasi resmi.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Pembina Sekolah
+- Berfungsi sebagai pihak pengawas yang dapat melihat data kehadiran, materi pembelajaran, dan laporan aktivitas guru serta siswa tanpa hak mengubah data. Pembina juga dapat memberikan catatan evaluasi.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Guru
+- Melakukan presensi, mencatat kehadiran siswa di kelas, mengunggah materi dan tugas, serta memvalidasi izin siswa. Guru juga dapat melihat rekap presensi per kelas untuk keperluan evaluasi pembelajaran.
 
-## Laravel Sponsors
+Siswa
+- Melakukan presensi harian melalui akun masing-masing, mengunduh materi pembelajaran, mengumpulkan tugas, serta mengajukan izin tidak hadir disertai bukti pendukung.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
 
-### Premium Partners
+## Tech Stack
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **Composer v2.4.1**
+- **PHP v8.3.22**
+- **Laragon v6.0**
+- **MySQL v15.1**
+- **Laravel v12.32.5**
 
-## Contributing
+### Set Up dan Run Project
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Clone repository
 
-## Code of Conduct
+    git clone https://github.com/vincentjcas/msbd.git
+    cd msbd
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Install dependencies laravel
 
-## Security Vulnerabilities
+    composer install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Install depencies Front-End
 
-## License
+    npm install && npm run dev
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Konfigurasi .env dan sesuaikan dengan database lokal
+
+    DB_CONNECTION=mysql
+    DB_HOST=127.0.0.1
+    DB_PORT=3306
+    DB_DATABASE=db_simak_smk
+    DB_USERNAME=kel5
+    DB_PASSWORD=tubessialan
+
+Generate App Key
+
+    php artisan key:generate
+
+Jalankan migrasi database
+
+    php artisan migrate
+
+Jalankan server
+
+    php artisan serve
+
+Akses sistem
+
+    http://127.0.0.1:8000
