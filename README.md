@@ -1,6 +1,6 @@
-# Rizhaqi Laundry Website
+# WEBSITE SMK YAPIM BIRU BIRU
 
-Kelompok 7 :
+Kelompok 5 :
 - **Dolly Efredi Bukit**                        - 241402021 - *Project Manager, Backend*
 - **Arialdi Manday**                            - 241402006 - *UI/UX*
 - **Cindy Samosir**                             - 241402009 - *Frontend*
