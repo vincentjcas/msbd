@@ -52,6 +52,10 @@ Install dependencies laravel
 
     composer install
 
+Buat file .env dengan menyalin .env.example
+
+    cp .env.example .env
+
 Install depencies Front-End
 
     npm install && npm run dev
