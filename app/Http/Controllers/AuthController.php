@@ -9,76 +9,98 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Tampilkan form login
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    /**
+     * Proses login user
+     */
     public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
 
-        if (Auth::attempt($request->only('email', 'password'))) {
-            $user = Auth::user();
-            
-            // Redirect berdasarkan role
-            if ($user->role == 'admin') {
+
+    if (Auth::attempt($request->only('email', 'password'))) {
+        $user = Auth::user();
+
+        // ✅ Simpan pesan selamat datang (opsional)
+        session()->flash('success', "Selamat datang kembali, {$user->nama_lengkap}!");
+
+        // ✅ Redirect otomatis sesuai role
+        switch ($user->role) {
+            case 'admin':
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->role == 'guru') {
+            case 'guru':
                 return redirect()->route('guru.dashboard');
-            } elseif ($user->role == 'siswa') {
+            case 'siswa':
                 return redirect()->route('siswa.dashboard');
-            } else {
+            case 'kepala_sekolah':
+                return redirect()->route('kepala_sekolah.dashboard');
+            case 'pembina':
+                return redirect()->route('pembina.dashboard');
+            default:
                 return redirect()->route('dashboard');
-            }
         }
-
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ]);
     }
 
+    return back()->withErrors([
+        'email' => 'Email atau password salah.',
+    ]);
+}
+
+
+    /**
+     * Logout user
+     */
     public function logout()
     {
         Auth::logout();
         return redirect()->route('login');
     }
 
+    /**
+     * Tampilkan form register
+     */
     public function showRegisterForm()
     {
         return view('auth.register');
     }
 
+    /**
+     * Proses register user baru
+     */
     public function register(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|confirmed|min:6',
-            'role' => 'required|in:admin,guru,siswa',
-        ]);
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|confirmed|min:6',
+        'role' => 'required|in:admin,guru,siswa',
+    ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-            'role' => $request->role,
-        ]);
+    $user = User::create([
+        'username' => $request->name,
+        'nama_lengkap' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => $request->role,
+        'status_aktif' => 1,
+    ]);
 
-        Auth::login($user);
+    // ✅ Simpan pesan sukses ke session
+    session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
 
-        // Redirect berdasarkan role setelah register
-        if ($user->role == 'admin') {
-            return redirect()->route('admin.dashboard');
-        } elseif ($user->role == 'guru') {
-            return redirect()->route('guru.dashboard');
-        } elseif ($user->role == 'siswa') {
-            return redirect()->route('siswa.dashboard');
-        }
+    // ✅ Arahkan ke halaman login
+    return redirect()->route('login');
 
-        return redirect()->route('dashboard');
+
     }
 }

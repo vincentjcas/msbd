@@ -26,23 +26,32 @@ class SiswaController extends Controller
     }
 
     public function dashboard()
-    {
-        $siswa = auth()->user()->siswa;
-        $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
-            ->where('hari', now()->locale('id')->dayName)
-            ->with(['guru.user'])
-            ->get();
+{
+    $user = auth()->user();
+    $siswa = $user->siswa;
 
-        $bulan = date('m');
-        $tahun = date('Y');
-        $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
+    if (!$siswa) {
+        return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan atau belum dikaitkan dengan akun ini.');
 
-        $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
-        $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
-        $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
-
-        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
     }
+
+    $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
+        ->where('hari', now()->locale('id')->dayName)
+        ->with(['guru.user'])
+        ->get();
+
+    $bulan = date('m');
+    $tahun = date('Y');
+    $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
+
+    $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
+    $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
+    $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
+
+    return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
+}
+
+
 
     public function jadwal()
     {

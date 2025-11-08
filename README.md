@@ -2,7 +2,7 @@
 
 Kelompok 5 :
 - **Dolly Efredi Bukit**                        - 241402021 - *Project Manager, Backend*
-- **Arialdi Manday**                            - 241402006 - *UI/UX*
+- **Arialdi Manday**                            - 241402006 - *Frontend & UI/UX*
 - **Cindy Samosir**                             - 241402009 - *Frontend*
 - **Vincent Josechristian Andreas Simbolon**    - 241402039 - *Backend*
 - **Chaterine Eklesia Maryati**                 - 241402123 - *Frontend*

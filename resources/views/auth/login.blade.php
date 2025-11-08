@@ -126,5 +126,23 @@
             <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
         </div>
     </div>
+    <!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Berhasil!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            confirmButtonText: 'Oke',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    });
+</script>
+@endif
+
 </body>
 </html>

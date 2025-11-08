@@ -131,5 +131,40 @@
             </div>
         </div>
     </div>
+
+    <!-- 🔥 SweetAlert Script -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'Oke',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            title: 'Selamat Datang!',
+            text: "{{ session('success') }}",
+            icon: 'success',
+            confirmButtonText: 'Mulai',
+            timer: 3000,
+            timerProgressBar: true
+        });
+    });
+</script>
+@endif
+
 </body>
 </html>

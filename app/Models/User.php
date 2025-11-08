@@ -2,38 +2,37 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    // Nama tabel dan primary key
     protected $table = 'users';
     protected $primaryKey = 'id_user';
 
+    // Kalau primary key bukan auto-increment integer, tambahkan ini:
+    // public $incrementing = true;
+    // protected $keyType = 'int';
+
     /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
+     * Kolom yang boleh diisi mass-assignment
      */
     protected $fillable = [
         'username',
-        'password',
-        'role',
         'nama_lengkap',
         'email',
+        'password',
+        'role',
         'no_hp',
         'status_aktif',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
+     * Kolom yang disembunyikan saat serialisasi
      */
     protected $hidden = [
         'password',
@@ -41,22 +40,18 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
+     * Cast tipe data
      */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'status_aktif' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'status_aktif' => 'boolean',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
-    // Relationships
+    /**
+     * RELASI
+     */
     public function guru()
     {
         return $this->hasOne(Guru::class, 'id_user', 'id_user');
@@ -97,7 +92,9 @@ class User extends Authenticatable
         return $this->hasMany(BackupLog::class, 'dibuat_oleh', 'id_user');
     }
 
-    // Scopes
+    /**
+     * SCOPES
+     */
     public function scopeActive($query)
     {
         return $query->where('status_aktif', 1);
@@ -133,4 +130,3 @@ class User extends Authenticatable
         return $query->where('role', 'admin');
     }
 }
-

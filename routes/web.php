@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
-
+    
     // Kepala Sekolah Dashboard
     Route::get('/kepala-sekolah/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('kepala_sekolah.dashboard')->middleware('role:kepala_sekolah');
 
