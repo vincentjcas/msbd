@@ -21,8 +21,8 @@ class Presensi extends Model
 
     protected $casts = [
         'tanggal' => 'date',
-        'jam_masuk' => 'datetime',
-        'jam_keluar' => 'datetime',
+        'jam_masuk' => 'time',
+        'jam_keluar' => 'time',
         'created_at' => 'datetime',
     ];
 

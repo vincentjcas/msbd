@@ -13,7 +13,12 @@ return new class extends Migration {
         Schema::create('kelas', function (Blueprint $table) {
             $table->id('id_kelas');
             $table->string('nama_kelas', 50)->unique();
+            $table->integer('tingkat')->nullable();
+            $table->string('jurusan', 100)->nullable();
+            $table->string('tahun_ajaran', 20)->nullable();
             $table->timestamps();
+            
+            $table->index('tahun_ajaran');
         });
     }
 

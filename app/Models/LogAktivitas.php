@@ -11,8 +11,8 @@ class LogAktivitas extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'tipe_aktivitas',
         'id_user',
+        'aktivitas',
         'deskripsi',
         'ip_address',
         'user_agent',

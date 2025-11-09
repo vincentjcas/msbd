@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kepala_sekolah', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_kepsek');
+            $table->unsignedBigInteger('id_user')->unique();
+            $table->string('nip', 30)->unique();
+            $table->text('alamat')->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->date('periode_mulai')->nullable();
+            $table->timestamp('created_at')->useCurrent();
+            
+            $table->foreign('id_user')->references('id_user')->on('users')->onDelete('cascade');
         });
     }
 

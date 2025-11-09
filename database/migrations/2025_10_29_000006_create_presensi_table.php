@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('izin', function (Blueprint $table) {
-            $table->id('id_izin');
+        Schema::create('presensi', function (Blueprint $table) {
+            $table->id('id_presensi');
             $table->unsignedBigInteger('id_user');
             $table->date('tanggal');
-            $table->text('alasan');
-            $table->string('bukti_file', 255)->nullable();
-            $table->enum('status_approval', ['pending', 'approved', 'rejected'])->default('pending');
-            $table->unsignedBigInteger('disetujui_oleh')->nullable();
-            $table->text('catatan_approval')->nullable();
-            $table->timestamp('approved_at')->nullable();
+            $table->time('jam_masuk')->nullable();
+            $table->time('jam_keluar')->nullable();
+            $table->enum('status', ['hadir', 'izin', 'sakit', 'alpha'])->default('alpha');
+            $table->text('keterangan')->nullable();
             $table->timestamp('created_at')->useCurrent();
             
+            $table->unique(['id_user', 'tanggal']);
             $table->foreign('id_user')->references('id_user')->on('users')->onDelete('cascade');
-            $table->foreign('disetujui_oleh')->references('id_user')->on('users')->onDelete('set null');
+            $table->index('tanggal');
+            $table->index('status');
         });
     }
 
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('izin');
+        Schema::dropIfExists('presensi');
     }
 };

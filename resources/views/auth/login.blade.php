@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Multi Role System</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
             margin: 0;
@@ -73,11 +74,6 @@
         .btn:hover {
             transform: translateY(-2px);
         }
-        .error {
-            color: #e74c3c;
-            font-size: 0.9rem;
-            margin-top: 0.5rem;
-        }
         .register-link {
             text-align: center;
             margin-top: 1rem;
@@ -97,14 +93,6 @@
             <h1>Login</h1>
             <p>Sistem Multi-Role Authentication</p>
         </div>
-
-        @if ($errors->any())
-            <div class="error">
-                @foreach ($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
@@ -126,23 +114,54 @@
             <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
         </div>
     </div>
-    <!-- SweetAlert -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-@if(session('success'))
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            title: 'Berhasil!',
-            text: "{{ session('success') }}",
-            icon: 'success',
-            confirmButtonText: 'Oke',
-            timer: 3000,
-            timerProgressBar: true
+    @if ($errors->any())
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let errorMessages = '';
+            @foreach ($errors->all() as $error)
+                errorMessages += '{{ $error }}<br>';
+            @endforeach
+            
+            Swal.fire({
+                title: 'Terjadi Kesalahan!',
+                html: errorMessages,
+                icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
         });
-    });
-</script>
-@endif
+    </script>
+    @endif
 
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+
+    @if(session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Gagal Login!',
+                text: "{{ session('error') }}",
+                icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
+        });
+    </script>
+    @endif
 </body>
 </html>

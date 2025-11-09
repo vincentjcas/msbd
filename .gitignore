@@ -22,3 +22,17 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+db_simak_smk_lama.sql
+db_simak_smk_new.sql
+db_simak_smk.sql
+db_simak_smk_UPDATED.sql
+
+# Dokumentasi / File Markdown
+PENYESUAIAN_DATABASE.md
+QUICK_REFERENCE.md
+README_SINKRONISASI.md
+SYNC_SUMMARY.md
+DATABASE_SYNC.md
+README_SQL_UPDATES.md
+database/README_SQL_UPDATES.md
+database/sql_queries_to_add.sql

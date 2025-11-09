@@ -12,11 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+            $table->id('id_user'); // Primary key dengan nama id_user
+            $table->string('username')->unique();
+            $table->string('nama_lengkap');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('siswa');
+            $table->string('no_hp', 15)->nullable();
+            $table->boolean('status_aktif')->default(1);
             $table->rememberToken();
             $table->timestamps();
         });
@@ -36,8 +40,8 @@ return new class extends Migration
             $table->longText('payload');
             $table->integer('last_activity')->index();
             
-            // Tambahkan foreign key constraint setelah tabel users dibuat
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            // Tambahkan foreign key constraint setelah tabel users dibuat - reference ke id_user
+            $table->foreign('user_id')->references('id_user')->on('users')->onDelete('cascade');
         });
     }
 

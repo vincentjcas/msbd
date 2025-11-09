@@ -14,14 +14,12 @@ class KepalaSekolah extends Model
         'id_user',
         'nip',
         'periode_mulai',
-        'periode_selesai',
         'alamat',
         'tanggal_lahir',
     ];
 
     protected $casts = [
         'periode_mulai' => 'date',
-        'periode_selesai' => 'date',
         'tanggal_lahir' => 'date',
         'created_at' => 'datetime',
     ];

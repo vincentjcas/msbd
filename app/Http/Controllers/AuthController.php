@@ -25,6 +25,10 @@ class AuthController extends Controller
     $request->validate([
         'email' => 'required|email',
         'password' => 'required',
+    ], [
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'password.required' => 'Password wajib diisi.',
     ]);
 
 
@@ -84,8 +88,20 @@ class AuthController extends Controller
         'email' => 'required|email|unique:users',
         'password' => 'required|confirmed|min:6',
         'role' => 'required|in:admin,guru,siswa',
+    ], [
+        'name.required' => 'Nama lengkap wajib diisi.',
+        'name.max' => 'Nama lengkap maksimal 255 karakter.',
+        'email.required' => 'Email wajib diisi.',
+        'email.email' => 'Format email tidak valid.',
+        'email.unique' => 'Email sudah terdaftar.',
+        'password.required' => 'Password wajib diisi.',
+        'password.confirmed' => 'Password tidak sama.',
+        'password.min' => 'Panjang password harus 6 karakter atau lebih.',
+        'role.required' => 'Role wajib dipilih.',
+        'role.in' => 'Role tidak valid.',
     ]);
 
+    // Buat user
     $user = User::create([
         'username' => $request->name,
         'nama_lengkap' => $request->name,
@@ -94,6 +110,19 @@ class AuthController extends Controller
         'role' => $request->role,
         'status_aktif' => 1,
     ]);
+
+    // Buat data siswa/guru berdasarkan role
+    if ($request->role === 'siswa') {
+        \App\Models\Siswa::create([
+            'id_user' => $user->id_user,
+            'nis' => 'NIS' . str_pad($user->id_user, 6, '0', STR_PAD_LEFT), // Generate NIS otomatis
+        ]);
+    } elseif ($request->role === 'guru') {
+        \App\Models\Guru::create([
+            'id_user' => $user->id_user,
+            'nip' => 'NIP' . str_pad($user->id_user, 6, '0', STR_PAD_LEFT), // Generate NIP otomatis
+        ]);
+    }
 
     // ✅ Simpan pesan sukses ke session
     session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");

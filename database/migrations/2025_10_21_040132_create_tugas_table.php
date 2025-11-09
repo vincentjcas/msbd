@@ -12,8 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tugas', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
+            $table->id('id_tugas');
+            $table->unsignedBigInteger('id_guru');
+            $table->unsignedBigInteger('id_kelas');
+            $table->string('judul_tugas', 200);
+            $table->text('deskripsi');
+            $table->dateTime('deadline');
+            $table->timestamp('created_at')->useCurrent();
+            
+            $table->foreign('id_guru')->references('id_guru')->on('guru')->onDelete('cascade');
+            $table->foreign('id_kelas')->references('id_kelas')->on('kelas')->onDelete('cascade');
         });
     }
 
