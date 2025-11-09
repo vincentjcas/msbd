@@ -107,9 +107,9 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h2>Selamat Datang di Admin Dashboard!</h2>
-            <p>Halo <strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Administrator</strong>.</p>
-            <p>Dari sini Anda dapat mengelola seluruh sistem, user, dan data aplikasi.</p>
+            <h2>Selamat Datang di Dashboard Admin!</h2>
+            <p>Halo<strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Administrator</strong>.</p>
+            <p>Anda dapat mengelola seluruh sistem, user, dan data aplikasi.</p>
         </div>
 
         <div class="stats-grid">

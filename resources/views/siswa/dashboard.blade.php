@@ -107,9 +107,9 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h2>Selamat Datang di Siswa Dashboard!</h2>
-            <p>Halo <strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Siswa</strong>.</p>
-            <p>Dari sini Anda dapat mengakses materi pembelajaran, tugas, dan jadwal kelas.</p>
+            <h2>Selamat Datang di Dashboard Siswa!</h2>
+            <p>Halo<strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Siswa</strong>.</p>
+            <p>Anda dapat mengakses materi pembelajaran, tugas, dan jadwal kelas.</p>
         </div>
 
         <div class="stats-grid">

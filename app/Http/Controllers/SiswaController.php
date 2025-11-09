@@ -102,7 +102,7 @@ class SiswaController extends Controller
 
         $this->logActivity->log('download_materi', auth()->user()->id_user, 'Download materi: ' . $materi->judul);
 
-        return Storage::disk('public')->download($materi->file_path, $materi->file_name);
+        return response()->download(storage_path('app/public/' . $materi->file_path), $materi->file_name);
     }
 
     public function tugas()

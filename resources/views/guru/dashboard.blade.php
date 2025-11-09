@@ -107,9 +107,9 @@
 
     <div class="container">
         <div class="welcome-card">
-            <h2>Selamat Datang di Guru Dashboard!</h2>
-            <p>Halo <strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Guru</strong>.</p>
-            <p>Dari sini Anda dapat mengelola materi, tugas, dan data siswa.</p>
+            <h2>Selamat Datang di Dashboard Guru!</h2>
+            <p>Halo<strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Guru</strong>.</p>
+            <p>Anda dapat mengelola materi, tugas, dan data siswa.</p>
         </div>
 
         <div class="stats-grid">

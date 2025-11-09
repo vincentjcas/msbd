@@ -32,7 +32,9 @@ class AuthController extends Controller
     ]);
 
 
-    if (Auth::attempt($request->only('email', 'password'))) {
+    if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
+        $request->session()->regenerate();
+        
         $user = Auth::user();
 
         // ✅ Simpan pesan selamat datang (opsional)
@@ -41,7 +43,7 @@ class AuthController extends Controller
         // ✅ Redirect otomatis sesuai role
         switch ($user->role) {
             case 'admin':
-                return redirect()->route('admin.dashboard');
+                return redirect()->route('admin.dashboard'); // Redirect ke admin dashboard lama
             case 'guru':
                 return redirect()->route('guru.dashboard');
             case 'siswa':
@@ -64,9 +66,13 @@ class AuthController extends Controller
     /**
      * Logout user
      */
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+        
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        
         return redirect()->route('login');
     }
 
