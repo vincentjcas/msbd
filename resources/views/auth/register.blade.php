@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Multi Role System</title>
+    <title>Register - SMK Yapim Biru-Biru</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         * {
@@ -109,11 +109,41 @@
 
             <div class="form-group">
                 <label for="role">Role</label>
-                <select id="role" name="role" required>
+                <select id="role" name="role" required onchange="toggleKelasField()">
                     <option value="">Pilih Role</option>
-                    
                     <option value="guru" {{ old('role') == 'guru' ? 'selected' : '' }}>Guru</option>
                     <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>Siswa</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="kelas-field" style="display: none;">
+                <label for="id_kelas">Kelas</label>
+                <select id="id_kelas" name="id_kelas">
+                    <option value="">Pilih Kelas</option>
+                    @if(isset($kelas) && $kelas->count() > 0)
+                        @php
+                            $currentTingkat = null;
+                        @endphp
+                        @foreach($kelas as $item)
+                            @if($currentTingkat !== $item->tingkat)
+                                @if($currentTingkat !== null)
+                                    </optgroup>
+                                @endif
+                                <optgroup label="Kelas {{ $item->tingkat }}">
+                                @php
+                                    $currentTingkat = $item->tingkat;
+                                @endphp
+                            @endif
+                            <option value="{{ $item->id_kelas }}" {{ old('id_kelas') == $item->id_kelas ? 'selected' : '' }}>
+                                {{ $item->nama_kelas }} - {{ $item->jurusan }}
+                            </option>
+                        @endforeach
+                        @if($currentTingkat !== null)
+                            </optgroup>
+                        @endif
+                    @else
+                        <option value="">Tidak ada kelas tersedia</option>
+                    @endif
                 </select>
             </div>
 
@@ -169,5 +199,28 @@
         });
     </script>
     @endif
+
+    <script>
+        // Toggle field kelas berdasarkan role yang dipilih
+        function toggleKelasField() {
+            const role = document.getElementById('role').value;
+            const kelasField = document.getElementById('kelas-field');
+            const kelasSelect = document.getElementById('id_kelas');
+            
+            if (role === 'siswa') {
+                kelasField.style.display = 'block';
+                kelasSelect.setAttribute('required', 'required');
+            } else {
+                kelasField.style.display = 'none';
+                kelasSelect.removeAttribute('required');
+                kelasSelect.value = ''; // Reset pilihan kelas
+            }
+        }
+
+        // Jalankan saat halaman dimuat untuk handle old() value
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleKelasField();
+        });
+    </script>
 </body>
 </html>

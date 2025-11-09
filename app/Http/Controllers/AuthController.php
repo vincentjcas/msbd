@@ -81,7 +81,8 @@ class AuthController extends Controller
      */
     public function showRegisterForm()
     {
-        return view('auth.register');
+        $kelas = \App\Models\Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
+        return view('auth.register', compact('kelas'));
     }
 
     /**
@@ -89,12 +90,19 @@ class AuthController extends Controller
      */
     public function register(Request $request)
 {
-    $request->validate([
+    $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users',
         'password' => 'required|confirmed|min:6',
-        'role' => 'required|in:admin,guru,siswa',
-    ], [
+        'role' => 'required|in:guru,siswa',
+    ];
+
+    // Jika role siswa, id_kelas wajib diisi
+    if ($request->role === 'siswa') {
+        $rules['id_kelas'] = 'required|exists:kelas,id_kelas';
+    }
+
+    $request->validate($rules, [
         'name.required' => 'Nama lengkap wajib diisi.',
         'name.max' => 'Nama lengkap maksimal 255 karakter.',
         'email.required' => 'Email wajib diisi.',
@@ -105,6 +113,8 @@ class AuthController extends Controller
         'password.min' => 'Panjang password harus 6 karakter atau lebih.',
         'role.required' => 'Role wajib dipilih.',
         'role.in' => 'Role tidak valid.',
+        'id_kelas.required' => 'Kelas wajib dipilih untuk siswa.',
+        'id_kelas.exists' => 'Kelas yang dipilih tidak valid.',
     ]);
 
     // Buat user
@@ -122,6 +132,7 @@ class AuthController extends Controller
         \App\Models\Siswa::create([
             'id_user' => $user->id_user,
             'nis' => 'NIS' . str_pad($user->id_user, 6, '0', STR_PAD_LEFT), // Generate NIS otomatis
+            'id_kelas' => $request->id_kelas, // Simpan kelas yang dipilih
         ]);
     } elseif ($request->role === 'guru') {
         \App\Models\Guru::create([

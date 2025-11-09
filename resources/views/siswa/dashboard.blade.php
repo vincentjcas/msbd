@@ -1,155 +1,193 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siswa Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-        }
-        .navbar {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .navbar h1 {
-            font-size: 1.5rem;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        .logout-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .logout-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        .welcome-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-        }
-        .welcome-card h2 {
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-        .welcome-card p {
-            color: #666;
-        }
-        .role-badge {
-            background: #3498db;
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-        .stat-card h3 {
-            color: #3498db;
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-        .stat-card p {
-            color: #666;
-        }
-    </style>
-</head>
-<body>
-    <div class="navbar">
-        <h1>Siswa Dashboard</h1>
-        <div class="user-info">
-            <span>{{ auth()->user()->name }}</span>
-            <span class="role-badge">{{ strtoupper(auth()->user()->role) }}</span>
-            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="logout-btn">Logout</button>
-            </form>
-        </div>
-    </div>
+@extends('layouts.dashboard')
 
-    <div class="container">
-        <div class="welcome-card">
-            <h2>Selamat Datang di Dashboard Siswa!</h2>
-            <p>Halo<strong>{{ auth()->user()->name }}</strong>, Anda login sebagai <strong>Siswa</strong>.</p>
-            <p>Anda dapat mengakses materi pembelajaran, tugas, dan jadwal kelas.</p>
-        </div>
+@section('title', 'Siswa Dashboard')
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <h3>6</h3>
-                <p>Mata Pelajaran</p>
-            </div>
-            <div class="stat-card">
-                <h3>12</h3>
-                <p>Tugas Pending</p>
-            </div>
-            <div class="stat-card">
-                <h3>25</h3>
-                <p>Materi Tersedia</p>
-            </div>
-            <div class="stat-card">
-                <h3>85%</h3>
-                <p>Nilai Rata-rata</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- 🔥 SweetAlert Script -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-    @if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Oke',
-                timer: 3000,
-                timerProgressBar: true
-            });
-        });
-    </script>
+@section('content')
+<div class="welcome-card">
+    <h2><i class="fas fa-user-graduate"></i> Selamat Datang, Siswa!</h2>
+    <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, selamat datang di dashboard Siswa.</p>
+    @if(auth()->user()->siswa && auth()->user()->siswa->kelas)
+    <p style="margin-top: 0.5rem;">
+        <strong>Kelas:</strong> 
+        <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+            {{ auth()->user()->siswa->kelas->nama_kelas }} - {{ auth()->user()->siswa->kelas->jurusan }}
+        </span>
+    </p>
     @endif
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <p style="margin-top: 0.5rem; color: #ffffff;">Anda dapat mengisi kehadiran, mengajukan izin, dan mengakses materi pembelajaran.</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-value">--%</div>
+        <div class="stat-label">Kehadiran Bulan Ini</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-value">--</div>
+        <div class="stat-label">Materi Tersedia</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-value">--</div>
+        <div class="stat-label">Pengajuan Izin</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-value">--</div>
+        <div class="stat-label">Jadwal Hari Ini</div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Siswa</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <!-- 1. Isi Absen Harian -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-check-circle"></i> Isi Absen Harian
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Mengisi absen harian berdasarkan jadwal yang sedang aktif (manual)
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="isiAbsen()">
+                <i class="fas fa-hand-paper"></i> Isi Absen Sekarang
+            </button>
+        </div>
+
+        <!-- 2. Lihat Jadwal -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar"></i> Lihat Jadwal
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat jadwal harian dan status kehadiran rapat
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="alert('Fitur jadwal akan tersedia')">
+                <i class="fas fa-eye"></i> Lihat Jadwal
+            </button>
+        </div>
+
+        <!-- 3. Ajukan Izin -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-file-medical"></i> Ajukan Izin
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Mengajukan izin ketidakhadiran dengan bukti (foto atau surat)
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="alert('Fitur ajukan izin akan tersedia')">
+                <i class="fas fa-plus-square"></i> Ajukan Izin
+            </button>
+        </div>
+
+        <!-- 4. Download Materi -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-download"></i> Download Materi
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Mengunduh materi pembelajaran berdasarkan mata pelajaran
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="alert('Fitur download materi akan tersedia')">
+                <i class="fas fa-folder-open"></i> Lihat Materi
+            </button>
+        </div>
+
+        <!-- 5. Kehadiran Bulanan -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-pie"></i> Persentase Kehadiran
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat persentase kehadiran per bulan
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="alert('Fitur kehadiran akan tersedia')">
+                <i class="fas fa-chart-bar"></i> Lihat Data
+            </button>
+        </div>
+
+        <!-- 6. Status Izin -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-info-circle"></i> Status Izin
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat status pengajuan izin dan verifikasi guru
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="alert('Fitur status izin akan tersedia')">
+                <i class="fas fa-list-alt"></i> Cek Status
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h3 class="section-title"><i class="fas fa-calendar-day"></i> Jadwal Pelajaran Hari Ini</h3>
+    <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p>Tidak ada jadwal pelajaran hari ini</p>
+    </div>
+</div>
+
+<div class="content-section">
+    <h3 class="section-title"><i class="fas fa-book-open"></i> Materi Terbaru</h3>
+    <div class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <p>Belum ada materi pembelajaran yang diunggah</p>
+    </div>
+</div>
+
+<script>
+function isiAbsen() {
+    const now = new Date();
+    const tanggal = now.toLocaleDateString('id-ID', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    
+    Swal.fire({
+        title: 'Konfirmasi Kehadiran',
+        html: `
+            <p style="margin-bottom: 1rem;">Tanggal: <strong>${tanggal}</strong></p>
+            <p style="margin-bottom: 1rem;">Anda akan mengisi kehadiran untuk hari ini</p>
+            <label style="display: block; margin-bottom: 0.5rem; text-align: left;">Status Kehadiran:</label>
+            <select id="statusAbsen" class="swal2-input" style="width: 80%;">
+                <option value="hadir">Hadir</option>
+                <option value="izin">Izin</option>
+                <option value="sakit">Sakit</option>
+            </select>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Kirim Absen',
+        cancelButtonText: 'Batal',
+        preConfirm: () => {
+            const status = document.getElementById('statusAbsen').value;
+            return { status: status };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // TODO: Kirim ke backend
+            const statusText = result.value.status === 'hadir' ? 'Hadir' : 
+                              result.value.status === 'izin' ? 'Izin' : 'Sakit';
+            Swal.fire('Berhasil!', `Kehadiran Anda tercatat sebagai: ${statusText}`, 'success');
+        }
+    });
+}
+</script>
 
 @if(session('success'))
 <script>
@@ -165,6 +203,4 @@
     });
 </script>
 @endif
-
-</body>
-</html>
+@endsection
