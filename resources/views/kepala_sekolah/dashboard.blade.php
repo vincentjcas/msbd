@@ -27,7 +27,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>Selamat datang, {{ auth()->user()->name }}!</h2>
+            <h2>Selamat datang, {{ explode(' ', auth()->user()->nama_lengkap)[0] }}!</h2>
             <p>Anda masuk sebagai <strong>Kepala Sekolah</strong>. Halaman ini bisa menampilkan ringkasan sekolah, laporan, dan pengaturan kebijakan.</p>
         </div>
     </div>

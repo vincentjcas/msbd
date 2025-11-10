@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="welcome-card">
-    <h2><i class="fas fa-user-shield"></i> Selamat Datang, Admin!</h2>
+    <h2><i class="fas fa-user-shield"></i> Selamat Datang, {{ explode(' ', auth()->user()->nama_lengkap)[0] }}!</h2>
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, Anda memiliki akses penuh terhadap seluruh fitur dan database sistem.</p>
     <p>Anda dapat mengelola keamanan basis data, mengatur struktur dan data, serta melakukan monitoring sistem.</p>
 </div>
