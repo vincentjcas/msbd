@@ -33,9 +33,17 @@ class AuthController extends Controller
 
 
     if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-        $request->session()->regenerate();
-        
         $user = Auth::user();
+        
+        // Cek apakah akun sudah diverifikasi (untuk guru)
+        if (!$user->status_aktif) {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'Akun Anda belum diverifikasi oleh Admin. Silakan tunggu konfirmasi.',
+            ]);
+        }
+        
+        $request->session()->regenerate();
 
         // ✅ Simpan pesan selamat datang (opsional)
         session()->flash('success', "Selamat datang kembali, {$user->nama_lengkap}!");
@@ -118,13 +126,16 @@ class AuthController extends Controller
     ]);
 
     // Buat user
+    // Jika role guru, set status_aktif = 0 (pending verification)
+    $statusAktif = ($request->role === 'guru') ? 0 : 1;
+    
     $user = User::create([
         'username' => $request->name,
         'nama_lengkap' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
-        'status_aktif' => 1,
+        'status_aktif' => $statusAktif,
     ]);
 
     // Buat data siswa/guru berdasarkan role
@@ -142,7 +153,11 @@ class AuthController extends Controller
     }
 
     // ✅ Simpan pesan sukses ke session
-    session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
+    if ($request->role === 'guru') {
+        session()->flash('success', "Pendaftaran berhasil, {$user->nama_lengkap}! Akun Anda menunggu verifikasi dari Admin. Silakan cek email Anda secara berkala.");
+    } else {
+        session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
+    }
 
     // ✅ Arahkan ke halaman login
     return redirect()->route('login');

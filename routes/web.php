@@ -25,7 +25,11 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected Routes dengan Middleware Auth
 Route::middleware('auth')->group(function () {
+    // Admin Routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware('role:admin');
+    Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.verifikasi-guru.approve')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.verifikasi-guru.reject')->middleware('role:admin');
     
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');

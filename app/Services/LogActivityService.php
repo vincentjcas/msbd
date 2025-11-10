@@ -13,7 +13,7 @@ class LogActivityService
     public function log(string $tipeAktivitas, ?int $idUser, string $deskripsi, ?string $ipAddress = null, ?string $userAgent = null)
     {
         return LogAktivitas::create([
-            'tipe_aktivitas' => $tipeAktivitas,
+            'aktivitas' => $tipeAktivitas,
             'id_user' => $idUser,
             'deskripsi' => $deskripsi,
             'ip_address' => $ipAddress ?? request()->ip(),

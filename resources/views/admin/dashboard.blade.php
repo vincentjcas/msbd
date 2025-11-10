@@ -40,6 +40,21 @@
     </div>
 </div>
 
+@if($pendingVerifikasi > 0)
+<div style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; padding: 1rem 1.5rem; border-radius: 10px; margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 6px rgba(251, 191, 36, 0.3);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+        <div>
+            <h4 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ada {{ $pendingVerifikasi }} Pendaftaran Guru Menunggu Verifikasi</h4>
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; opacity: 0.9;">Silakan verifikasi pendaftaran guru yang masuk</p>
+        </div>
+    </div>
+    <a href="{{ route('admin.verifikasi-guru') }}" class="btn" style="background: white; color: #f59e0b; border: none; font-weight: 600; padding: 0.75rem 1.5rem;">
+        <i class="fas fa-user-check"></i> Verifikasi Sekarang
+    </a>
+</div>
+@endif
+
 <div class="content-section">
     <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Admin</h3>
     
@@ -59,18 +74,23 @@
             </div>
         </div>
 
-        <!-- 2. Mengatur Struktur Data -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
+        <!-- 2. Verifikasi Guru -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column; position: relative;">
+            @if($pendingVerifikasi > 0)
+            <span style="position: absolute; top: 1rem; right: 1rem; background: #ef4444; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">
+                {{ $pendingVerifikasi }}
+            </span>
+            @endif
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-sitemap"></i> Kelola Struktur & Data
+                <i class="fas fa-user-check"></i> Verifikasi Pendaftaran Guru
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Menambah, mengedit, menghapus data pengguna (kepala sekolah, pembina, guru, siswa)
+                Verifikasi dan approve pendaftaran guru yang masuk ke sistem
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur manajemen user akan tersedia')">
-                    <i class="fas fa-cog"></i> Kelola Data
-                </button>
+                <a href="{{ route('admin.verifikasi-guru') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-clipboard-check"></i> Verifikasi Guru
+                </a>
             </div>
         </div>
 
