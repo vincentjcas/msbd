@@ -111,3 +111,23 @@ if (!function_exists('is_siswa')) {
         return is_role('siswa');
     }
 }
+
+if (!function_exists('get_first_name')) {
+    /**
+     * Get first name from full name
+     */
+    function get_first_name(?string $fullName = null): string
+    {
+        if (!$fullName && auth()->check()) {
+            $fullName = auth()->user()->nama_lengkap;
+        }
+        
+        if (!$fullName) {
+            return 'User';
+        }
+        
+        // Ambil kata pertama dari nama lengkap
+        $words = explode(' ', trim($fullName));
+        return $words[0];
+    }
+}

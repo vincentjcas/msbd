@@ -37,8 +37,17 @@ class AuthController extends Controller
         
         $user = Auth::user();
 
-        // ✅ Simpan pesan selamat datang (opsional)
-        session()->flash('success', "Selamat datang kembali, {$user->nama_lengkap}!");
+        // ✅ Cek apakah user sudah diaktifkan (untuk guru yang perlu approval)
+        if (!$user->status_aktif) {
+            Auth::logout();
+            return back()->withErrors([
+                'email' => 'Akun Anda belum diaktifkan. Silakan tunggu persetujuan dari admin.',
+            ])->withInput();
+        }
+
+        // ✅ Simpan pesan selamat datang dengan nama depan
+        $firstName = explode(' ', $user->nama_lengkap)[0];
+        session()->flash('success', "Selamat datang kembali, {$firstName}!");
 
         // ✅ Redirect otomatis sesuai role
         switch ($user->role) {
@@ -118,13 +127,15 @@ class AuthController extends Controller
     ]);
 
     // Buat user
+    // Guru perlu approval, jadi status_aktif = 0 (pending)
+    // Siswa langsung aktif, status_aktif = 1
     $user = User::create([
         'username' => $request->name,
         'nama_lengkap' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
-        'status_aktif' => 1,
+        'status_aktif' => $request->role === 'guru' ? 0 : 1,
     ]);
 
     // Buat data siswa/guru berdasarkan role
@@ -142,7 +153,11 @@ class AuthController extends Controller
     }
 
     // ✅ Simpan pesan sukses ke session
-    session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
+    if ($request->role === 'guru') {
+        session()->flash('success', "Pendaftaran berhasil! Akun Anda menunggu persetujuan admin.");
+    } else {
+        session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
+    }
 
     // ✅ Arahkan ke halaman login
     return redirect()->route('login');

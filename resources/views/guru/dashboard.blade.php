@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="welcome-card">
-    <h2><i class="fas fa-chalkboard-teacher"></i> Selamat Datang, Guru!</h2>
+    <h2><i class="fas fa-chalkboard-teacher"></i> Selamat Datang, {{ get_first_name() }}!</h2>
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, selamat datang di dashboard Guru.</p>
     <p>Anda dapat mencatat kehadiran, mengelola materi pembelajaran, dan memantau aktivitas siswa.</p>
 </div>

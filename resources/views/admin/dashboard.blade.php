@@ -4,10 +4,27 @@
 
 @section('content')
 <div class="welcome-card">
-    <h2><i class="fas fa-user-shield"></i> Selamat Datang, Admin!</h2>
+    <h2><i class="fas fa-user-shield"></i> Selamat Datang, {{ get_first_name() }}!</h2>
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, Anda memiliki akses penuh terhadap seluruh fitur dan database sistem.</p>
     <p>Anda dapat mengelola keamanan basis data, mengatur struktur dan data, serta melakukan monitoring sistem.</p>
 </div>
+
+@if($pendingGuru > 0)
+<div style="background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%); color: white; padding: 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+            <div>
+                <h4 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Ada {{ $pendingGuru }} Pendaftaran Guru Menunggu Verifikasi</h4>
+                <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Silakan tinjau dan setujui pendaftaran guru baru.</p>
+            </div>
+        </div>
+        <a href="{{ route('admin.verifikasi-guru') }}" class="btn" style="background: white; color: #FF8C00; font-weight: 600; padding: 0.75rem 1.5rem;">
+            <i class="fas fa-user-check"></i> Verifikasi Sekarang
+        </a>
+    </div>
+</div>
+@endif
 
 <div class="stats-grid">
     <div class="stat-card">
@@ -44,7 +61,30 @@
     <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Admin</h3>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-        <!-- 1. Akses Penuh Database -->
+        <!-- 1. Verifikasi Guru -->
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);">
+            <h4 style="color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-user-check"></i> Verifikasi Guru
+                @if($pendingGuru > 0)
+                <span class="badge" style="background: #FF4757; color: white; font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 12px;">{{ $pendingGuru }}</span>
+                @endif
+            </h4>
+            <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
+                Tinjau dan setujui pendaftaran guru baru. Guru yang belum disetujui tidak dapat login ke sistem.
+            </p>
+            <div>
+                <a href="{{ route('admin.verifikasi-guru') }}" class="btn" style="background: white; color: #667eea; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i> 
+                    @if($pendingGuru > 0)
+                        Verifikasi ({{ $pendingGuru }})
+                    @else
+                        Lihat Status
+                    @endif
+                </a>
+            </div>
+        </div>
+
+        <!-- 2. Akses Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-database"></i> Akses Database
@@ -59,7 +99,7 @@
             </div>
         </div>
 
-        <!-- 2. Mengatur Struktur Data -->
+        <!-- 3. Kelola Struktur & Data -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-sitemap"></i> Kelola Struktur & Data
@@ -74,7 +114,7 @@
             </div>
         </div>
 
-        <!-- 3. Monitoring & Validasi -->
+        <!-- 4. Monitoring Sistem -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-shield-alt"></i> Monitoring Sistem
@@ -89,7 +129,7 @@
             </div>
         </div>
 
-        <!-- 4. Izin Digital -->
+        <!-- 5. Pengajuan Izin -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-medical"></i> Pengajuan Izin
@@ -104,13 +144,13 @@
             </div>
         </div>
 
-        <!-- 5. Kegiatan Sekolah -->
+        <!-- 6. Kegiatan Sekolah -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Menambah, memperbaruii, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
+                Menambah, memperbarui, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
             </p>
             <div>
                 <button class="btn btn-primary btn-sm" onclick="alert('Fitur kegiatan akan tersedia')">
@@ -119,7 +159,7 @@
             </div>
         </div>
 
-        <!-- 6. Jadwal Pelajaran -->
+        <!-- 7. Jadwal Pelajaran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-table"></i> Jadwal Pelajaran
@@ -134,7 +174,7 @@
             </div>
         </div>
 
-        <!-- 7. File Materi -->
+        <!-- 8. File Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-folder-open"></i> File Materi
@@ -149,7 +189,7 @@
             </div>
         </div>
 
-        <!-- 8. Backup Database -->
+        <!-- 9. Backup Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-hdd"></i> Backup Database
