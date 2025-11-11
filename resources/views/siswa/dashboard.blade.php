@@ -9,7 +9,7 @@
     @if(auth()->user()->siswa && auth()->user()->siswa->kelas)
     <p style="margin-top: 0.5rem;">
         <strong>Kelas:</strong> 
-        <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
+        <span style="background: linear-gradient(135deg, #0369a1 0%, #06b6d4 0%, #14b8a6 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
             {{ auth()->user()->siswa->kelas->nama_kelas }} - {{ auth()->user()->siswa->kelas->jurusan }}
         </span>
     </p>
@@ -53,7 +53,7 @@
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
         <!-- 1. Isi Absen Harian -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-check-circle"></i> Isi Absen Harian
             </h4>
@@ -66,7 +66,7 @@
         </div>
 
         <!-- 2. Lihat Jadwal -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-calendar"></i> Lihat Jadwal
             </h4>
@@ -79,7 +79,7 @@
         </div>
 
         <!-- 3. Ajukan Izin -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-medical"></i> Ajukan Izin
             </h4>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- 4. Download Materi -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-download"></i> Download Materi
             </h4>
@@ -105,7 +105,7 @@
         </div>
 
         <!-- 5. Kehadiran Bulanan -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-pie"></i> Persentase Kehadiran
             </h4>
@@ -118,7 +118,7 @@
         </div>
 
         <!-- 6. Status Izin -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea;">
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-info-circle"></i> Status Izin
             </h4>

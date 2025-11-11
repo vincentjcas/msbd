@@ -13,7 +13,7 @@
         }
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -58,12 +58,12 @@
         }
         .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #0369a1;
         }
         .btn {
             width: 100%;
             padding: 0.75rem;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
             color: white;
             border: none;
             border-radius: 5px;
