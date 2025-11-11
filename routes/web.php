@@ -10,7 +10,7 @@ use App\Http\Controllers\KepalaSekolahController;
 use App\Http\Controllers\PembinaController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('homepage');
 });
 
 // DB report viewer (requires generate:db-report run first)
