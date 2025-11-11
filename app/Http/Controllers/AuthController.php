@@ -33,20 +33,21 @@ class AuthController extends Controller
 
 
     if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-        $user = Auth::user();
+        $request->session()->regenerate();
         
-        // Cek apakah akun sudah diverifikasi (untuk guru)
+        $user = Auth::user();
+
+        // ✅ Cek apakah user sudah diaktifkan (untuk guru yang perlu approval)
         if (!$user->status_aktif) {
             Auth::logout();
             return back()->withErrors([
-                'email' => 'Akun Anda belum diverifikasi oleh Admin. Silakan tunggu konfirmasi.',
-            ]);
+                'email' => 'Akun Anda belum diaktifkan. Silakan tunggu persetujuan dari admin.',
+            ])->withInput();
         }
-        
-        $request->session()->regenerate();
 
-        // ✅ Simpan pesan selamat datang (opsional)
-        session()->flash('success', "Selamat datang kembali, {$user->nama_lengkap}!");
+        // ✅ Simpan pesan selamat datang dengan nama depan
+        $firstName = explode(' ', $user->nama_lengkap)[0];
+        session()->flash('success', "Selamat datang kembali, {$firstName}!");
 
         // ✅ Redirect otomatis sesuai role
         switch ($user->role) {
@@ -126,16 +127,15 @@ class AuthController extends Controller
     ]);
 
     // Buat user
-    // Jika role guru, set status_aktif = 0 (pending verification)
-    $statusAktif = ($request->role === 'guru') ? 0 : 1;
-    
+    // Guru perlu approval, jadi status_aktif = 0 (pending)
+    // Siswa langsung aktif, status_aktif = 1
     $user = User::create([
         'username' => $request->name,
         'nama_lengkap' => $request->name,
         'email' => $request->email,
         'password' => Hash::make($request->password),
         'role' => $request->role,
-        'status_aktif' => $statusAktif,
+        'status_aktif' => $request->role === 'guru' ? 0 : 1,
     ]);
 
     // Buat data siswa/guru berdasarkan role
@@ -154,7 +154,7 @@ class AuthController extends Controller
 
     // ✅ Simpan pesan sukses ke session
     if ($request->role === 'guru') {
-        session()->flash('success', "Pendaftaran berhasil, {$user->nama_lengkap}! Akun Anda menunggu verifikasi dari Admin. Silakan cek email Anda secara berkala.");
+        session()->flash('success', "Pendaftaran berhasil! Akun Anda menunggu persetujuan admin.");
     } else {
         session()->flash('success', "Akun anda berhasil dibuat, {$user->nama_lengkap}!");
     }

@@ -30,9 +30,9 @@ class AdminController extends Controller
         $totalGuru = User::where('role', 'guru')->where('status_aktif', 1)->count();
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalKelas = Kelas::count();
-        $pendingVerifikasi = User::where('role', 'guru')->where('status_aktif', 0)->count();
+        $pendingGuru = User::where('role', 'guru')->where('status_aktif', 0)->count();
         
-        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingVerifikasi'));
+        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingGuru'));
     }
 
     public function users()
@@ -323,6 +323,9 @@ class AdminController extends Controller
         return view('admin.log-aktivitas', compact('logs'));
     }
 
+    /**
+     * Tampilkan halaman verifikasi guru yang pending
+     */
     public function verifikasiGuru()
     {
         $pendingGuru = User::where('role', 'guru')
@@ -333,61 +336,60 @@ class AdminController extends Controller
         return view('admin.verifikasi-guru', compact('pendingGuru'));
     }
 
+    /**
+     * Approve pendaftaran guru
+     */
     public function approveGuru($id)
     {
         DB::beginTransaction();
         try {
-            $user = User::findOrFail($id);
+            $user = User::where('id_user', $id)
+                ->where('role', 'guru')
+                ->where('status_aktif', 0)
+                ->firstOrFail();
             
-            if ($user->role !== 'guru' || $user->status_aktif == 1) {
-                return redirect()->back()->with('error', 'User tidak valid untuk diverifikasi');
-            }
-
-            // Aktifkan user
             $user->update(['status_aktif' => 1]);
-
-            // Buat record guru jika belum ada
-            if (!$user->guru) {
-                Guru::create([
-                    'id_user' => $user->id_user,
-                    'nip' => 'NIP' . str_pad($user->id_user, 6, '0', STR_PAD_LEFT),
-                ]);
-            }
-
-            $this->logActivity->log('approve_guru', auth()->user()->id_user, 'Approve pendaftaran guru: ' . $user->nama_lengkap);
-
+            
+            $this->logActivity->log('approve_guru', auth()->user()->id_user, "Approve pendaftaran guru: {$user->nama_lengkap} (ID: {$user->id_user})");
+            
             DB::commit();
-            return redirect()->route('admin.verifikasi-guru')->with('success', 'Pendaftaran guru ' . $user->nama_lengkap . ' berhasil disetujui');
+            return redirect()->route('admin.verifikasi-guru')->with('success', "Pendaftaran guru {$user->nama_lengkap} berhasil disetujui.");
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal approve guru: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menyetujui pendaftaran: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Reject pendaftaran guru dan hapus akun
+     */
     public function rejectGuru(Request $request, $id)
     {
         DB::beginTransaction();
         try {
-            $user = User::findOrFail($id);
+            $user = User::where('id_user', $id)
+                ->where('role', 'guru')
+                ->where('status_aktif', 0)
+                ->firstOrFail();
             
-            if ($user->role !== 'guru' || $user->status_aktif == 1) {
-                return redirect()->back()->with('error', 'User tidak valid untuk ditolak');
-            }
-
             $namaGuru = $user->nama_lengkap;
-            $alasan = $request->input('alasan', 'Tidak memenuhi kriteria');
-
-            // Log sebelum hapus
-            $this->logActivity->log('reject_guru', auth()->user()->id_user, 'Reject pendaftaran guru: ' . $namaGuru . '. Alasan: ' . $alasan);
-
+            $alasan = $request->input('alasan', 'Tidak ada alasan');
+            
+            // Hapus data guru terlebih dahulu (karena foreign key constraint)
+            if ($user->guru) {
+                $user->guru->delete();
+            }
+            
             // Hapus user
             $user->delete();
-
+            
+            $this->logActivity->log('reject_guru', auth()->user()->id_user, "Reject pendaftaran guru: {$namaGuru} (ID: {$id}). Alasan: {$alasan}");
+            
             DB::commit();
-            return redirect()->route('admin.verifikasi-guru')->with('success', 'Pendaftaran guru ' . $namaGuru . ' ditolak dan dihapus');
+            return redirect()->route('admin.verifikasi-guru')->with('success', "Pendaftaran guru {$namaGuru} berhasil ditolak dan dihapus.");
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal reject guru: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
         }
     }
 }

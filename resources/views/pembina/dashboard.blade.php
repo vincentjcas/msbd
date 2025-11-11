@@ -27,7 +27,7 @@
 
     <div class="container">
         <div class="card">
-            <h2>Selamat datang, {{ explode(' ', auth()->user()->nama_lengkap)[0] }}!</h2>
+            <h2>Selamat Datang, {{ explode(' ', auth()->user()->nama_lengkap ?? auth()->user()->name)[0] }}!</h2>
             <p>Anda masuk sebagai <strong>Pembina</strong>. Halaman ini bisa berisi tugas pembinaan, jadwal pembinaan, dan catatan kegiatan.</p>
         </div>
     </div>

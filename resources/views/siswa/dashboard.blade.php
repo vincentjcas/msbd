@@ -4,7 +4,7 @@
 
 @section('content')
 <div class="welcome-card">
-    <h2><i class="fas fa-user-graduate"></i> Selamat Datang, {{ explode(' ', auth()->user()->nama_lengkap)[0] }}!</h2>
+    <h2><i class="fas fa-user-graduate"></i> Selamat Datang, {{ get_first_name() }}!</h2>
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, selamat datang di dashboard Siswa.</p>
     @if(auth()->user()->siswa && auth()->user()->siswa->kelas)
     <p style="margin-top: 0.5rem;">
