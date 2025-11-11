@@ -12,13 +12,19 @@ class LogActivityService
      */
     public function log(string $tipeAktivitas, ?int $idUser, string $deskripsi, ?string $ipAddress = null, ?string $userAgent = null)
     {
-        return LogAktivitas::create([
-            'aktivitas' => $tipeAktivitas,
-            'id_user' => $idUser,
-            'deskripsi' => $deskripsi,
-            'ip_address' => $ipAddress ?? request()->ip(),
-            'user_agent' => $userAgent ?? request()->userAgent(),
-        ]);
+        try {
+            return LogAktivitas::create([
+                'tipe_aktivitas' => $tipeAktivitas,
+                'id_user' => $idUser,
+                'deskripsi' => $deskripsi,
+                'ip_address' => $ipAddress ?? request()->ip() ?? '127.0.0.1',
+                'user_agent' => $userAgent ?? request()->userAgent() ?? 'Unknown',
+            ]);
+        } catch (\Exception $e) {
+            // Fallback jika gagal insert log
+            \Log::error('Failed to log activity: ' . $e->getMessage());
+            return null;
+        }
     }
 
     /**
