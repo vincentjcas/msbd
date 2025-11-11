@@ -27,7 +27,9 @@ db_simak_smk_new.sql
 db_simak_smk.sql
 db_simak_smk_UPDATED.sql
 
-# Dokumentasi / File Markdown
+# Dokumentasi / File Markdown (kecuali README.md)
+*.md
+!README.md
 PENYESUAIAN_DATABASE.md
 QUICK_REFERENCE.md
 README_SINKRONISASI.md
@@ -42,3 +44,4 @@ DASHBOARD_UPDATE.md
 DATABASE_SYNC.md
 PERUBAHAN_KONEKSI_DATABASE.md
 COMMIT_MESSAGE.md
+VERIFIKASI_GURU.md

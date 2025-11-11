@@ -276,7 +276,11 @@
 <body>
     <div class="navbar">
         <div class="navbar-brand">
-            <i class="fas fa-graduation-cap"></i>
+            @if(file_exists(public_path('images/yapim.png')))
+                <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" style="height: 45px; width: auto; object-fit: contain;">
+            @else
+                <i class="fas fa-school" style="font-size: 1.8rem;"></i>
+            @endif
             SMK YAPIM BIRU-BIRU
         </div>
         <div class="user-info">
