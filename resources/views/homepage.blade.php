@@ -109,7 +109,7 @@
 <body>
     <nav class="navbar">
         <div class="logo" style="display:flex; align-items:center; gap:0.5rem;">
-            <img src="{{ asset('images/logo.jpg') }}" alt="Logo SMK YAPIM" style="height:40px; width:auto; border-radius:6px;">
+            <img src="{{ asset('images/yapim.png') }}" alt="Logo SMK YAPIM" style="height:40px; width:auto; border-radius:6px;">
             <span style="font-weight:700;">SMK YAPIM BIRU-BIRU</span>
         </div>
         <div class="nav-buttons">
