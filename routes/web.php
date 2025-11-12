@@ -26,6 +26,9 @@ Route::post('/register/guru', [AuthController::class, 'registerGuru'])->name('re
 Route::get('/register/siswa', [AuthController::class, 'showRegisterSiswaForm'])->name('register.siswa');
 Route::post('/register/siswa', [AuthController::class, 'registerSiswa'])->name('register.siswa.submit');
 
+// API Route untuk cek NIS siswa
+Route::get('/api/check-nis/{nis}', [AuthController::class, 'checkNis'])->name('api.check-nis');
+
 // Legacy register route (redirect ke pilihan)
 Route::get('/register', function() {
     return redirect()->route('register.siswa');
