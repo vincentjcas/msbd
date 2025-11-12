@@ -19,7 +19,7 @@
         }
         /* Navbar */
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             color: white;
             padding: 1rem 2rem;
             display: flex;
@@ -80,10 +80,10 @@
         }
         /* Welcome Card */
         .welcome-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             padding: 2.5rem;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(3, 105, 161, 0.3);
             margin-bottom: 2rem;
             color: white;
         }
@@ -120,7 +120,7 @@
             left: 0;
             width: 5px;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
         }
         .stat-card:hover {
             transform: translateY(-5px);
@@ -129,7 +129,7 @@
         .stat-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -200,12 +200,12 @@
             cursor: pointer;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
             color: white;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
         }
         .btn-secondary {
             background: #e2e8f0;
@@ -309,7 +309,7 @@
                 text: "{{ session('success') }}",
                 icon: 'success',
                 confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea',
+                confirmButtonColor: '#0369a1',
                 timer: 3000,
                 timerProgressBar: true
             });
@@ -325,7 +325,7 @@
                 text: "{{ session('error') }}",
                 icon: 'error',
                 confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea'
+                confirmButtonColor: '#0369a1'
             });
         });
     </script>
