@@ -13,11 +13,16 @@ class Siswa extends Model
     protected $fillable = [
         'id_user',
         'nis',
+        'jenis_kelamin',
+        'agama',
+        'tempat_lahir',
+        'tanggal_lahir',
         'id_kelas',
         'nama_orangtua',
         'no_hp_orangtua',
+        'sekolah_asal',
         'alamat',
-        'tanggal_lahir',
+        'no_hp',
     ];
 
     protected $casts = [

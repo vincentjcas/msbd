@@ -30,9 +30,9 @@ class AdminController extends Controller
         $totalGuru = User::where('role', 'guru')->where('status_aktif', 1)->count();
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalKelas = Kelas::count();
-        $pendingGuru = User::where('role', 'guru')->where('status_aktif', 0)->count();
+        // Removed: $pendingGuru - tidak lagi digunakan karena guru langsung aktif
         
-        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingGuru'));
+        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas'));
     }
 
     public function users()
@@ -323,9 +323,18 @@ class AdminController extends Controller
         return view('admin.log-aktivitas', compact('logs'));
     }
 
-    /**
-     * Tampilkan halaman verifikasi guru yang pending
-     */
+    /*
+    ========================================
+    SISTEM VERIFIKASI GURU - DISABLED
+    ========================================
+    Sistem verifikasi guru tidak lagi digunakan.
+    Guru sekarang langsung aktif setelah registrasi.
+    Methods ini di-comment untuk backward compatibility.
+    ========================================
+    */
+
+    /*
+    // DISABLED: Tampilkan halaman verifikasi guru yang pending
     public function verifikasiGuru()
     {
         $pendingGuru = User::where('role', 'guru')
@@ -336,9 +345,7 @@ class AdminController extends Controller
         return view('admin.verifikasi-guru', compact('pendingGuru'));
     }
 
-    /**
-     * Approve pendaftaran guru
-     */
+    // DISABLED: Approve pendaftaran guru
     public function approveGuru($id)
     {
         DB::beginTransaction();
@@ -360,9 +367,7 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Reject pendaftaran guru dan hapus akun
-     */
+    // DISABLED: Reject pendaftaran guru dan hapus akun
     public function rejectGuru(Request $request, $id)
     {
         DB::beginTransaction();
@@ -392,4 +397,5 @@ class AdminController extends Controller
             return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
         }
     }
+    */
 }
