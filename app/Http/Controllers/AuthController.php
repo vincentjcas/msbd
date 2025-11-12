@@ -213,7 +213,10 @@ class AuthController extends Controller
      */
     public function registerSiswa(Request $request)
     {
-        $request->validate([
+        // Cek apakah NIS ada di data master untuk conditional validation
+        $siswaMasterExists = DataSiswaMaster::where('nis', $request->nis)->exists();
+        
+        $rules = [
             'nis' => 'required|string|unique:siswa,nis|max:20',
             'email' => 'required|email|unique:users,email',
             'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|max:20',
@@ -225,9 +228,17 @@ class AuthController extends Controller
             'sekolah_asal' => 'required|string|max:200',
             'alamat' => 'required|string|max:500',
             'password' => 'required|confirmed|min:6',
-        ], [
+        ];
+        
+        // Jika NIS TIDAK ada di data master, maka name WAJIB diisi
+        if (!$siswaMasterExists) {
+            $rules['name'] = 'required|string|max:255';
+        }
+        
+        $request->validate($rules, [
             'nis.required' => 'NIS wajib diisi.',
             'nis.unique' => 'NIS sudah terdaftar.',
+            'name.required' => 'Nama wajib diisi karena NIS tidak terdaftar di data master.',
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
@@ -253,20 +264,24 @@ class AuthController extends Controller
             // Cek apakah NIS ada di data master
             $siswaMaster = DataSiswaMaster::where('nis', $request->nis)->first();
             
-            // Generate nama_lengkap dari data master atau default
-            $namaLengkap = $siswaMaster ? $siswaMaster->nama_siswa : 'Siswa-' . $request->nis;
+            // Tentukan status aktif berdasarkan apakah NIS terdaftar di data master
+            // NIS terdaftar = langsung aktif, NIS tidak terdaftar = pending approval
+            $statusAktif = $siswaMaster ? 1 : 0;
+            
+            // Generate nama_lengkap dari data master atau dari input form
+            $namaLengkap = $siswaMaster ? $siswaMaster->nama_siswa : $request->name;
 
             // Generate username dari NIS
             $username = 'siswa_' . $request->nis;
 
-            // Buat user - siswa langsung aktif
+            // Buat user
             $user = User::create([
                 'username' => $username,
                 'nama_lengkap' => $namaLengkap,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'siswa',
-                'status_aktif' => 1,
+                'status_aktif' => $statusAktif,
             ]);
 
             // Buat data siswa
@@ -290,7 +305,12 @@ class AuthController extends Controller
 
             DB::commit();
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
+            // Pesan sukses berbeda tergantung status
+            if ($statusAktif) {
+                return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
+            } else {
+                return redirect()->route('login')->with('success', 'Registrasi berhasil! Akun Anda menunggu persetujuan admin. Anda akan dihubungi melalui email jika akun telah disetujui.');
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
