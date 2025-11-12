@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - SMK Yapim Biru-Biru</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -76,14 +77,67 @@
         }
         .register-link {
             text-align: center;
-            margin-top: 1rem;
+            margin-top: 1.5rem;
         }
         .register-link a {
-            color: #667eea;
+            color: #0369a1;
             text-decoration: none;
+            font-weight: 500;
         }
         .register-link a:hover {
             text-decoration: underline;
+        }
+        .register-options {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        .register-options p {
+            text-align: center;
+            color: #666;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        .register-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+        .register-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .register-btn-guru {
+            background: white;
+            color: #2563eb;
+            border-color: #2563eb;
+        }
+        .register-btn-guru:hover {
+            background: #2563eb;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .register-btn-siswa {
+            background: white;
+            color: #0ea5e9;
+            border-color: #0ea5e9;
+        }
+        .register-btn-siswa:hover {
+            background: #0ea5e9;
+            color: white;
+            transform: translateY(-2px);
+        }
+        .icon {
+            font-size: 1.2rem;
         }
     </style>
 </head>
@@ -110,8 +164,19 @@
             <button type="submit" class="btn">Login</button>
         </form>
 
-        <div class="register-link">
-            <p>Belum punya akun? <a href="{{ route('register') }}">Daftar di sini</a></p>
+        <!-- Opsi Registrasi -->
+        <div class="register-options">
+            <p>Belum punya akun? Daftar sebagai:</p>
+            <div class="register-buttons">
+                <a href="{{ route('register.guru') }}" class="register-btn register-btn-guru">
+                    <i class="fas fa-chalkboard-teacher icon"></i>
+                    Guru
+                </a>
+                <a href="{{ route('register.siswa') }}" class="register-btn register-btn-siswa">
+                    <i class="fas fa-user-graduate icon"></i>
+                    Siswa
+                </a>
+            </div>
         </div>
     </div>
 
