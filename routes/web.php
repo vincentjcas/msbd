@@ -46,6 +46,11 @@ Route::middleware('auth')->group(function () {
     // Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
     // Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
     
+    // Admin - Verifikasi Siswa Baru (untuk siswa dengan NIS tidak terdaftar di data master)
+    Route::get('/admin/verifikasi-siswa', [AdminController::class, 'verifikasiSiswa'])->name('admin.verifikasi-siswa')->middleware('role:admin');
+    Route::post('/admin/verifikasi-siswa/{id}/approve', [AdminController::class, 'approveSiswa'])->name('admin.approve-siswa')->middleware('role:admin');
+    Route::post('/admin/verifikasi-siswa/{id}/reject', [AdminController::class, 'rejectSiswa'])->name('admin.reject-siswa')->middleware('role:admin');
+    
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
     

@@ -11,6 +11,26 @@
 
 {{-- Notifikasi Pending Guru - DISABLED (Guru langsung aktif tanpa approval) --}}
 
+{{-- Notifikasi Pending Siswa - untuk siswa dengan NIS tidak terdaftar di data master --}}
+@if($pendingSiswa > 0)
+<div style="padding: 1rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+        <div style="flex-grow: 1;">
+            <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">
+                Ada {{ $pendingSiswa }} siswa menunggu verifikasi!
+            </strong>
+            <p style="margin: 0; opacity: 0.95;">
+                Siswa dengan NIS tidak terdaftar di data master memerlukan persetujuan Anda.
+            </p>
+        </div>
+        <a href="{{ route('admin.verifikasi-siswa') }}" class="btn btn-light" style="white-space: nowrap;">
+            <i class="fas fa-user-check"></i> Verifikasi Sekarang
+        </a>
+    </div>
+</div>
+@endif
+
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon">
@@ -46,6 +66,23 @@
     <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Admin</h3>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        
+        {{-- Card Verifikasi Siswa Baru - untuk siswa dengan NIS tidak terdaftar di data master --}}
+        @if($pendingSiswa > 0)
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);">
+            <h4 style="color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-user-check"></i> Verifikasi Siswa Baru
+            </h4>
+            <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
+                Ada <strong>{{ $pendingSiswa }} siswa</strong> dengan NIS tidak terdaftar yang menunggu persetujuan Anda.
+            </p>
+            <div>
+                <a href="{{ route('admin.verifikasi-siswa') }}" class="btn btn-light">
+                    <i class="fas fa-clipboard-check"></i> Lihat & Verifikasi
+                </a>
+            </div>
+        </div>
+        @endif
         
         {{-- Card Verifikasi Guru - DISABLED (Guru langsung aktif tanpa approval)
         <div style="padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);">

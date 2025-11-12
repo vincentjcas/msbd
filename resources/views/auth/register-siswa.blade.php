@@ -7,6 +7,24 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Custom styling for read-only fields */
+        input[readonly], textarea[readonly] {
+            background-color: #f3f4f6 !important;
+            cursor: not-allowed;
+        }
+        
+        /* Visual feedback for disabled-like selects and radios */
+        select.cursor-not-allowed {
+            cursor: not-allowed !important;
+        }
+        
+        /* Ensure pointer-events none doesn't affect visual styling */
+        select[style*="pointer-events: none"],
+        input[type="radio"][style*="pointer-events: none"] {
+            opacity: 1 !important;
+        }
+    </style>
 </head>
 <body class="bg-gradient-to-br from-sky-50 to-cyan-100 min-h-screen flex items-center justify-center p-4">
     
@@ -50,9 +68,33 @@
                                name="nis" 
                                required 
                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="Masukkan NIS"
+                               placeholder="Masukkan NIS (minimal 10 digit)"
                                value="{{ old('nis') }}">
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-info-circle"></i> 
+                            Ketik 10 digit NIS untuk mengecek data siswa
+                        </p>
                         @error('nis')
+                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Nama Lengkap -->
+                    <div class="md:col-span-2">
+                        <label for="name" class="block text-gray-700 font-semibold mb-2">
+                            <i class="fas fa-user text-sky-600 mr-2"></i>Nama Lengkap
+                        </label>
+                        <input type="text" 
+                               id="name" 
+                               name="name" 
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
+                               placeholder="Nama akan otomatis terisi jika NIS ditemukan"
+                               value="{{ old('name') }}">
+                        <p class="text-xs text-gray-500 mt-1" id="name-hint">
+                            <i class="fas fa-info-circle"></i> 
+                            Jika NIS tidak ditemukan, wajib diisi manual
+                        </p>
+                        @error('name')
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                         @enderror
                     </div>
@@ -316,6 +358,21 @@
         document.getElementById('registerForm').addEventListener('submit', function(e) {
             const password = document.getElementById('password').value;
             const passwordConfirmation = document.getElementById('password_confirmation').value;
+            const nis = nisInput.value.trim();
+            const name = namaInput.value.trim();
+
+            // Check if name is required (when NIS has orange border = not found in master)
+            if (nisInput.classList.contains('border-orange-500') && !name) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Nama Wajib Diisi',
+                    text: 'Karena NIS tidak terdaftar di data master, Anda harus mengisi nama secara manual.',
+                    confirmButtonColor: '#0ea5e9'
+                });
+                namaInput.focus();
+                return false;
+            }
 
             // Check if passwords match
             if (password !== passwordConfirmation) {
@@ -357,7 +414,7 @@
         const namaInput = document.getElementById('name');
         const tempatLahirInput = document.getElementById('tempat_lahir');
         const tanggalLahirInput = document.getElementById('tanggal_lahir');
-        const jenisKelaminRadios = document.getElementsByName('jenis_kelamin');
+        const jenisKelaminSelect = document.getElementById('jenis_kelamin'); // SELECT, bukan radio
         const agamaSelect = document.getElementById('agama');
         const kelasSelect = document.getElementById('id_kelas');
         const sekolahAsalInput = document.getElementById('sekolah_asal');
@@ -457,10 +514,19 @@
         }
 
         function fillForm(data) {
+            console.log('Data dari API:', data); // Debug log
+            
             // Fill nama (read-only)
             namaInput.value = data.nama_siswa || '';
             namaInput.readOnly = true;
             namaInput.classList.add('bg-gray-100');
+            namaInput.removeAttribute('required'); // Tidak perlu required karena sudah terisi otomatis
+            
+            // Update hint
+            const nameHint = document.getElementById('name-hint');
+            nameHint.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> Data otomatis dari database';
+            nameHint.classList.remove('text-gray-500');
+            nameHint.classList.add('text-green-600');
             
             // Fill tempat lahir
             tempatLahirInput.value = data.tempat_lahir || '';
@@ -472,26 +538,93 @@
             tanggalLahirInput.readOnly = true;
             tanggalLahirInput.classList.add('bg-gray-100');
             
-            // Select jenis kelamin
-            jenisKelaminRadios.forEach(radio => {
-                if (radio.value === data.jenis_kelamin) {
-                    radio.checked = true;
-                }
-                radio.disabled = true;
-            });
-            
-            // Select agama
-            if (data.agama) {
-                agamaSelect.value = data.agama;
-                agamaSelect.disabled = true;
-                agamaSelect.classList.add('bg-gray-100');
+            // Select jenis kelamin (SELECT dropdown, bukan radio)
+            if (data.jenis_kelamin) {
+                console.log('Jenis Kelamin dari API:', data.jenis_kelamin); // Debug
+                jenisKelaminSelect.value = data.jenis_kelamin; // Set value L atau P
+                jenisKelaminSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
+                jenisKelaminSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
             }
             
-            // Select kelas
+            // Select agama (pakai pointer-events none, bukan disabled)
+            if (data.agama) {
+                console.log('Agama dari API:', data.agama); // Debug
+                console.log('Agama select options available:', Array.from(agamaSelect.options).map(o => o.value)); // Debug
+                
+                // Mapping untuk variasi spelling agama
+                const agamaMapping = {
+                    'katholik': 'Katolik',
+                    'katolik': 'Katolik',
+                    'islam': 'Islam',
+                    'kristen': 'Kristen',
+                    'protestan': 'Kristen',
+                    'hindu': 'Hindu',
+                    'buddha': 'Buddha',
+                    'budha': 'Buddha',
+                    'konghucu': 'Konghucu',
+                    'khonghucu': 'Konghucu',
+                };
+                
+                // Coba beberapa strategi matching
+                let agamaMatched = false;
+                const agamaFromAPI = String(data.agama).trim();
+                
+                // Strategy 1: Exact match (case-sensitive)
+                agamaSelect.value = agamaFromAPI;
+                if (agamaSelect.value) {
+                    agamaMatched = true;
+                    console.log('Agama matched (exact):', agamaSelect.value);
+                }
+                
+                // Strategy 2: Mapping berdasarkan lowercase
+                if (!agamaMatched && agamaFromAPI) {
+                    const agamaLower = agamaFromAPI.toLowerCase();
+                    if (agamaMapping[agamaLower]) {
+                        agamaSelect.value = agamaMapping[agamaLower];
+                        if (agamaSelect.value) {
+                            agamaMatched = true;
+                            console.log('Agama matched (mapping):', agamaSelect.value);
+                        }
+                    }
+                }
+                
+                // Strategy 3: Capitalize first letter
+                if (!agamaMatched && agamaFromAPI) {
+                    const capitalized = agamaFromAPI.charAt(0).toUpperCase() + agamaFromAPI.slice(1).toLowerCase();
+                    agamaSelect.value = capitalized;
+                    if (agamaSelect.value) {
+                        agamaMatched = true;
+                        console.log('Agama matched (capitalized):', agamaSelect.value);
+                    }
+                }
+                
+                // Strategy 4: Try all options with case-insensitive comparison
+                if (!agamaMatched && agamaFromAPI) {
+                    const options = agamaSelect.options;
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value.toLowerCase() === agamaFromAPI.toLowerCase()) {
+                            agamaSelect.value = options[i].value;
+                            agamaMatched = true;
+                            console.log('Agama matched (case-insensitive):', agamaSelect.value);
+                            break;
+                        }
+                    }
+                }
+                
+                if (!agamaMatched) {
+                    console.warn('Agama tidak cocok dengan option manapun! Data dari API:', agamaFromAPI);
+                    console.warn('Available options:', Array.from(agamaSelect.options).map(o => o.value));
+                }
+                
+                agamaSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
+                agamaSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
+            }
+            
+            // Select kelas (pakai pointer-events none, bukan disabled)
             if (data.id_kelas) {
                 kelasSelect.value = data.id_kelas;
-                kelasSelect.disabled = true;
-                kelasSelect.classList.add('bg-gray-100');
+                kelasSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
+                kelasSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
             }
             
             // Fill sekolah asal
@@ -512,6 +645,13 @@
             namaInput.value = '';
             namaInput.readOnly = false;
             namaInput.classList.remove('bg-gray-100');
+            namaInput.removeAttribute('required');
+            
+            // Reset hint
+            const nameHint = document.getElementById('name-hint');
+            nameHint.innerHTML = '<i class="fas fa-info-circle"></i> Jika NIS tidak ditemukan, wajib diisi manual';
+            nameHint.classList.remove('text-green-600', 'text-orange-600');
+            nameHint.classList.add('text-gray-500');
             
             tempatLahirInput.value = '';
             tempatLahirInput.readOnly = false;
@@ -521,18 +661,17 @@
             tanggalLahirInput.readOnly = false;
             tanggalLahirInput.classList.remove('bg-gray-100');
             
-            jenisKelaminRadios.forEach(radio => {
-                radio.checked = false;
-                radio.disabled = false;
-            });
+            jenisKelaminSelect.value = '';
+            jenisKelaminSelect.style.pointerEvents = ''; // Reset pointer-events
+            jenisKelaminSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             agamaSelect.value = '';
-            agamaSelect.disabled = false;
-            agamaSelect.classList.remove('bg-gray-100');
+            agamaSelect.style.pointerEvents = ''; // Reset pointer-events
+            agamaSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             kelasSelect.value = '';
-            kelasSelect.disabled = false;
-            kelasSelect.classList.remove('bg-gray-100');
+            kelasSelect.style.pointerEvents = ''; // Reset pointer-events
+            kelasSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             sekolahAsalInput.value = '';
             sekolahAsalInput.readOnly = false;
@@ -551,6 +690,13 @@
             namaInput.readOnly = false;
             namaInput.classList.remove('bg-gray-100');
             namaInput.placeholder = 'Masukkan Nama Lengkap';
+            namaInput.setAttribute('required', 'required'); // WAJIB diisi jika NIS tidak ditemukan
+            
+            // Update hint menjadi warning
+            const nameHint = document.getElementById('name-hint');
+            nameHint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> WAJIB diisi karena NIS tidak terdaftar di data master';
+            nameHint.classList.remove('text-gray-500', 'text-green-600');
+            nameHint.classList.add('text-orange-600', 'font-semibold');
             
             tempatLahirInput.value = '';
             tempatLahirInput.readOnly = false;
@@ -560,18 +706,17 @@
             tanggalLahirInput.readOnly = false;
             tanggalLahirInput.classList.remove('bg-gray-100');
             
-            jenisKelaminRadios.forEach(radio => {
-                radio.checked = false;
-                radio.disabled = false;
-            });
+            jenisKelaminSelect.value = '';
+            jenisKelaminSelect.style.pointerEvents = '';
+            jenisKelaminSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             agamaSelect.value = '';
-            agamaSelect.disabled = false;
-            agamaSelect.classList.remove('bg-gray-100');
+            agamaSelect.style.pointerEvents = '';
+            agamaSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             kelasSelect.value = '';
-            kelasSelect.disabled = false;
-            kelasSelect.classList.remove('bg-gray-100');
+            kelasSelect.style.pointerEvents = '';
+            kelasSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
             
             sekolahAsalInput.value = '';
             sekolahAsalInput.readOnly = false;
