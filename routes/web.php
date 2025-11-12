@@ -19,22 +19,29 @@ Route::get('/admin/db-report', [DbReportController::class, 'index'])->name('admi
 // Authentication Routes
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [AuthController::class, 'register']);
+
+// Register Routes - Terpisah untuk Guru dan Siswa
+Route::get('/register/guru', [AuthController::class, 'showRegisterGuruForm'])->name('register.guru');
+Route::post('/register/guru', [AuthController::class, 'registerGuru'])->name('register.guru.submit');
+Route::get('/register/siswa', [AuthController::class, 'showRegisterSiswaForm'])->name('register.siswa');
+Route::post('/register/siswa', [AuthController::class, 'registerSiswa'])->name('register.siswa.submit');
+
+// Legacy register route (redirect ke pilihan)
+Route::get('/register', function() {
+    return redirect()->route('register.siswa');
+})->name('register');
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Protected Routes dengan Middleware Auth
 Route::middleware('auth')->group(function () {
     // Admin Routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware('role:admin');
-    Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
-    Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.verifikasi-guru.approve')->middleware('role:admin');
-    Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.verifikasi-guru.reject')->middleware('role:admin');
     
-    // Admin - Verifikasi Guru
-    Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
-    Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
-    Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
+    // Admin - Verifikasi Guru (DISABLED - Guru langsung aktif tanpa approval)
+    // Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
+    // Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
+    // Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
     
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');

@@ -15,19 +15,41 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['name' => 'Admin Demo', 'email' => 'admin@example.com', 'role' => 'admin'],
-            ['name' => 'Guru Demo', 'email' => 'guru@example.com', 'role' => 'guru'],
-            ['name' => 'Siswa Demo', 'email' => 'siswa@example.com', 'role' => 'siswa'],
-            ['name' => 'Pembina Demo', 'email' => 'pembina@example.com', 'role' => 'pembina'],
+            [
+                'username' => 'admin',
+                'nama_lengkap' => 'Admin Demo',
+                'email' => 'admin@example.com',
+                'role' => 'admin'
+            ],
+            [
+                'username' => 'guru',
+                'nama_lengkap' => 'Guru Demo',
+                'email' => 'guru@example.com',
+                'role' => 'guru'
+            ],
+            [
+                'username' => 'siswa',
+                'nama_lengkap' => 'Siswa Demo',
+                'email' => 'siswa@example.com',
+                'role' => 'siswa'
+            ],
+            [
+                'username' => 'pembina',
+                'nama_lengkap' => 'Pembina Demo',
+                'email' => 'pembina@example.com',
+                'role' => 'pembina'
+            ],
         ];
 
         foreach ($users as $u) {
             User::updateOrCreate(
                 ['email' => $u['email']],
                 [
-                    'name' => $u['name'],
+                    'username' => $u['username'],
+                    'nama_lengkap' => $u['nama_lengkap'],
                     'password' => Hash::make('password'), // default password: password
                     'role' => $u['role'],
+                    'status_aktif' => true
                 ]
             );
         }
