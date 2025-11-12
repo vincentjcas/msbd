@@ -351,6 +351,236 @@
                 confirmButtonColor: '#0ea5e9'
             });
         @endif
+
+        // ===== AUTOCOMPLETE NIS =====
+        const nisInput = document.getElementById('nis');
+        const namaInput = document.getElementById('name');
+        const tempatLahirInput = document.getElementById('tempat_lahir');
+        const tanggalLahirInput = document.getElementById('tanggal_lahir');
+        const jenisKelaminRadios = document.getElementsByName('jenis_kelamin');
+        const agamaSelect = document.getElementById('agama');
+        const kelasSelect = document.getElementById('id_kelas');
+        const sekolahAsalInput = document.getElementById('sekolah_asal');
+        const alamatTextarea = document.getElementById('alamat');
+        
+        let typingTimer;
+        const doneTypingInterval = 800;
+        const minNisLength = 10;
+
+        nisInput.addEventListener('input', function() {
+            clearTimeout(typingTimer);
+            const nis = this.value.trim();
+            
+            // Reset border colors saat mengetik
+            nisInput.classList.remove('border-green-500', 'border-red-500', 'border-yellow-400');
+            
+            if (nis.length >= minNisLength) { // Minimal 10 karakter untuk mulai search
+                nisInput.classList.add('border-yellow-400'); // Show loading indicator
+                typingTimer = setTimeout(() => checkNIS(nis), doneTypingInterval);
+            } else if (nis.length > 0 && nis.length < minNisLength) {
+                // Jangan reset form, hanya beri hint
+                // User masih mengetik
+            } else {
+                // Reset form jika NIS kosong
+                resetForm();
+            }
+        });
+
+        function checkNIS(nis) {
+            // NIS input sudah ada border-yellow-400 dari event listener
+            
+            fetch(`/api/check-nis/${nis}`)
+                .then(response => response.json())
+                .then(data => {
+                    nisInput.classList.remove('border-yellow-400');
+                    
+                    if (data.found) {
+                        if (data.already_registered) {
+                            // NIS sudah pernah terdaftar
+                            nisInput.classList.add('border-red-500');
+                            resetForm();
+                            
+                            Swal.fire({
+                                icon: 'warning',
+                                title: 'NIS Sudah Terdaftar',
+                                text: 'NIS ini sudah pernah digunakan untuk registrasi.',
+                                confirmButtonColor: '#0ea5e9'
+                            });
+                        } else {
+                            // NIS ditemukan, fill form
+                            nisInput.classList.add('border-green-500');
+                            fillForm(data.data);
+                            
+                            // Show success notification (tidak blocking)
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                            });
+                            
+                            Toast.fire({
+                                icon: 'success',
+                                title: 'Data Ditemukan!',
+                                text: `${data.data.nama_siswa} - ${data.data.nama_kelas}`
+                            });
+                        }
+                    } else {
+                        // NIS tidak ditemukan - TIDAK BLOCKING, beri info saja
+                        nisInput.classList.add('border-orange-500');
+                        
+                        // Enable all fields untuk input manual
+                        enableFormForManualInput();
+                        
+                        // Show info toast (bukan error popup)
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true,
+                        });
+                        
+                        Toast.fire({
+                            icon: 'info',
+                            title: 'NIS Tidak Ditemukan',
+                            text: 'Silakan isi form secara manual. Data akan diverifikasi admin.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    nisInput.classList.remove('border-yellow-400');
+                    nisInput.classList.add('border-red-500');
+                });
+        }
+
+        function fillForm(data) {
+            // Fill nama (read-only)
+            namaInput.value = data.nama_siswa || '';
+            namaInput.readOnly = true;
+            namaInput.classList.add('bg-gray-100');
+            
+            // Fill tempat lahir
+            tempatLahirInput.value = data.tempat_lahir || '';
+            tempatLahirInput.readOnly = true;
+            tempatLahirInput.classList.add('bg-gray-100');
+            
+            // Fill tanggal lahir
+            tanggalLahirInput.value = data.tanggal_lahir || '';
+            tanggalLahirInput.readOnly = true;
+            tanggalLahirInput.classList.add('bg-gray-100');
+            
+            // Select jenis kelamin
+            jenisKelaminRadios.forEach(radio => {
+                if (radio.value === data.jenis_kelamin) {
+                    radio.checked = true;
+                }
+                radio.disabled = true;
+            });
+            
+            // Select agama
+            if (data.agama) {
+                agamaSelect.value = data.agama;
+                agamaSelect.disabled = true;
+                agamaSelect.classList.add('bg-gray-100');
+            }
+            
+            // Select kelas
+            if (data.id_kelas) {
+                kelasSelect.value = data.id_kelas;
+                kelasSelect.disabled = true;
+                kelasSelect.classList.add('bg-gray-100');
+            }
+            
+            // Fill sekolah asal
+            sekolahAsalInput.value = data.sekolah_asal || '';
+            sekolahAsalInput.readOnly = true;
+            sekolahAsalInput.classList.add('bg-gray-100');
+            
+            // Fill alamat
+            alamatTextarea.value = data.alamat || '';
+            alamatTextarea.readOnly = true;
+            alamatTextarea.classList.add('bg-gray-100');
+        }
+
+        function resetForm() {
+            nisInput.classList.remove('border-green-500', 'border-red-500', 'border-orange-500');
+            
+            // Reset and enable all fields
+            namaInput.value = '';
+            namaInput.readOnly = false;
+            namaInput.classList.remove('bg-gray-100');
+            
+            tempatLahirInput.value = '';
+            tempatLahirInput.readOnly = false;
+            tempatLahirInput.classList.remove('bg-gray-100');
+            
+            tanggalLahirInput.value = '';
+            tanggalLahirInput.readOnly = false;
+            tanggalLahirInput.classList.remove('bg-gray-100');
+            
+            jenisKelaminRadios.forEach(radio => {
+                radio.checked = false;
+                radio.disabled = false;
+            });
+            
+            agamaSelect.value = '';
+            agamaSelect.disabled = false;
+            agamaSelect.classList.remove('bg-gray-100');
+            
+            kelasSelect.value = '';
+            kelasSelect.disabled = false;
+            kelasSelect.classList.remove('bg-gray-100');
+            
+            sekolahAsalInput.value = '';
+            sekolahAsalInput.readOnly = false;
+            sekolahAsalInput.classList.remove('bg-gray-100');
+            
+            alamatTextarea.value = '';
+            alamatTextarea.readOnly = false;
+            alamatTextarea.classList.remove('bg-gray-100');
+        }
+
+        function enableFormForManualInput() {
+            // Fungsi ini dipanggil saat NIS tidak ditemukan
+            // Form dibiarkan kosong dan editable untuk input manual
+            
+            namaInput.value = '';
+            namaInput.readOnly = false;
+            namaInput.classList.remove('bg-gray-100');
+            namaInput.placeholder = 'Masukkan Nama Lengkap';
+            
+            tempatLahirInput.value = '';
+            tempatLahirInput.readOnly = false;
+            tempatLahirInput.classList.remove('bg-gray-100');
+            
+            tanggalLahirInput.value = '';
+            tanggalLahirInput.readOnly = false;
+            tanggalLahirInput.classList.remove('bg-gray-100');
+            
+            jenisKelaminRadios.forEach(radio => {
+                radio.checked = false;
+                radio.disabled = false;
+            });
+            
+            agamaSelect.value = '';
+            agamaSelect.disabled = false;
+            agamaSelect.classList.remove('bg-gray-100');
+            
+            kelasSelect.value = '';
+            kelasSelect.disabled = false;
+            kelasSelect.classList.remove('bg-gray-100');
+            
+            sekolahAsalInput.value = '';
+            sekolahAsalInput.readOnly = false;
+            sekolahAsalInput.classList.remove('bg-gray-100');
+            
+            alamatTextarea.value = '';
+            alamatTextarea.readOnly = false;
+            alamatTextarea.classList.remove('bg-gray-100');
+        }
     </script>
 
 </body>

@@ -48,5 +48,7 @@ VERIFIKASI_GURU.md
 REGISTRASI_BARU.md
 PERUBAHAN_REGISTRASI.md
 UPDATE_REGISTER_SYSTEM.md
-nama_guru.xls
-nama_siswa.xlsx
+
+# Data Siswa (Sensitif)
+/excel/
+*.csv

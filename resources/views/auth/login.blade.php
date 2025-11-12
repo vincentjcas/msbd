@@ -152,8 +152,10 @@
             @csrf
             
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" value="{{ old('email') }}" required>
+                <label for="identifier">NIS / NIP / Email</label>
+                <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="Masukkan NIS, NIP, atau Email" required>
+                <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
+                </small>
             </div>
 
             <div class="form-group">

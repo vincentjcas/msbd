@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Guru;
 use App\Models\Siswa;
 use App\Models\Kelas;
+use App\Models\DataSiswaMaster;
 
 class AuthController extends Controller
 {
@@ -22,32 +23,67 @@ class AuthController extends Controller
     }
 
     /**
-     * Proses login user
+     * Proses login user dengan auto-detect role
      */
     public function login(Request $request)
-{
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required',
-    ], [
-        'email.required' => 'Email wajib diisi.',
-        'email.email' => 'Format email tidak valid.',
-        'password.required' => 'Password wajib diisi.',
-    ]);
+    {
+        $request->validate([
+            'identifier' => 'required|string',
+            'password' => 'required',
+        ], [
+            'identifier.required' => 'NIS/NIP/Email wajib diisi.',
+            'password.required' => 'Password wajib diisi.',
+        ]);
 
-
-    if (Auth::attempt($request->only('email', 'password'), $request->filled('remember'))) {
-        $request->session()->regenerate();
+        $identifier = $request->identifier;
+        $password = $request->password;
         
-        $user = Auth::user();
+        $user = null;
 
-        // ✅ Cek apakah user sudah diaktifkan (untuk guru yang perlu approval)
-        if (!$user->status_aktif) {
-            Auth::logout();
+        // Auto-detect: Coba cari di tabel siswa dulu (berdasarkan NIS)
+        $siswa = Siswa::where('nis', $identifier)->first();
+        if ($siswa) {
+            $user = User::where('id_user', $siswa->id_user)
+                       ->where('role', 'siswa')
+                       ->first();
+        }
+
+        // Kalau tidak ketemu, coba cari di tabel guru (berdasarkan NIP)
+        if (!$user) {
+            $guru = Guru::where('nip', $identifier)->first();
+            if ($guru) {
+                $user = User::where('id_user', $guru->id_user)
+                           ->where('role', 'guru')
+                           ->first();
+            }
+        }
+
+        // Kalau masih tidak ketemu, coba cari di tabel users langsung (berdasarkan email atau username)
+        // Ini untuk cover siswa/guru yang login pakai email, atau admin/kepsek/pembina
+        if (!$user) {
+            $user = User::where(function($query) use ($identifier) {
+                $query->where('email', $identifier)
+                      ->orWhere('username', $identifier);
+            })->first();
+        }
+
+        // Cek apakah user ditemukan dan password cocok
+        if (!$user || !Hash::check($password, $user->password)) {
             return back()->withErrors([
-                'email' => 'Akun Anda belum diaktifkan. Silakan tunggu persetujuan dari admin.',
+                'identifier' => 'NIS/NIP/Email atau password salah.',
             ])->withInput();
         }
+
+        // ✅ Cek apakah user sudah diaktifkan
+        if (!$user->status_aktif) {
+            return back()->withErrors([
+                'identifier' => 'Akun Anda belum diaktifkan. Silakan tunggu persetujuan dari admin.',
+            ])->withInput();
+        }
+
+        // Login user
+        Auth::login($user, $request->filled('remember'));
+        $request->session()->regenerate();
 
         // ✅ Simpan pesan selamat datang dengan nama depan
         $firstName = explode(' ', $user->nama_lengkap)[0];
@@ -56,7 +92,7 @@ class AuthController extends Controller
         // ✅ Redirect otomatis sesuai role
         switch ($user->role) {
             case 'admin':
-                return redirect()->route('admin.dashboard'); // Redirect ke admin dashboard lama
+                return redirect()->route('admin.dashboard');
             case 'guru':
                 return redirect()->route('guru.dashboard');
             case 'siswa':
@@ -69,11 +105,6 @@ class AuthController extends Controller
                 return redirect()->route('dashboard');
         }
     }
-
-    return back()->withErrors([
-        'email' => 'Email atau password salah.',
-    ]);
-}
 
 
     /**
@@ -219,8 +250,11 @@ class AuthController extends Controller
 
         DB::beginTransaction();
         try {
-            // Generate nama_lengkap dari NIS (bisa diupdate nanti)
-            $namaLengkap = 'Siswa-' . $request->nis;
+            // Cek apakah NIS ada di data master
+            $siswaMaster = DataSiswaMaster::where('nis', $request->nis)->first();
+            
+            // Generate nama_lengkap dari data master atau default
+            $namaLengkap = $siswaMaster ? $siswaMaster->nama_siswa : 'Siswa-' . $request->nis;
 
             // Generate username dari NIS
             $username = 'siswa_' . $request->nis;
@@ -248,6 +282,11 @@ class AuthController extends Controller
                 'alamat' => $request->alamat,
                 'no_hp' => $request->no_hp,
             ]);
+
+            // Update flag is_registered di data master jika ada
+            if ($siswaMaster) {
+                $siswaMaster->update(['is_registered' => true]);
+            }
 
             DB::commit();
 
@@ -336,5 +375,48 @@ class AuthController extends Controller
     return redirect()->route('login');
 
 
+    }
+
+    /**
+     * API endpoint untuk cek NIS siswa
+     * Digunakan untuk autocomplete nama siswa saat registrasi
+     */
+    public function checkNis($nis)
+    {
+        $siswa = DataSiswaMaster::where('nis', $nis)->first();
+
+        if (!$siswa) {
+            return response()->json([
+                'found' => false,
+                'message' => 'NIS tidak ditemukan dalam database.'
+            ]);
+        }
+
+        // Cek apakah NIS sudah pernah digunakan untuk registrasi
+        $existingSiswa = Siswa::where('nis', $nis)->first();
+        if ($existingSiswa) {
+            return response()->json([
+                'found' => true,
+                'already_registered' => true,
+                'message' => 'NIS ini sudah pernah terdaftar.'
+            ]);
+        }
+
+        return response()->json([
+            'found' => true,
+            'already_registered' => false,
+            'data' => [
+                'nama_siswa' => $siswa->nama_siswa,
+                'jenis_kelamin' => $siswa->jenis_kelamin,
+                'tempat_lahir' => $siswa->tempat_lahir,
+                'tanggal_lahir' => $siswa->tanggal_lahir ? $siswa->tanggal_lahir->format('Y-m-d') : null,
+                'agama' => $siswa->agama,
+                'sekolah_asal' => $siswa->sekolah_asal,
+                'alamat' => $siswa->alamat,
+                'no_hp' => $siswa->no_hp,
+                'id_kelas' => $siswa->id_kelas,
+                'nama_kelas' => $siswa->nama_kelas,
+            ]
+        ]);
     }
 }
