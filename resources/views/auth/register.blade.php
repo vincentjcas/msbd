@@ -79,7 +79,7 @@
             margin-top: 1rem;
         }
         .login-link a {
-            color: #667eea;
+            color: #0369a1;
             text-decoration: none;
         }
         .login-link a:hover {
@@ -116,6 +116,11 @@
                 </select>
             </div>
 
+            <div class="form-group" id="nisn-field" style="display: none;">
+                <label for="nisn">NISN (Nomor Induk Siswa Nasional)</label>
+                <input type="text" id="nisn" name="nisn" value="{{ old('nisn') }}" placeholder="Contoh: 0123456789">
+            </div>
+
             <div class="form-group" id="kelas-field" style="display: none;">
                 <label for="id_kelas">Kelas</label>
                 <select id="id_kelas" name="id_kelas">
@@ -145,6 +150,11 @@
                         <option value="">Tidak ada kelas tersedia</option>
                     @endif
                 </select>
+            </div>
+
+            <div class="form-group" id="nip-field" style="display: none;">
+                <label for="nip">NIP (Nomor Induk Pegawai)</label>
+                <input type="text" id="nip" name="nip" value="{{ old('nip') }}" placeholder="Contoh: 123456789012345678">
             </div>
 
             <div class="form-group">
@@ -178,7 +188,7 @@
                 html: errorMessages,
                 icon: 'error',
                 confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea'
+                confirmButtonColor: '#0369a1'
             });
         });
     </script>
@@ -192,7 +202,7 @@
                 text: "{{ session('success') }}",
                 icon: 'success',
                 confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea',
+                confirmButtonColor: '#0369a1',
                 timer: 3000,
                 timerProgressBar: true
             });
@@ -201,19 +211,46 @@
     @endif
 
     <script>
-        // Toggle field kelas berdasarkan role yang dipilih
+        // Toggle field kelas, NISN, dan NIP berdasarkan role yang dipilih
         function toggleKelasField() {
             const role = document.getElementById('role').value;
             const kelasField = document.getElementById('kelas-field');
+            const nisnField = document.getElementById('nisn-field');
+            const nipField = document.getElementById('nip-field');
             const kelasSelect = document.getElementById('id_kelas');
+            const nisnInput = document.getElementById('nisn');
+            const nipInput = document.getElementById('nip');
             
             if (role === 'siswa') {
                 kelasField.style.display = 'block';
+                nisnField.style.display = 'block';
+                nipField.style.display = 'none';
+                
                 kelasSelect.setAttribute('required', 'required');
+                nisnInput.setAttribute('required', 'required');
+                nipInput.removeAttribute('required');
+                nipInput.value = ''; // Reset NIP
+            } else if (role === 'guru') {
+                kelasField.style.display = 'none';
+                nisnField.style.display = 'none';
+                nipField.style.display = 'block';
+                
+                kelasSelect.removeAttribute('required');
+                nisnInput.removeAttribute('required');
+                nipInput.setAttribute('required', 'required');
+                kelasSelect.value = ''; // Reset pilihan kelas
+                nisnInput.value = ''; // Reset NISN
             } else {
                 kelasField.style.display = 'none';
+                nisnField.style.display = 'none';
+                nipField.style.display = 'none';
+                
                 kelasSelect.removeAttribute('required');
-                kelasSelect.value = ''; // Reset pilihan kelas
+                nisnInput.removeAttribute('required');
+                nipInput.removeAttribute('required');
+                kelasSelect.value = '';
+                nisnInput.value = '';
+                nipInput.value = '';
             }
         }
 
