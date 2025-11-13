@@ -3,397 +3,446 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrasi Guru - SIMAK SMK</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Registrasi Guru - MSBD System</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/yapim.png') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <style>
-        /* Tom Select Custom Styling */
-        .ts-wrapper.form-control,
-        .ts-wrapper.form-select {
-            padding: 0 !important;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .ts-control {
-            border: 1px solid #d1d5db !important;
-            border-radius: 0.5rem !important;
-            padding: 0.75rem 1rem !important;
-            min-height: 48px !important;
-            font-size: 1rem !important;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        .ts-control:focus-within {
-            outline: none !important;
-            border-color: #3b82f6 !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        .register-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            animation: slideIn 0.3s ease;
         }
-        /* Placeholder styling - abu-abu seperti input biasa */
-        .ts-control input::placeholder {
-            color: #9ca3af !important;
-            opacity: 1 !important;
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        /* Input text size */
-        .ts-control input {
-            font-size: 1rem !important;
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
         }
-        .ts-dropdown {
-            border: 1px solid #d1d5db !important;
-            border-radius: 0.5rem !important;
-            margin-top: 0.25rem !important;
+        .register-header h1 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
         }
-        .ts-dropdown .option {
-            padding: 0.75rem 1rem !important;
-            font-size: 1rem !important;
-            color: #374151 !important;
+        .register-header p {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 400;
         }
-        .ts-dropdown .option:hover {
-            background-color: #eff6ff !important;
-            color: #1e40af !important;
+        .form-group {
+            margin-bottom: 1.2rem;
         }
-        /* Selected item in dropdown - warna biru dengan text putih */
-        .ts-dropdown .active {
-            background-color: #3b82f6 !important;
-            color: white !important;
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
         }
-        /* Chip/badge yang sudah dipilih */
-        .item {
-            background-color: #3b82f6 !important;
-            color: white !important;
-            border-radius: 0.375rem !important;
-            padding: 0.375rem 0.75rem !important;
-            margin: 0.125rem !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 0.5rem !important;
-            font-size: 0.875rem !important;
-            font-weight: 500 !important;
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
         }
-        .remove {
-            border-left: 1px solid rgba(255, 255, 255, 0.3) !important;
-            padding-left: 0.5rem !important;
-            margin-left: 0.25rem !important;
-            color: white !important;
+        .form-group input::placeholder, .form-group select::placeholder, .form-group textarea::placeholder {
+            color: #999;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #0369a1;
+            box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
+        }
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(3, 105, 161, 0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .login-link a {
+            color: #0369a1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .login-link a:hover {
+            color: #06b6d4;
+            text-decoration: underline;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .logo-container img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-toggle:hover {
+            color: #0369a1;
+        }
+        .form-group.has-password input {
+            padding-right: 2.8rem;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+        .alert-error {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+        }
+        .alert-success {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+            color: #15803d;
+        }
+        .alert-info {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            color: #0c4a6e;
+        }
+        .hint-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        .error-text {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .checkbox-item input[type="checkbox"] {
+            width: auto;
+            padding: 0;
+            margin: 0;
+            border: none;
+            cursor: pointer;
+        }
+        .checkbox-item label {
+            margin: 0;
+            font-weight: 400;
+            font-size: 0.9rem;
+            cursor: pointer;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
-    
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white text-center">
-            <div class="flex justify-center mb-4">
-                @if(file_exists(public_path('images/yapim.png')))
-                    <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" class="h-20 w-20 object-contain">
-                @else
-                    <i class="fas fa-chalkboard-teacher text-6xl"></i>
-                @endif
-            </div>
-            <h1 class="text-3xl font-bold mb-2">Registrasi Guru</h1>
-            <p class="text-blue-100">Sistem Informasi Manajemen Akademik SMK</p>
+<body>
+    <div class="register-container">
+        <div class="logo-container">
+            <img src="{{ asset('images/yapim.png') }}" alt="Logo MSBD">
+        </div>
+        <div class="register-header">
+            <h1>Registrasi Guru</h1>
+            <p>Sistem Informasi Manajemen Akademik SMK</p>
         </div>
 
-        <!-- Form -->
-        <div class="p-8">
-            @if(session('error'))
-                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                        <p class="text-red-700">{{ session('error') }}</p>
-                    </div>
+        @if($errors->any())
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
                 </div>
-            @endif
+            </div>
+        @endif
 
-            <form action="{{ route('register.guru.submit') }}" method="POST" id="registerForm">
-                @csrf
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- NIP -->
-                    <div class="md:col-span-2">
-                        <label for="nip" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-id-card text-blue-600 mr-2"></i>NIP (Nomor Induk Pegawai)
-                        </label>
-                        <input type="text" 
-                               id="nip" 
-                               name="nip" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                               placeholder="Masukkan NIP"
-                               value="{{ old('nip') }}">
-                        @error('nip')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        @if(session('error'))
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ session('error') }}</div>
+            </div>
+        @endif
 
-                    <!-- Email -->
-                    <div class="md:col-span-2">
-                        <label for="email" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-envelope text-blue-600 mr-2"></i>Email
-                        </label>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                               placeholder="contoh@email.com"
-                               value="{{ old('email') }}">
-                        @error('email')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        @if(session('success'))
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <div>{{ session('success') }}</div>
+            </div>
+        @endif
 
-                    <!-- Nomor HP -->
-                    <div class="md:col-span-2">
-                        <label for="no_hp" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-phone text-blue-600 mr-2"></i>Nomor HP
-                        </label>
-                        <input type="text" 
-                               id="no_hp" 
-                               name="no_hp" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                               placeholder="08xxxxxxxxxx"
-                               value="{{ old('no_hp') }}"
-                               pattern="[0-9]{10,15}"
-                               title="Nomor HP harus berisi 10-15 digit angka">
-                        @error('no_hp')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        <form action="{{ route('register.guru.submit') }}" method="POST">
+            @csrf
 
-                    <!-- Jenis Kelamin -->
-                    <div>
-                        <label for="jenis_kelamin" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-venus-mars text-blue-600 mr-2"></i>Jenis Kelamin
-                        </label>
-                        <select id="jenis_kelamin" 
-                                name="jenis_kelamin" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                            <option value="" disabled selected>Pilih Jenis Kelamin</option>
-                            <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                            <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
-                        </select>
-                        @error('jenis_kelamin')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- NIP -->
+            <div class="form-group">
+                <label for="nip">NIP (Nomor Induk Pegawai)</label>
+                <input type="text" id="nip" name="nip" required 
+                       placeholder="Contoh: 123456789012345678"
+                       value="{{ old('nip') }}">
+                <p class="hint-text">Masukkan NIP dengan benar sesuai data pegawai</p>
+                @error('nip')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Agama -->
-                    <div>
-                        <label for="agama" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-praying-hands text-blue-600 mr-2"></i>Agama
-                        </label>
-                        <select id="agama" 
-                                name="agama" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
-                            <option value="" disabled selected>Pilih Agama</option>
-                            <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
-                            <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                            <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                            <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                            <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
-                            <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
-                        </select>
-                        @error('agama')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- Nama Lengkap -->
+            <div class="form-group">
+                <label for="name">Nama Lengkap</label>
+                <input type="text" id="name" name="name" required 
+                       placeholder="Masukkan nama lengkap"
+                       value="{{ old('name') }}">
+                @error('name')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Mata Pelajaran (Multiple Selection) -->
-                    <div class="md:col-span-2">
-                        <label for="mata_pelajaran" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-book text-blue-600 mr-2"></i>Mata Pelajaran yang Diampu
-                        </label>
-                        <select id="mata_pelajaran" 
-                                name="mata_pelajaran[]" 
-                                multiple 
-                                required 
-                                placeholder="Pilih mata pelajaran..."
-                                class="w-full">
-                            <option value="Matematika">Matematika</option>
-                            <option value="Bahasa Indonesia">Bahasa Indonesia</option>
-                            <option value="Bahasa Inggris">Bahasa Inggris</option>
-                            <option value="Fisika">Fisika</option>
-                            <option value="Kimia">Kimia</option>
-                            <option value="Biologi">Biologi</option>
-                            <option value="Sejarah">Sejarah</option>
-                            <option value="Geografi">Geografi</option>
-                            <option value="Ekonomi">Ekonomi</option>
-                            <option value="Sosiologi">Sosiologi</option>
-                            <option value="Seni Budaya">Seni Budaya</option>
-                            <option value="Pendidikan Jasmani">Pendidikan Jasmani</option>
-                            <option value="Pendidikan Agama">Pendidikan Agama</option>
-                            <option value="PKn">Pendidikan Kewarganegaraan (PKn)</option>
-                            <option value="Teknik Komputer dan Jaringan">Teknik Komputer dan Jaringan</option>
-                            <option value="Rekayasa Perangkat Lunak">Rekayasa Perangkat Lunak</option>
-                            <option value="Multimedia">Multimedia</option>
-                            <option value="Akuntansi">Akuntansi</option>
-                            <option value="Administrasi Perkantoran">Administrasi Perkantoran</option>
-                            <option value="Pemasaran">Pemasaran</option>
-                        </select>
-                        @error('mata_pelajaran')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="contoh@email.com"
+                       value="{{ old('email') }}">
+                @error('email')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Password -->
-                    <div class="md:col-span-2">
-                        <label for="password" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-lock text-blue-600 mr-2"></i>Password
-                        </label>
-                        <div class="relative">
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   required 
-                                   minlength="6"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition pr-12"
-                                   placeholder="Minimal 6 karakter">
-                            <button type="button" 
-                                    onclick="togglePassword('password')" 
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
+            <!-- Nomor HP -->
+            <div class="form-group">
+                <label for="no_hp">Nomor HP</label>
+                <input type="text" id="no_hp" name="no_hp" required 
+                       placeholder="08xxxxxxxxxx"
+                       value="{{ old('no_hp') }}"
+                       pattern="[0-9]{10,15}"
+                       title="Nomor HP harus berisi 10-15 digit angka">
+                @error('no_hp')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Jenis Kelamin -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="jenis_kelamin">Jenis Kelamin</label>
+                    <select id="jenis_kelamin" name="jenis_kelamin" required>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                    @error('jenis_kelamin')<p class="error-text">{{ $message }}</p>@enderror
+                </div>
+
+                <!-- Agama -->
+                <div class="form-group">
+                    <label for="agama">Agama</label>
+                    <select id="agama" name="agama" required>
+                        <option value="">Pilih Agama</option>
+                        <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                        <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                        <option value="Katholik" {{ old('agama') == 'Katholik' ? 'selected' : '' }}>Katholik</option>
+                        <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                        <option value="Budha" {{ old('agama') == 'Budha' ? 'selected' : '' }}>Budha</option>
+                        <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                    </select>
+                    @error('agama')<p class="error-text">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <!-- Mata Pelajaran -->
+            <div class="form-group">
+                <label>Mata Pelajaran</label>
+                <div class="checkbox-group">
+                    @php
+                        $mataPelajaran = [
+                            'Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Fisika',
+                            'Kimia', 'Biologi', 'Sejarah', 'Geografi', 'Ekonomi', 'Sosiologi',
+                            'Pendidikan Jasmani', 'Seni Budaya', 'Teknologi Informasi', 'Lainnya'
+                        ];
+                        $selected = old('mata_pelajaran', []);
+                    @endphp
+                    @foreach($mataPelajaran as $mapel)
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="mapel_{{ $loop->index }}" name="mata_pelajaran[]" 
+                                   value="{{ $mapel }}" {{ in_array($mapel, $selected) ? 'checked' : '' }}>
+                            <label for="mapel_{{ $loop->index }}">{{ $mapel }}</label>
                         </div>
-                        @error('password')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Konfirmasi Password -->
-                    <div class="md:col-span-2">
-                        <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-lock text-blue-600 mr-2"></i>Konfirmasi Password
-                        </label>
-                        <div class="relative">
-                            <input type="password" 
-                                   id="password_confirmation" 
-                                   name="password_confirmation" 
-                                   required 
-                                   minlength="6"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition pr-12"
-                                   placeholder="Ulangi password">
-                            <button type="button" 
-                                    onclick="togglePassword('password_confirmation')" 
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="password_confirmation-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
+                    @endforeach
                 </div>
+                <p class="hint-text">Pilih minimal satu mata pelajaran</p>
+                @error('mata_pelajaran')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                <!-- Submit Button -->
-                <div class="mt-8">
-                    <button type="submit" 
-                            class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition duration-300 transform hover:scale-[1.02] shadow-lg">
-                        <i class="fas fa-user-plus mr-2"></i>Daftar Sebagai Guru
-                    </button>
+            <!-- Password -->
+            <div class="form-group has-password">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Minimal 8 karakter">
+                    <span class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
+                @error('password')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                <!-- Link ke Login & Register Siswa -->
-                <div class="mt-6 text-center">
-                    <p class="text-gray-600">
-                        Sudah punya akun? 
-                        <a href="{{ route('login') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            Login di sini
-                        </a>
-                    </p>
-                    <p class="text-gray-600 mt-2">
-                        Daftar sebagai siswa? 
-                        <a href="{{ route('register.siswa') }}" class="text-green-600 hover:text-green-800 font-semibold">
-                            Registrasi Siswa
-                        </a>
-                    </p>
+            <!-- Konfirmasi Password -->
+            <div class="form-group has-password">
+                <label for="password_confirmation">Konfirmasi Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password_confirmation" name="password_confirmation" required 
+                           placeholder="Ulangi password">
+                    <span class="password-toggle" onclick="togglePassword('password_confirmation')">
+                        <i class="fas fa-eye"></i>
+                    </span>
                 </div>
+                @error('password_confirmation')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-            </form>
+            <button type="submit" class="btn">Daftar Sekarang</button>
+        </form>
+
+        <div class="login-link">
+            <p>Sudah punya akun? <a href="{{ route('login') }}">Login di sini</a></p>
+            <p style="margin-top: 0.5rem;"><a href="{{ route('register.siswa') }}">Daftar sebagai Siswa</a></p>
         </div>
     </div>
 
+    @if ($errors->any())
     <script>
-        // Initialize Tom Select for Mata Pelajaran
-        new TomSelect('#mata_pelajaran', {
-            plugins: ['remove_button'],
-            placeholder: 'Pilih mata pelajaran...',
-            maxItems: null,
-            create: false,
-            onInitialize: function() {
-                this.control_input.setAttribute('required', 'required');
-            }
-        });
-
-        // Toggle password visibility
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(inputId + '-icon');
+        document.addEventListener('DOMContentLoaded', function() {
+            let errorMessages = '';
+            @foreach ($errors->all() as $error)
+                errorMessages += '• {{ $error }}\n';
+            @endforeach
             
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
+            Swal.fire({
+                title: 'Terjadi Kesalahan!',
+                text: errorMessages,
+                icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#0369a1'
+            });
+        });
+    </script>
+    @endif
+
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#0369a1',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+
+    <script>
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggle = event.target.closest('.password-toggle');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
             } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
+                passwordField.type = 'password';
+                toggle.innerHTML = '<i class="fas fa-eye"></i>';
             }
         }
-
-        // Form validation
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const password = document.getElementById('password').value;
-            const passwordConfirmation = document.getElementById('password_confirmation').value;
-            const mataPelajaran = document.querySelector('#mata_pelajaran').tomselect.items;
-
-            // Check if passwords match
-            if (password !== passwordConfirmation) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Password Tidak Cocok',
-                    text: 'Password dan konfirmasi password harus sama!',
-                    confirmButtonColor: '#2563eb'
-                });
-                return false;
-            }
-
-            // Check if at least one mata pelajaran selected
-            if (mataPelajaran.length === 0) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Mata Pelajaran Belum Dipilih',
-                    text: 'Pilih minimal satu mata pelajaran yang diampu!',
-                    confirmButtonColor: '#2563eb'
-                });
-                return false;
-            }
-
-            // Check password length
-            if (password.length < 6) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Password Terlalu Pendek',
-                    text: 'Password minimal 6 karakter!',
-                    confirmButtonColor: '#2563eb'
-                });
-                return false;
-            }
-        });
-
-        // Show success message if exists
-        @if(session('success'))
-            Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                confirmButtonColor: '#2563eb'
-            });
-        @endif
     </script>
-
 </body>
 </html>

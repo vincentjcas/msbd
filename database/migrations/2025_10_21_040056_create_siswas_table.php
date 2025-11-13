@@ -16,10 +16,15 @@ return new class extends Migration
             $table->unsignedBigInteger('id_user')->unique();
             $table->string('nis', 20)->unique();
             $table->unsignedBigInteger('id_kelas')->nullable();
+            $table->char('jenis_kelamin', 1)->nullable(); // L/P
+            $table->string('agama', 50)->nullable();
+            $table->string('tempat_lahir', 100)->nullable();
+            $table->date('tanggal_lahir')->nullable();
+            $table->string('sekolah_asal', 100)->nullable();
             $table->string('nama_orangtua', 100)->nullable();
             $table->string('no_hp_orangtua', 20)->nullable();
             $table->text('alamat')->nullable();
-            $table->date('tanggal_lahir')->nullable();
+            $table->string('no_hp', 20)->nullable();
             $table->timestamp('created_at')->useCurrent();
             
             $table->foreign('id_user')->references('id_user')->on('users')->onDelete('cascade');
