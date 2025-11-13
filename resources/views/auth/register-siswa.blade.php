@@ -3,730 +3,476 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrasi Siswa - SIMAK SMK</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>Registrasi Siswa - MSBD System</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/yapim.png') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* Custom styling for read-only fields */
-        input[readonly], textarea[readonly] {
-            background-color: #f3f4f6 !important;
-            cursor: not-allowed;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        
-        /* Visual feedback for disabled-like selects and radios */
-        select.cursor-not-allowed {
-            cursor: not-allowed !important;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
         }
-        
-        /* Ensure pointer-events none doesn't affect visual styling */
-        select[style*="pointer-events: none"],
-        input[type="radio"][style*="pointer-events: none"] {
-            opacity: 1 !important;
+        .register-container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .register-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .register-header h1 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .register-header p {
+            color: #666;
+            font-size: 0.95rem;
+            font-weight: 400;
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.85rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .form-group input::placeholder, .form-group select::placeholder, .form-group textarea::placeholder {
+            color: #999;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #0369a1;
+            box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
+        }
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 640px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        .btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 1rem;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(3, 105, 161, 0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+            font-size: 0.95rem;
+        }
+        .login-link a {
+            color: #0369a1;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .login-link a:hover {
+            color: #06b6d4;
+            text-decoration: underline;
+        }
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+        }
+        .alert-error {
+            background: #fee2e2;
+            border-left: 4px solid #dc2626;
+            color: #991b1b;
+        }
+        .alert-success {
+            background: #dcfce7;
+            border-left: 4px solid #16a34a;
+            color: #15803d;
+        }
+        .alert-info {
+            background: #e0f2fe;
+            border-left: 4px solid #0284c7;
+            color: #0c4a6e;
+        }
+        .hint-text {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        .error-text {
+            color: #dc2626;
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .logo-container img {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+        }
+        .password-wrapper {
+            position: relative;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            font-size: 1.1rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .password-toggle:hover {
+            color: #0369a1;
+        }
+        .form-group.has-password input {
+            padding-right: 2.8rem;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-sky-50 to-cyan-100 min-h-screen flex items-center justify-center p-4">
-    
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-sky-500 to-cyan-500 p-8 text-white text-center">
-            <div class="flex justify-center mb-4">
-                @if(file_exists(public_path('images/yapim.png')))
-                    <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" class="h-20 w-20 object-contain">
-                @else
-                    <i class="fas fa-user-graduate text-6xl"></i>
-                @endif
-            </div>
-            <h1 class="text-3xl font-bold mb-2">Registrasi Siswa</h1>
-            <p class="text-sky-100">Sistem Informasi Manajemen Akademik SMK</p>
+<body>
+    <div class="register-container">
+        <div class="logo-container">
+            <img src="{{ asset('images/yapim.png') }}" alt="Logo MSBD">
+        </div>
+        <div class="register-header">
+            <h1>Registrasi Siswa</h1>
+            <p>Sistem Informasi Manajemen Akademik SMK</p>
         </div>
 
-        <!-- Form -->
-        <div class="p-8">
-            @if(session('error'))
-                <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded">
-                    <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle text-red-500 mr-3"></i>
-                        <p class="text-red-700">{{ session('error') }}</p>
-                    </div>
+        @if($errors->any())
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>
+                    @foreach ($errors->all() as $error)
+                        <div>{{ $error }}</div>
+                    @endforeach
                 </div>
-            @endif
+            </div>
+        @endif
 
-            <form action="{{ route('register.siswa.submit') }}" method="POST" id="registerForm">
-                @csrf
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    
-                    <!-- NIS -->
-                    <div class="md:col-span-2">
-                        <label for="nis" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-id-card text-sky-600 mr-2"></i>NIS (Nomor Induk Siswa)
-                        </label>
-                        <input type="text" 
-                               id="nis" 
-                               name="nis" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="Masukkan NIS (minimal 10 digit)"
-                               value="{{ old('nis') }}">
-                        <p class="text-xs text-gray-500 mt-1">
-                            <i class="fas fa-info-circle"></i> 
-                            Ketik 10 digit NIS untuk mengecek data siswa
-                        </p>
-                        @error('nis')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        @if(session('error'))
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <div>{{ session('error') }}</div>
+            </div>
+        @endif
 
-                    <!-- Nama Lengkap -->
-                    <div class="md:col-span-2">
-                        <label for="name" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-user text-sky-600 mr-2"></i>Nama Lengkap
-                        </label>
-                        <input type="text" 
-                               id="name" 
-                               name="name" 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="Nama akan otomatis terisi jika NIS ditemukan"
-                               value="{{ old('name') }}">
-                        <p class="text-xs text-gray-500 mt-1" id="name-hint">
-                            <i class="fas fa-info-circle"></i> 
-                            Jika NIS tidak ditemukan, wajib diisi manual
-                        </p>
-                        @error('name')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        @if(session('success'))
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <div>{{ session('success') }}</div>
+            </div>
+        @endif
 
-                    <!-- Email -->
-                    <div class="md:col-span-2">
-                        <label for="email" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-envelope text-sky-600 mr-2"></i>Email
-                        </label>
-                        <input type="email" 
-                               id="email" 
-                               name="email" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="contoh@email.com"
-                               value="{{ old('email') }}">
-                        @error('email')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+        <form action="{{ route('register.siswa.submit') }}" method="POST">
+            @csrf
 
-                    <!-- Nomor HP -->
-                    <div class="md:col-span-2">
-                        <label for="no_hp" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-phone text-sky-600 mr-2"></i>Nomor HP
-                        </label>
-                        <input type="text" 
-                               id="no_hp" 
-                               name="no_hp" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="08xxxxxxxxxx"
-                               value="{{ old('no_hp') }}"
-                               pattern="[0-9]{10,15}"
-                               title="Nomor HP harus berisi 10-15 digit angka">
-                        @error('no_hp')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- NIS -->
+            <div class="form-group">
+                <label for="nis">NIS (Nomor Induk Siswa)</label>
+                <input type="text" id="nis" name="nis" required 
+                       placeholder="Masukkan NIS (minimal 10 digit)"
+                       value="{{ old('nis') }}">
+                <p class="hint-text">Ketik 10 digit NIS untuk mengecek data siswa</p>
+                @error('nis')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Tempat Lahir -->
-                    <div>
-                        <label for="tempat_lahir" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-map-marker-alt text-sky-600 mr-2"></i>Tempat Lahir
-                        </label>
-                        <input type="text" 
-                               id="tempat_lahir" 
-                               name="tempat_lahir" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="Kota/Kabupaten"
-                               value="{{ old('tempat_lahir') }}">
-                        @error('tempat_lahir')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- Nama Lengkap -->
+            <div class="form-group">
+                <label for="name">Nama Lengkap</label>
+                <input type="text" id="name" name="name" required
+                       placeholder="Nama akan otomatis terisi jika NIS ditemukan"
+                       value="{{ old('name') }}">
+                <p class="hint-text" id="name-hint">Jika NIS tidak ditemukan, wajib diisi manual</p>
+                @error('name')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Tanggal Lahir -->
-                    <div>
-                        <label for="tanggal_lahir" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-calendar-alt text-sky-600 mr-2"></i>Tanggal Lahir
-                        </label>
-                        <input type="date" 
-                               id="tanggal_lahir" 
-                               name="tanggal_lahir" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               value="{{ old('tanggal_lahir') }}">
-                        @error('tanggal_lahir')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- Email -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required 
+                       placeholder="contoh@email.com"
+                       value="{{ old('email') }}">
+                @error('email')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Jenis Kelamin -->
-                    <div>
-                        <label for="jenis_kelamin" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-venus-mars text-sky-600 mr-2"></i>Jenis Kelamin
-                        </label>
-                        <select id="jenis_kelamin" 
-                                name="jenis_kelamin" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                            <option value="" disabled selected>Pilih Jenis Kelamin</option>
-                            <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
-                            <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
-                        </select>
-                        @error('jenis_kelamin')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
+            <!-- Nomor HP -->
+            <div class="form-group">
+                <label for="no_hp">Nomor HP</label>
+                <input type="text" id="no_hp" name="no_hp" required 
+                       placeholder="08xxxxxxxxxx"
+                       value="{{ old('no_hp') }}"
+                       pattern="[0-9]{10,15}"
+                       title="Nomor HP harus berisi 10-15 digit angka">
+                @error('no_hp')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
 
-                    <!-- Agama -->
-                    <div>
-                        <label for="agama" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-praying-hands text-sky-600 mr-2"></i>Agama
-                        </label>
-                        <select id="agama" 
-                                name="agama" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                            <option value="" disabled selected>Pilih Agama</option>
-                            <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
-                            <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                            <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                            <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                            <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
-                            <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
-                        </select>
-                        @error('agama')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Kelas -->
-                    <div class="md:col-span-2">
-                        <label for="id_kelas" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-school text-sky-600 mr-2"></i>Kelas
-                        </label>
-                        <select id="id_kelas" 
-                                name="id_kelas" 
-                                required 
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition">
-                            <option value="" disabled selected>Pilih Kelas</option>
-                            @foreach($kelas as $k)
-                                <option value="{{ $k->id_kelas }}" {{ old('id_kelas') == $k->id_kelas ? 'selected' : '' }}>
-                                    {{ $k->nama_kelas }} @if($k->jurusan) - {{ $k->jurusan }} @endif
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('id_kelas')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Sekolah Asal -->
-                    <div class="md:col-span-2">
-                        <label for="sekolah_asal" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-building text-sky-600 mr-2"></i>Sekolah Asal
-                        </label>
-                        <input type="text" 
-                               id="sekolah_asal" 
-                               name="sekolah_asal" 
-                               required 
-                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition"
-                               placeholder="Nama SMP/MTs asal"
-                               value="{{ old('sekolah_asal') }}">
-                        @error('sekolah_asal')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Alamat -->
-                    <div class="md:col-span-2">
-                        <label for="alamat" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-home text-sky-600 mr-2"></i>Alamat Lengkap
-                        </label>
-                        <textarea id="alamat" 
-                                  name="alamat" 
-                                  required 
-                                  rows="3"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition resize-none"
-                                  placeholder="Jl. Nama Jalan, RT/RW, Kelurahan, Kecamatan, Kota/Kabupaten">{{ old('alamat') }}</textarea>
-                        @error('alamat')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Password -->
-                    <div class="md:col-span-2">
-                        <label for="password" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-lock text-sky-600 mr-2"></i>Password
-                        </label>
-                        <div class="relative">
-                            <input type="password" 
-                                   id="password" 
-                                   name="password" 
-                                   required 
-                                   minlength="6"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition pr-12"
-                                   placeholder="Minimal 6 karakter">
-                            <button type="button" 
-                                    onclick="togglePassword('password')" 
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
-                        </div>
-                        @error('password')
-                            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Konfirmasi Password -->
-                    <div class="md:col-span-2">
-                        <label for="password_confirmation" class="block text-gray-700 font-semibold mb-2">
-                            <i class="fas fa-lock text-sky-600 mr-2"></i>Konfirmasi Password
-                        </label>
-                        <div class="relative">
-                            <input type="password" 
-                                   id="password_confirmation" 
-                                   name="password_confirmation" 
-                                   required 
-                                   minlength="6"
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 transition pr-12"
-                                   placeholder="Ulangi password">
-                            <button type="button" 
-                                    onclick="togglePassword('password_confirmation')" 
-                                    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                                <i class="fas fa-eye" id="password_confirmation-icon"></i>
-                            </button>
-                        </div>
-                    </div>
-
+            <!-- Tempat Lahir -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tempat_lahir">Tempat Lahir</label>
+                    <input type="text" id="tempat_lahir" name="tempat_lahir" required 
+                           placeholder="Kota/Kabupaten"
+                           value="{{ old('tempat_lahir') }}">
+                    @error('tempat_lahir')<p class="error-text">{{ $message }}</p>@enderror
                 </div>
 
-                <!-- Submit Button -->
-                <div class="mt-8">
-                    <button type="submit" 
-                            class="w-full bg-gradient-to-r from-sky-500 to-cyan-500 text-white py-4 rounded-lg font-semibold hover:from-sky-600 hover:to-cyan-600 transition duration-300 transform hover:scale-[1.02] shadow-lg">
-                        <i class="fas fa-user-plus mr-2"></i>Daftar Sebagai Siswa
-                    </button>
+                <!-- Tanggal Lahir -->
+                <div class="form-group">
+                    <label for="tanggal_lahir">Tanggal Lahir</label>
+                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" required 
+                           value="{{ old('tanggal_lahir') }}">
+                    @error('tanggal_lahir')<p class="error-text">{{ $message }}</p>@enderror
+                </div>
+            </div>
+
+            <!-- Jenis Kelamin -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="jenis_kelamin">Jenis Kelamin</label>
+                    <select id="jenis_kelamin" name="jenis_kelamin" required>
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
+                        <option value="P" {{ old('jenis_kelamin') == 'P' ? 'selected' : '' }}>Perempuan</option>
+                    </select>
+                    @error('jenis_kelamin')<p class="error-text">{{ $message }}</p>@enderror
                 </div>
 
-                <!-- Link ke Login & Register Guru -->
-                <div class="mt-6 text-center">
-                    <p class="text-gray-600">
-                        Sudah punya akun? 
-                        <a href="{{ route('login') }}" class="text-sky-600 hover:text-sky-800 font-semibold">
-                            Login di sini
-                        </a>
-                    </p>
-                    <p class="text-gray-600 mt-2">
-                        Daftar sebagai guru? 
-                        <a href="{{ route('register.guru') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
-                            Registrasi Guru
-                        </a>
-                    </p>
+                <!-- Agama -->
+                <div class="form-group">
+                    <label for="agama">Agama</label>
+                    <select id="agama" name="agama" required>
+                        <option value="">Pilih Agama</option>
+                        <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                        <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                        <option value="Katholik" {{ old('agama') == 'Katholik' ? 'selected' : '' }}>Katholik</option>
+                        <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                        <option value="Budha" {{ old('agama') == 'Budha' ? 'selected' : '' }}>Budha</option>
+                        <option value="Konghucu" {{ old('agama') == 'Konghucu' ? 'selected' : '' }}>Konghucu</option>
+                    </select>
+                    @error('agama')<p class="error-text">{{ $message }}</p>@enderror
                 </div>
+            </div>
 
-            </form>
+            <!-- Kelas -->
+            <div class="form-group">
+                <label for="id_kelas">Kelas</label>
+                <select id="id_kelas" name="id_kelas" required>
+                    <option value="">Pilih Kelas</option>
+                    @if(isset($kelas) && $kelas->count() > 0)
+                        @php $currentTingkat = null; @endphp
+                        @foreach($kelas as $item)
+                            @if($currentTingkat !== $item->tingkat)
+                                @if($currentTingkat !== null)</optgroup>@endif
+                                <optgroup label="Kelas {{ $item->tingkat }}">
+                                @php $currentTingkat = $item->tingkat; @endphp
+                            @endif
+                            <option value="{{ $item->id_kelas }}" {{ old('id_kelas') == $item->id_kelas ? 'selected' : '' }}>
+                                {{ $item->nama_kelas }} - {{ $item->jurusan }}
+                            </option>
+                        @endforeach
+                        @if($currentTingkat !== null)</optgroup>@endif
+                    @else
+                        <option value="">Tidak ada kelas tersedia</option>
+                    @endif
+                </select>
+                @error('id_kelas')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Password -->
+            <div class="form-group has-password">
+                <label for="password">Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Minimal 8 karakter">
+                    <span class="password-toggle" onclick="togglePassword('password')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                @error('password')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Konfirmasi Password -->
+            <div class="form-group has-password">
+                <label for="password_confirmation">Konfirmasi Password</label>
+                <div class="password-wrapper">
+                    <input type="password" id="password_confirmation" name="password_confirmation" required 
+                           placeholder="Ulangi password">
+                    <span class="password-toggle" onclick="togglePassword('password_confirmation')">
+                        <i class="fas fa-eye"></i>
+                    </span>
+                </div>
+                @error('password_confirmation')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
+            <button type="submit" class="btn">Daftar Sekarang</button>
+        </form>
+
+        <div class="login-link">
+            <p>Sudah punya akun? <a href="{{ route('login') }}">Login di sini</a></p>
+            <p style="margin-top: 0.5rem;"><a href="{{ route('register.guru') }}">Daftar sebagai Guru</a></p>
         </div>
     </div>
 
+    @if ($errors->any())
     <script>
-        // Toggle password visibility
-        function togglePassword(inputId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(inputId + '-icon');
+        document.addEventListener('DOMContentLoaded', function() {
+            let errorMessages = '';
+            @foreach ($errors->all() as $error)
+                errorMessages += '• {{ $error }}\n';
+            @endforeach
             
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Form validation
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            const password = document.getElementById('password').value;
-            const passwordConfirmation = document.getElementById('password_confirmation').value;
-            const nis = nisInput.value.trim();
-            const name = namaInput.value.trim();
-
-            // Check if name is required (when NIS has orange border = not found in master)
-            if (nisInput.classList.contains('border-orange-500') && !name) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Nama Wajib Diisi',
-                    text: 'Karena NIS tidak terdaftar di data master, Anda harus mengisi nama secara manual.',
-                    confirmButtonColor: '#0ea5e9'
-                });
-                namaInput.focus();
-                return false;
-            }
-
-            // Check if passwords match
-            if (password !== passwordConfirmation) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Password Tidak Cocok',
-                    text: 'Password dan konfirmasi password harus sama!',
-                    confirmButtonColor: '#0ea5e9'
-                });
-                return false;
-            }
-
-            // Check password length
-            if (password.length < 6) {
-                e.preventDefault();
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Password Terlalu Pendek',
-                    text: 'Password minimal 6 karakter!',
-                    confirmButtonColor: '#0ea5e9'
-                });
-                return false;
-            }
-        });
-
-        // Show success message if exists
-        @if(session('success'))
             Swal.fire({
-                icon: 'success',
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                confirmButtonColor: '#0ea5e9'
+                title: 'Terjadi Kesalahan!',
+                text: errorMessages,
+                icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#0369a1'
             });
-        @endif
+        });
+    </script>
+    @endif
 
-        // ===== AUTOCOMPLETE NIS =====
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: "{{ session('success') }}",
+                icon: 'success',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#0369a1',
+                timer: 3000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+    @endif
+
+    <script>
+        // Check NIS saat user selesai input
         const nisInput = document.getElementById('nis');
-        const namaInput = document.getElementById('name');
-        const tempatLahirInput = document.getElementById('tempat_lahir');
-        const tanggalLahirInput = document.getElementById('tanggal_lahir');
-        const jenisKelaminSelect = document.getElementById('jenis_kelamin'); // SELECT, bukan radio
-        const agamaSelect = document.getElementById('agama');
-        const kelasSelect = document.getElementById('id_kelas');
-        const sekolahAsalInput = document.getElementById('sekolah_asal');
-        const alamatTextarea = document.getElementById('alamat');
-        
-        let typingTimer;
-        const doneTypingInterval = 800;
-        const minNisLength = 10;
+        const nameInput = document.getElementById('name');
+        const nameHint = document.getElementById('name-hint');
 
-        nisInput.addEventListener('input', function() {
-            clearTimeout(typingTimer);
-            const nis = this.value.trim();
-            
-            // Reset border colors saat mengetik
-            nisInput.classList.remove('border-green-500', 'border-red-500', 'border-yellow-400');
-            
-            if (nis.length >= minNisLength) { // Minimal 10 karakter untuk mulai search
-                nisInput.classList.add('border-yellow-400'); // Show loading indicator
-                typingTimer = setTimeout(() => checkNIS(nis), doneTypingInterval);
-            } else if (nis.length > 0 && nis.length < minNisLength) {
-                // Jangan reset form, hanya beri hint
-                // User masih mengetik
-            } else {
-                // Reset form jika NIS kosong
-                resetForm();
+        nisInput.addEventListener('blur', function() {
+            if (this.value.length >= 10) {
+                checkNIS(this.value);
             }
         });
 
         function checkNIS(nis) {
-            // NIS input sudah ada border-yellow-400 dari event listener
-            
             fetch(`/api/check-nis/${nis}`)
                 .then(response => response.json())
                 .then(data => {
-                    nisInput.classList.remove('border-yellow-400');
-                    
                     if (data.found) {
-                        if (data.already_registered) {
-                            // NIS sudah pernah terdaftar
-                            nisInput.classList.add('border-red-500');
-                            resetForm();
-                            
-                            Swal.fire({
-                                icon: 'warning',
-                                title: 'NIS Sudah Terdaftar',
-                                text: 'NIS ini sudah pernah digunakan untuk registrasi.',
-                                confirmButtonColor: '#0ea5e9'
-                            });
-                        } else {
-                            // NIS ditemukan, fill form
-                            nisInput.classList.add('border-green-500');
-                            fillForm(data.data);
-                            
-                            // Show success notification (tidak blocking)
-                            const Toast = Swal.mixin({
-                                toast: true,
-                                position: 'top-end',
-                                showConfirmButton: false,
-                                timer: 3000,
-                                timerProgressBar: true,
-                            });
-                            
-                            Toast.fire({
-                                icon: 'success',
-                                title: 'Data Ditemukan!',
-                                text: `${data.data.nama_siswa} - ${data.data.nama_kelas}`
-                            });
-                        }
+                        nameInput.value = data.name;
+                        nameInput.readOnly = true;
+                        nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan';
+                        nameHint.style.color = '#059669';
                     } else {
-                        // NIS tidak ditemukan - TIDAK BLOCKING, beri info saja
-                        nisInput.classList.add('border-orange-500');
-                        
-                        // Enable all fields untuk input manual
-                        enableFormForManualInput();
-                        
-                        // Show info toast (bukan error popup)
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top-end',
-                            showConfirmButton: false,
-                            timer: 4000,
-                            timerProgressBar: true,
-                        });
-                        
-                        Toast.fire({
-                            icon: 'info',
-                            title: 'NIS Tidak Ditemukan',
-                            text: 'Silakan isi form secara manual. Data akan diverifikasi admin.'
-                        });
+                        nameInput.readOnly = false;
+                        nameHint.innerHTML = '<i class="fas fa-info-circle"></i> NIS tidak ditemukan, silakan isi nama manual';
+                        nameHint.style.color = '#666';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    nisInput.classList.remove('border-yellow-400');
-                    nisInput.classList.add('border-red-500');
+                    nameInput.readOnly = false;
+                    nameHint.innerHTML = '<i class="fas fa-info-circle"></i> Jika NIS tidak ditemukan, wajib diisi manual';
                 });
         }
 
-        function fillForm(data) {
-            console.log('Data dari API:', data); // Debug log
-            
-            // Fill nama (read-only)
-            namaInput.value = data.nama_siswa || '';
-            namaInput.readOnly = true;
-            namaInput.classList.add('bg-gray-100');
-            namaInput.removeAttribute('required'); // Tidak perlu required karena sudah terisi otomatis
-            
-            // Update hint
-            const nameHint = document.getElementById('name-hint');
-            nameHint.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> Data otomatis dari database';
-            nameHint.classList.remove('text-gray-500');
-            nameHint.classList.add('text-green-600');
-            
-            // Fill tempat lahir
-            tempatLahirInput.value = data.tempat_lahir || '';
-            tempatLahirInput.readOnly = true;
-            tempatLahirInput.classList.add('bg-gray-100');
-            
-            // Fill tanggal lahir
-            tanggalLahirInput.value = data.tanggal_lahir || '';
-            tanggalLahirInput.readOnly = true;
-            tanggalLahirInput.classList.add('bg-gray-100');
-            
-            // Select jenis kelamin (SELECT dropdown, bukan radio)
-            if (data.jenis_kelamin) {
-                console.log('Jenis Kelamin dari API:', data.jenis_kelamin); // Debug
-                jenisKelaminSelect.value = data.jenis_kelamin; // Set value L atau P
-                jenisKelaminSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
-                jenisKelaminSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
+        function togglePassword(fieldId) {
+            const passwordField = document.getElementById(fieldId);
+            const toggle = event.target.closest('.password-toggle');
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                toggle.innerHTML = '<i class="fas fa-eye-slash"></i>';
+            } else {
+                passwordField.type = 'password';
+                toggle.innerHTML = '<i class="fas fa-eye"></i>';
             }
-            
-            // Select agama (pakai pointer-events none, bukan disabled)
-            if (data.agama) {
-                console.log('Agama dari API:', data.agama); // Debug
-                console.log('Agama select options available:', Array.from(agamaSelect.options).map(o => o.value)); // Debug
-                
-                // Mapping untuk variasi spelling agama
-                const agamaMapping = {
-                    'katholik': 'Katolik',
-                    'katolik': 'Katolik',
-                    'islam': 'Islam',
-                    'kristen': 'Kristen',
-                    'protestan': 'Kristen',
-                    'hindu': 'Hindu',
-                    'buddha': 'Buddha',
-                    'budha': 'Buddha',
-                    'konghucu': 'Konghucu',
-                    'khonghucu': 'Konghucu',
-                };
-                
-                // Coba beberapa strategi matching
-                let agamaMatched = false;
-                const agamaFromAPI = String(data.agama).trim();
-                
-                // Strategy 1: Exact match (case-sensitive)
-                agamaSelect.value = agamaFromAPI;
-                if (agamaSelect.value) {
-                    agamaMatched = true;
-                    console.log('Agama matched (exact):', agamaSelect.value);
-                }
-                
-                // Strategy 2: Mapping berdasarkan lowercase
-                if (!agamaMatched && agamaFromAPI) {
-                    const agamaLower = agamaFromAPI.toLowerCase();
-                    if (agamaMapping[agamaLower]) {
-                        agamaSelect.value = agamaMapping[agamaLower];
-                        if (agamaSelect.value) {
-                            agamaMatched = true;
-                            console.log('Agama matched (mapping):', agamaSelect.value);
-                        }
-                    }
-                }
-                
-                // Strategy 3: Capitalize first letter
-                if (!agamaMatched && agamaFromAPI) {
-                    const capitalized = agamaFromAPI.charAt(0).toUpperCase() + agamaFromAPI.slice(1).toLowerCase();
-                    agamaSelect.value = capitalized;
-                    if (agamaSelect.value) {
-                        agamaMatched = true;
-                        console.log('Agama matched (capitalized):', agamaSelect.value);
-                    }
-                }
-                
-                // Strategy 4: Try all options with case-insensitive comparison
-                if (!agamaMatched && agamaFromAPI) {
-                    const options = agamaSelect.options;
-                    for (let i = 0; i < options.length; i++) {
-                        if (options[i].value.toLowerCase() === agamaFromAPI.toLowerCase()) {
-                            agamaSelect.value = options[i].value;
-                            agamaMatched = true;
-                            console.log('Agama matched (case-insensitive):', agamaSelect.value);
-                            break;
-                        }
-                    }
-                }
-                
-                if (!agamaMatched) {
-                    console.warn('Agama tidak cocok dengan option manapun! Data dari API:', agamaFromAPI);
-                    console.warn('Available options:', Array.from(agamaSelect.options).map(o => o.value));
-                }
-                
-                agamaSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
-                agamaSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
-            }
-            
-            // Select kelas (pakai pointer-events none, bukan disabled)
-            if (data.id_kelas) {
-                kelasSelect.value = data.id_kelas;
-                kelasSelect.style.pointerEvents = 'none'; // Tidak bisa diklik
-                kelasSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
-            }
-            
-            // Fill sekolah asal
-            sekolahAsalInput.value = data.sekolah_asal || '';
-            sekolahAsalInput.readOnly = true;
-            sekolahAsalInput.classList.add('bg-gray-100');
-            
-            // Fill alamat
-            alamatTextarea.value = data.alamat || '';
-            alamatTextarea.readOnly = true;
-            alamatTextarea.classList.add('bg-gray-100');
-        }
-
-        function resetForm() {
-            nisInput.classList.remove('border-green-500', 'border-red-500', 'border-orange-500');
-            
-            // Reset and enable all fields
-            namaInput.value = '';
-            namaInput.readOnly = false;
-            namaInput.classList.remove('bg-gray-100');
-            namaInput.removeAttribute('required');
-            
-            // Reset hint
-            const nameHint = document.getElementById('name-hint');
-            nameHint.innerHTML = '<i class="fas fa-info-circle"></i> Jika NIS tidak ditemukan, wajib diisi manual';
-            nameHint.classList.remove('text-green-600', 'text-orange-600');
-            nameHint.classList.add('text-gray-500');
-            
-            tempatLahirInput.value = '';
-            tempatLahirInput.readOnly = false;
-            tempatLahirInput.classList.remove('bg-gray-100');
-            
-            tanggalLahirInput.value = '';
-            tanggalLahirInput.readOnly = false;
-            tanggalLahirInput.classList.remove('bg-gray-100');
-            
-            jenisKelaminSelect.value = '';
-            jenisKelaminSelect.style.pointerEvents = ''; // Reset pointer-events
-            jenisKelaminSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            agamaSelect.value = '';
-            agamaSelect.style.pointerEvents = ''; // Reset pointer-events
-            agamaSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            kelasSelect.value = '';
-            kelasSelect.style.pointerEvents = ''; // Reset pointer-events
-            kelasSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            sekolahAsalInput.value = '';
-            sekolahAsalInput.readOnly = false;
-            sekolahAsalInput.classList.remove('bg-gray-100');
-            
-            alamatTextarea.value = '';
-            alamatTextarea.readOnly = false;
-            alamatTextarea.classList.remove('bg-gray-100');
-        }
-
-        function enableFormForManualInput() {
-            // Fungsi ini dipanggil saat NIS tidak ditemukan
-            // Form dibiarkan kosong dan editable untuk input manual
-            
-            namaInput.value = '';
-            namaInput.readOnly = false;
-            namaInput.classList.remove('bg-gray-100');
-            namaInput.placeholder = 'Masukkan Nama Lengkap';
-            namaInput.setAttribute('required', 'required'); // WAJIB diisi jika NIS tidak ditemukan
-            
-            // Update hint menjadi warning
-            const nameHint = document.getElementById('name-hint');
-            nameHint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> WAJIB diisi karena NIS tidak terdaftar di data master';
-            nameHint.classList.remove('text-gray-500', 'text-green-600');
-            nameHint.classList.add('text-orange-600', 'font-semibold');
-            
-            tempatLahirInput.value = '';
-            tempatLahirInput.readOnly = false;
-            tempatLahirInput.classList.remove('bg-gray-100');
-            
-            tanggalLahirInput.value = '';
-            tanggalLahirInput.readOnly = false;
-            tanggalLahirInput.classList.remove('bg-gray-100');
-            
-            jenisKelaminSelect.value = '';
-            jenisKelaminSelect.style.pointerEvents = '';
-            jenisKelaminSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            agamaSelect.value = '';
-            agamaSelect.style.pointerEvents = '';
-            agamaSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            kelasSelect.value = '';
-            kelasSelect.style.pointerEvents = '';
-            kelasSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-            
-            sekolahAsalInput.value = '';
-            sekolahAsalInput.readOnly = false;
-            sekolahAsalInput.classList.remove('bg-gray-100');
-            
-            alamatTextarea.value = '';
-            alamatTextarea.readOnly = false;
-            alamatTextarea.classList.remove('bg-gray-100');
         }
     </script>
-
 </body>
 </html>

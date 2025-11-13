@@ -150,41 +150,184 @@
 
 <script>
 function isiAbsen() {
-    const now = new Date();
-    const tanggal = now.toLocaleDateString('id-ID', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+    // Cek status absen hari ini terlebih dahulu
+    fetch('{{ route("siswa.presensi.status") }}', {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            Swal.fire({
+                title: 'Error',
+                text: data.message,
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Jika sudah absen
+        if (data.sudah_absen && data.data) {
+            Swal.fire({
+                title: 'Sudah Absen',
+                html: `
+                    <p><strong>Anda sudah melakukan absen hari ini</strong></p>
+                    <p>Status: <strong style="color: #10b981;">${data.data.status.toUpperCase()}</strong></p>
+                    <p>Jam: <strong>${data.data.jam_submit}</strong></p>
+                    <p>Verifikasi: <strong style="color: #f59e0b;">${data.data.status_verifikasi.toUpperCase()}</strong></p>
+                    ${data.data.verifikasi_at ? `<p>Diverifikasi: ${data.data.verifikasi_at}</p>` : ''}
+                `,
+                icon: 'info',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Jika belum ada jadwal yang sedang aktif
+        if (!data.sudah_absen && !data.data) {
+            Swal.fire({
+                title: '⏰ Tidak Ada Jadwal Aktif',
+                html: `
+                    <p><strong>${data.message}</strong></p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                        Silakan coba lagi saat jadwal pelajaran berlangsung
+                    </p>
+                `,
+                icon: 'warning',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        // Form untuk submit absen
+        const now = new Date();
+        const tanggal = now.toLocaleDateString('id-ID', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+        
+        Swal.fire({
+            title: 'Konfirmasi Kehadiran',
+            html: `
+                <p style="margin-bottom: 1rem;">Tanggal: <strong>${tanggal}</strong></p>
+                <p style="margin-bottom: 1rem;">Anda akan mengisi kehadiran untuk hari ini</p>
+                <label style="display: block; margin-bottom: 0.5rem; text-align: left;">Status Kehadiran:</label>
+                <select id="statusAbsen" class="swal2-input" style="width: 80%;">
+                    <option value="">-- Pilih Status --</option>
+                    <option value="hadir">✅ Hadir</option>
+                    <option value="izin">📄 Izin (Sakit/Keperluan)</option>
+                    <option value="sakit">🏥 Sakit</option>
+                </select>
+                <label style="display: block; margin-top: 1rem; margin-bottom: 0.5rem; text-align: left;">Keterangan (Opsional):</label>
+                <textarea id="keteranganAbsen" class="swal2-input" placeholder="Contoh: Izin keluarga..." style="height: 80px; width: 90%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></textarea>
+            `,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Kirim Absen',
+            cancelButtonText: 'Batal',
+            preConfirm: () => {
+                const status = document.getElementById('statusAbsen').value;
+                const keterangan = document.getElementById('keteranganAbsen').value;
+                
+                if (!status) {
+                    Swal.showValidationMessage('Pilih status kehadiran terlebih dahulu');
+                    return false;
+                }
+                
+                return { status, keterangan };
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                submitAbsen(result.value.status, result.value.keterangan);
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error',
+            text: 'Gagal mengecek status absen: ' + error.message,
+            icon: 'error'
+        });
     });
-    
+}
+
+function submitAbsen(status, keterangan) {
+    // Show loading
     Swal.fire({
-        title: 'Konfirmasi Kehadiran',
-        html: `
-            <p style="margin-bottom: 1rem;">Tanggal: <strong>${tanggal}</strong></p>
-            <p style="margin-bottom: 1rem;">Anda akan mengisi kehadiran untuk hari ini</p>
-            <label style="display: block; margin-bottom: 0.5rem; text-align: left;">Status Kehadiran:</label>
-            <select id="statusAbsen" class="swal2-input" style="width: 80%;">
-                <option value="hadir">Hadir</option>
-                <option value="izin">Izin</option>
-                <option value="sakit">Sakit</option>
-            </select>
-        `,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Kirim Absen',
-        cancelButtonText: 'Batal',
-        preConfirm: () => {
-            const status = document.getElementById('statusAbsen').value;
-            return { status: status };
+        title: 'Mengirim Absen...',
+        html: '<p>Mohon tunggu sebentar...</p>',
+        icon: 'info',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
         }
-    }).then((result) => {
-        if (result.isConfirmed) {
-            // TODO: Kirim ke backend
-            const statusText = result.value.status === 'hadir' ? 'Hadir' : 
-                              result.value.status === 'izin' ? 'Izin' : 'Sakit';
-            Swal.fire('Berhasil!', `Kehadiran Anda tercatat sebagai: ${statusText}`, 'success');
+    });
+
+    fetch('{{ route("siswa.presensi.submit") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+            status: status,
+            keterangan: keterangan
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                title: '✅ Absen Berhasil!',
+                html: `
+                    <p><strong>Status:</strong> ${data.data.status.toUpperCase()}</p>
+                    <p><strong>Tanggal:</strong> ${data.data.tanggal}</p>
+                    <p><strong>Jam:</strong> ${data.data.jam_submit}</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #6b7280;">
+                        Status verifikasi: <strong style="color: #f59e0b;">PENDING</strong><br>
+                        Menunggu verifikasi dari guru yang mengajar
+                    </p>
+                `,
+                icon: 'success',
+                confirmButtonText: 'OK'
+            });
+        } else {
+            if (data.existing_status) {
+                // Sudah ada presensi (dari response 409)
+                Swal.fire({
+                    title: 'Sudah Absen',
+                    html: `
+                        <p>${data.message}</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Absen jam: ${data.existing_at}</p>
+                    `,
+                    icon: 'warning',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: data.message,
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
         }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Gagal mengirim absen: ' + error.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+        });
     });
 }
 </script>
