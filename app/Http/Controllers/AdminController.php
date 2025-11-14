@@ -30,9 +30,9 @@ class AdminController extends Controller
         $totalGuru = User::where('role', 'guru')->where('status_aktif', 1)->count();
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalKelas = Kelas::count();
-        $pendingGuru = User::where('role', 'guru')->where('status_aktif', 0)->count();
+        $pendingSiswa = User::where('role', 'siswa')->where('status_aktif', 0)->count();
         
-        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingGuru'));
+        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingSiswa'));
     }
 
     public function users()
@@ -323,9 +323,18 @@ class AdminController extends Controller
         return view('admin.log-aktivitas', compact('logs'));
     }
 
-    /**
-     * Tampilkan halaman verifikasi guru yang pending
-     */
+    /*
+    ========================================
+    SISTEM VERIFIKASI GURU - DISABLED
+    ========================================
+    Sistem verifikasi guru tidak lagi digunakan.
+    Guru sekarang langsung aktif setelah registrasi.
+    Methods ini di-comment untuk backward compatibility.
+    ========================================
+    */
+
+    /*
+    // DISABLED: Tampilkan halaman verifikasi guru yang pending
     public function verifikasiGuru()
     {
         $pendingGuru = User::where('role', 'guru')
@@ -336,9 +345,7 @@ class AdminController extends Controller
         return view('admin.verifikasi-guru', compact('pendingGuru'));
     }
 
-    /**
-     * Approve pendaftaran guru
-     */
+    // DISABLED: Approve pendaftaran guru
     public function approveGuru($id)
     {
         DB::beginTransaction();
@@ -360,9 +367,7 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Reject pendaftaran guru dan hapus akun
-     */
+    // DISABLED: Reject pendaftaran guru dan hapus akun
     public function rejectGuru(Request $request, $id)
     {
         DB::beginTransaction();
@@ -392,4 +397,87 @@ class AdminController extends Controller
             return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
         }
     }
+    */
+
+    /*
+    ========================================
+    SISTEM VERIFIKASI SISWA BARU
+    ========================================
+    Sistem ini untuk verifikasi siswa yang mendaftar
+    dengan NIS yang TIDAK ADA di data master.
+    Siswa dengan NIS terdaftar langsung aktif.
+    ========================================
+    */
+
+    /**
+     * Tampilkan halaman verifikasi siswa yang pending
+     */
+    public function verifikasiSiswa()
+    {
+        $pendingSiswa = User::with(['siswa.kelas'])
+            ->where('role', 'siswa')
+            ->where('status_aktif', 0)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        return view('admin.verifikasi-siswa', compact('pendingSiswa'));
+    }
+
+    /**
+     * Approve pendaftaran siswa
+     */
+    public function approveSiswa($id)
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::where('id_user', $id)
+                ->where('role', 'siswa')
+                ->where('status_aktif', 0)
+                ->firstOrFail();
+            
+            $user->update(['status_aktif' => 1]);
+            
+            $this->logActivity->log('approve_siswa', auth()->user()->id_user, "Approve pendaftaran siswa: {$user->nama_lengkap} (ID: {$user->id_user})");
+            
+            DB::commit();
+            return redirect()->route('admin.verifikasi-siswa')->with('success', "Pendaftaran siswa {$user->nama_lengkap} berhasil disetujui.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyetujui pendaftaran: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject pendaftaran siswa dan hapus akun
+     */
+    public function rejectSiswa(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $user = User::where('id_user', $id)
+                ->where('role', 'siswa')
+                ->where('status_aktif', 0)
+                ->firstOrFail();
+            
+            $namaSiswa = $user->nama_lengkap;
+            $alasan = $request->input('alasan', 'Tidak ada alasan');
+            
+            // Hapus data siswa terlebih dahulu (karena foreign key constraint)
+            if ($user->siswa) {
+                $user->siswa->delete();
+            }
+            
+            // Hapus user
+            $user->delete();
+            
+            $this->logActivity->log('reject_siswa', auth()->user()->id_user, "Reject pendaftaran siswa: {$namaSiswa} (ID: {$id}). Alasan: {$alasan}");
+            
+            DB::commit();
+            return redirect()->route('admin.verifikasi-siswa')->with('success', "Pendaftaran siswa {$namaSiswa} berhasil ditolak dan dihapus.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
+        }
+    }
 }
+
