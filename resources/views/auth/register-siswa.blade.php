@@ -433,6 +433,12 @@
         const nisInput = document.getElementById('nis');
         const nameInput = document.getElementById('name');
         const nameHint = document.getElementById('name-hint');
+        const tempatLahirInput = document.getElementById('tempat_lahir');
+        const tanggalLahirInput = document.getElementById('tanggal_lahir');
+        const jenisKelaminSelect = document.getElementById('jenis_kelamin');
+        const agamaSelect = document.getElementById('agama');
+        const idKelasSelect = document.getElementById('id_kelas');
+        const noHpInput = document.getElementById('no_hp');
 
         nisInput.addEventListener('blur', function() {
             if (this.value.length >= 10) {
@@ -445,20 +451,77 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.found) {
-                        nameInput.value = data.name;
+                        const siswaData = data.data;
+                        
+                        // Auto-fill semua field dengan data dari database
+                        nameInput.value = siswaData.nama_siswa || '';
+                        tempatLahirInput.value = siswaData.tempat_lahir || '';
+                        tanggalLahirInput.value = siswaData.tanggal_lahir || '';
+                        noHpInput.value = siswaData.no_hp || '';
+                        
+                        // Set dropdown untuk jenis kelamin
+                        if (siswaData.jenis_kelamin) {
+                            jenisKelaminSelect.value = siswaData.jenis_kelamin;
+                        }
+                        
+                        // Set dropdown untuk agama
+                        if (siswaData.agama) {
+                            agamaSelect.value = siswaData.agama;
+                        }
+                        
+                        // Set dropdown untuk kelas
+                        if (siswaData.id_kelas) {
+                            idKelasSelect.value = siswaData.id_kelas;
+                        }
+                        
+                        // Set all fields sebagai readOnly untuk mencegah perubahan data
                         nameInput.readOnly = true;
-                        nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan';
+                        tempatLahirInput.readOnly = true;
+                        tanggalLahirInput.readOnly = true;
+                        jenisKelaminSelect.disabled = true;
+                        agamaSelect.disabled = true;
+                        idKelasSelect.disabled = true;
+                        noHpInput.readOnly = true;
+                        
+                        nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan - Field otomatis terisi';
                         nameHint.style.color = '#059669';
+                        
+                        if (data.already_registered) {
+                            Swal.fire({
+                                title: 'Peringatan!',
+                                text: 'NIS ini sudah pernah terdaftar. Silakan login dengan akun Anda atau hubungi admin.',
+                                icon: 'warning',
+                                confirmButtonText: 'Oke',
+                                confirmButtonColor: '#0369a1'
+                            });
+                        }
                     } else {
+                        // Reset semua field jika NIS tidak ditemukan
                         nameInput.readOnly = false;
-                        nameHint.innerHTML = '<i class="fas fa-info-circle"></i> NIS tidak ditemukan, silakan isi nama manual';
+                        tempatLahirInput.readOnly = false;
+                        tanggalLahirInput.readOnly = false;
+                        jenisKelaminSelect.disabled = false;
+                        agamaSelect.disabled = false;
+                        idKelasSelect.disabled = false;
+                        noHpInput.readOnly = false;
+                        
+                        nameInput.value = '';
+                        tempatLahirInput.value = '';
+                        tanggalLahirInput.value = '';
+                        noHpInput.value = '';
+                        jenisKelaminSelect.value = '';
+                        agamaSelect.value = '';
+                        idKelasSelect.value = '';
+                        
+                        nameHint.innerHTML = '<i class="fas fa-info-circle"></i> NIS tidak ditemukan, silakan isi data manual';
                         nameHint.style.color = '#666';
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     nameInput.readOnly = false;
-                    nameHint.innerHTML = '<i class="fas fa-info-circle"></i> Jika NIS tidak ditemukan, wajib diisi manual';
+                    nameHint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error saat mengecek NIS. Silakan isi data manual.';
+                    nameHint.style.color = '#dc2626';
                 });
         }
 
