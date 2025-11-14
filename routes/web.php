@@ -66,6 +66,14 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
+    // Materi Pembelajaran - daftar materi dan download
+    Route::get('/siswa/materi', [SiswaController::class, 'materi'])->name('siswa.materi')->middleware('role:siswa');
+    Route::get('/siswa/materi/{id}/download', [SiswaController::class, 'downloadMateri'])->name('siswa.materi.download')->middleware('role:siswa');
+
+    // Tugas siswa - daftar, detail dan submit
+    Route::get('/siswa/tugas', [SiswaController::class, 'tugas'])->name('siswa.tugas')->middleware('role:siswa');
+    Route::get('/siswa/tugas/{id}', [SiswaController::class, 'detailTugas'])->name('siswa.tugas.detail')->middleware('role:siswa');
+    Route::post('/siswa/tugas/{id}/submit', [SiswaController::class, 'submitTugas'])->name('siswa.tugas.submit')->middleware('role:siswa');
     
     // Siswa Presensi
     Route::post('/siswa/presensi/submit', [SiswaController::class, 'submitAbsen'])->name('siswa.presensi.submit')->middleware('role:siswa');
