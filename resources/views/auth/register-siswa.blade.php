@@ -475,11 +475,16 @@
                     if (data.found) {
                         const siswaData = data.data;
                         
+                        console.log('Data dari API:', siswaData);
+                        console.log('Tanggal lahir dari API:', siswaData.tanggal_lahir);
+                        
                         // Auto-fill semua field dengan data dari database
                         nameInput.value = siswaData.nama_siswa || '';
                         tempatLahirInput.value = siswaData.tempat_lahir || '';
                         tanggalLahirInput.value = siswaData.tanggal_lahir || '';
                         noHpInput.value = siswaData.no_hp || '';
+                        
+                        console.log('Tanggal lahir input value setelah di-set:', tanggalLahirInput.value);
                         sekolahAsalInput.value = siswaData.sekolah_asal || '';
                         alamatInput.value = siswaData.alamat || '';
 
