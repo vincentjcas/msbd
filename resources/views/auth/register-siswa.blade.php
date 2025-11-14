@@ -358,6 +358,26 @@
                 @error('id_kelas')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
+            <!-- Sekolah Asal -->
+            <div class="form-group">
+                <label for="sekolah_asal">Sekolah Asal</label>
+                <input type="text" id="sekolah_asal" name="sekolah_asal" required 
+                       placeholder="Nama sekolah asal (SMP/Setara)"
+                       value="{{ old('sekolah_asal') }}">
+                <p class="hint-text">Akan otomatis terisi jika NIS ditemukan di database</p>
+                @error('sekolah_asal')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
+            <!-- Alamat -->
+            <div class="form-group">
+                <label for="alamat">Alamat</label>
+                <textarea id="alamat" name="alamat" required 
+                          placeholder="Jalan, nomor, RT/RW, Kota, Provinsi"
+                          maxlength="500">{{ old('alamat') }}</textarea>
+                <p class="hint-text">Akan otomatis terisi jika NIS ditemukan di database</p>
+                @error('alamat')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
             <!-- Password -->
             <div class="form-group has-password">
                 <label for="password">Password</label>
@@ -439,6 +459,8 @@
         const agamaSelect = document.getElementById('agama');
         const idKelasSelect = document.getElementById('id_kelas');
         const noHpInput = document.getElementById('no_hp');
+        const sekolahAsalInput = document.getElementById('sekolah_asal');
+        const alamatInput = document.getElementById('alamat');
 
         nisInput.addEventListener('blur', function() {
             if (this.value.length >= 10) {
@@ -458,6 +480,9 @@
                         tempatLahirInput.value = siswaData.tempat_lahir || '';
                         tanggalLahirInput.value = siswaData.tanggal_lahir || '';
                         noHpInput.value = siswaData.no_hp || '';
+                        sekolahAsalInput.value = siswaData.sekolah_asal || '';
+                        alamatInput.value = siswaData.alamat || '';
+
                         
                         // Set dropdown untuk jenis kelamin
                         if (siswaData.jenis_kelamin) {
@@ -482,6 +507,8 @@
                         agamaSelect.disabled = true;
                         idKelasSelect.disabled = true;
                         noHpInput.readOnly = true;
+                        sekolahAsalInput.readOnly = true;
+                        alamatInput.readOnly = true;
                         
                         nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan - Field otomatis terisi';
                         nameHint.style.color = '#059669';
@@ -504,11 +531,15 @@
                         agamaSelect.disabled = false;
                         idKelasSelect.disabled = false;
                         noHpInput.readOnly = false;
+                        sekolahAsalInput.readOnly = false;
+                        alamatInput.readOnly = false;
                         
                         nameInput.value = '';
                         tempatLahirInput.value = '';
                         tanggalLahirInput.value = '';
                         noHpInput.value = '';
+                        sekolahAsalInput.value = '';
+                        alamatInput.value = '';
                         jenisKelaminSelect.value = '';
                         agamaSelect.value = '';
                         idKelasSelect.value = '';
