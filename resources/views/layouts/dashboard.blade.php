@@ -277,13 +277,15 @@
 <body>
     <div class="navbar">
         <div class="navbar-brand">
-            @if(file_exists(public_path('images/yapim.png')))
-                <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" style="height: 45px; width: auto; object-fit: contain;">
-            @else
-                <i class="fas fa-school" style="font-size: 1.8rem;"></i>
-            @endif
-            SMK YAPIM BIRU-BIRU
-        </div>
+                <a href="{{ route('dashboard') }}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
+                    @if(file_exists(public_path('images/yapim.png')))
+                        <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" style="height: 45px; width: auto; object-fit: contain;">
+                    @else
+                        <i class="fas fa-school" style="font-size: 1.8rem;"></i>
+                    @endif
+                    <span style="font-weight:700; color:inherit;">SMK YAPIM BIRU-BIRU</span>
+                </a>
+            </div>
         <div class="user-info">
             <div class="user-name">
                 <span>{{ auth()->user()->nama_lengkap }}</span>
