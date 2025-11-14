@@ -15,7 +15,6 @@ class Guru extends Model
         'nip',
         'jenis_kelamin',
         'agama',
-        'mata_pelajaran',
         'jabatan',
         'alamat',
         'no_hp',

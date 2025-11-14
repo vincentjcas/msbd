@@ -145,11 +145,9 @@ class AuthController extends Controller
         $request->validate([
             'nip' => 'required|string|unique:guru,nip|max:30',
             'email' => 'required|email|unique:users,email',
-            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|max:20',
+            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:guru,no_hp|max:20',
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
-            'mata_pelajaran' => 'required|array|min:1',
-            'mata_pelajaran.*' => 'required|string',
             'password' => 'required|confirmed|min:6',
         ], [
             'nip.required' => 'NIP wajib diisi.',
@@ -159,10 +157,9 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.regex' => 'Nomor HP harus berisi 10-15 digit angka.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'agama.required' => 'Agama wajib dipilih.',
-            'mata_pelajaran.required' => 'Mata pelajaran wajib dipilih.',
-            'mata_pelajaran.min' => 'Pilih minimal 1 mata pelajaran.',
             'password.required' => 'Password wajib diisi.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
             'password.min' => 'Password minimal 6 karakter.',
@@ -186,16 +183,12 @@ class AuthController extends Controller
                 'status_aktif' => 1, // ✅ Langsung aktif tanpa approval
             ]);
 
-            // Convert array mata pelajaran ke JSON
-            $mataPelajaranJson = json_encode($request->mata_pelajaran);
-
             // Buat data guru
             Guru::create([
                 'id_user' => $user->id_user,
                 'nip' => $request->nip,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'agama' => $request->agama,
-                'mata_pelajaran' => $mataPelajaranJson,
                 'no_hp' => $request->no_hp,
             ]);
 
@@ -219,7 +212,7 @@ class AuthController extends Controller
         $rules = [
             'nis' => 'required|string|unique:siswa,nis|max:20',
             'email' => 'required|email|unique:users,email',
-            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|max:20',
+            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:siswa,no_hp|max:20',
             'tempat_lahir' => 'required|string|max:100',
             'tanggal_lahir' => 'required|date|before:today',
             'jenis_kelamin' => 'required|in:L,P',
@@ -244,6 +237,7 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.regex' => 'Nomor HP harus berisi 10-15 digit angka.',
+            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
             'tempat_lahir.required' => 'Tempat lahir wajib diisi.',
             'tanggal_lahir.required' => 'Tanggal lahir wajib diisi.',
             'tanggal_lahir.before' => 'Tanggal lahir harus sebelum hari ini.',

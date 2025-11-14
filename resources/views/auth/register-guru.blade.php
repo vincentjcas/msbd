@@ -206,30 +206,6 @@
             font-size: 0.85rem;
             margin-top: 0.25rem;
         }
-        .checkbox-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 0.5rem;
-        }
-        .checkbox-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .checkbox-item input[type="checkbox"] {
-            width: auto;
-            padding: 0;
-            margin: 0;
-            border: none;
-            cursor: pointer;
-        }
-        .checkbox-item label {
-            margin: 0;
-            font-weight: 400;
-            font-size: 0.9rem;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
@@ -335,30 +311,6 @@
                     </select>
                     @error('agama')<p class="error-text">{{ $message }}</p>@enderror
                 </div>
-            </div>
-
-            <!-- Mata Pelajaran -->
-            <div class="form-group">
-                <label>Mata Pelajaran</label>
-                <div class="checkbox-group">
-                    @php
-                        $mataPelajaran = [
-                            'Matematika', 'Bahasa Indonesia', 'Bahasa Inggris', 'Fisika',
-                            'Kimia', 'Biologi', 'Sejarah', 'Geografi', 'Ekonomi', 'Sosiologi',
-                            'Pendidikan Jasmani', 'Seni Budaya', 'Teknologi Informasi', 'Lainnya'
-                        ];
-                        $selected = old('mata_pelajaran', []);
-                    @endphp
-                    @foreach($mataPelajaran as $mapel)
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="mapel_{{ $loop->index }}" name="mata_pelajaran[]" 
-                                   value="{{ $mapel }}" {{ in_array($mapel, $selected) ? 'checked' : '' }}>
-                            <label for="mapel_{{ $loop->index }}">{{ $mapel }}</label>
-                        </div>
-                    @endforeach
-                </div>
-                <p class="hint-text">Pilih minimal satu mata pelajaran</p>
-                @error('mata_pelajaran')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
             <!-- Password -->
