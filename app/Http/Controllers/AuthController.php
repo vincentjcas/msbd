@@ -403,23 +403,22 @@ class AuthController extends Controller
      */
     public function checkNis($nis)
     {
-        // Cek apakah NIS sudah pernah digunakan untuk registrasi (prioritas pertama)
-        $existingSiswa = Siswa::where('nis', $nis)->first();
-        if ($existingSiswa) {
-            return response()->json([
-                'found' => true,
-                'already_registered' => true,
-                'message' => 'NIS ini sudah pernah terdaftar.'
-            ]);
-        }
-
-        // Cek di data master
         $siswa = DataSiswaMaster::where('nis', $nis)->first();
 
         if (!$siswa) {
             return response()->json([
                 'found' => false,
                 'message' => 'NIS tidak ditemukan dalam database.'
+            ]);
+        }
+
+        // Cek apakah NIS sudah pernah digunakan untuk registrasi
+        $existingSiswa = Siswa::where('nis', $nis)->first();
+        if ($existingSiswa) {
+            return response()->json([
+                'found' => true,
+                'already_registered' => true,
+                'message' => 'NIS ini sudah pernah terdaftar.'
             ]);
         }
 
@@ -430,7 +429,7 @@ class AuthController extends Controller
                 'nama_siswa' => $siswa->nama_siswa,
                 'jenis_kelamin' => $siswa->jenis_kelamin,
                 'tempat_lahir' => $siswa->tempat_lahir,
-                'tanggal_lahir' => $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->format('Y-m-d') : null,
+                'tanggal_lahir' => $siswa->tanggal_lahir ? (string) $siswa->tanggal_lahir : null,
                 'agama' => $siswa->agama,
                 'sekolah_asal' => $siswa->sekolah_asal,
                 'alamat' => $siswa->alamat,
