@@ -472,6 +472,7 @@
             fetch(`/api/check-nis/${nis}`)
                 .then(response => response.json())
                 .then(data => {
+<<<<<<< HEAD
                     if (data.found && data.already_registered) {
                         // NIS sudah pernah digunakan untuk registrasi
                         Swal.fire({
@@ -490,6 +491,11 @@
                         // NIS ditemukan di master data dan belum digunakan
                         const siswaData = data.data;
                         
+=======
+                    if (data.found) {
+                        const siswaData = data.data;
+
+>>>>>>> 6ed24c3ca9011c6108958f7d85ba170af4cd8ec6
                         // Auto-fill semua field dengan data dari database
                         nameInput.value = siswaData.nama_siswa || '';
                         tempatLahirInput.value = siswaData.tempat_lahir || '';
@@ -498,22 +504,21 @@
                         sekolahAsalInput.value = siswaData.sekolah_asal || '';
                         alamatInput.value = siswaData.alamat || '';
 
-                        
                         // Set dropdown untuk jenis kelamin
                         if (siswaData.jenis_kelamin) {
                             jenisKelaminSelect.value = siswaData.jenis_kelamin;
                         }
-                        
+
                         // Set dropdown untuk agama
                         if (siswaData.agama) {
                             agamaSelect.value = siswaData.agama;
                         }
-                        
+
                         // Set dropdown untuk kelas
                         if (siswaData.id_kelas) {
                             idKelasSelect.value = siswaData.id_kelas;
                         }
-                        
+
                         // Set all fields sebagai readOnly untuk mencegah perubahan data
                         nameInput.readOnly = true;
                         tempatLahirInput.readOnly = true;
@@ -524,10 +529,24 @@
                         noHpInput.readOnly = true;
                         sekolahAsalInput.readOnly = true;
                         alamatInput.readOnly = true;
-                        
+
                         nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan - Field otomatis terisi';
                         nameHint.style.color = '#059669';
+<<<<<<< HEAD
                     }
+=======
+
+                        // If the NIS was already registered, show a warning so user knows
+                        if (data.already_registered) {
+                            Swal.fire({
+                                title: 'Peringatan!',
+                                text: 'NIS ini sudah pernah terdaftar. Silakan login dengan akun Anda atau hubungi admin jika perlu.',
+                                icon: 'warning',
+                                confirmButtonText: 'Oke',
+                                confirmButtonColor: '#0369a1'
+                            });
+                        }
+>>>>>>> 6ed24c3ca9011c6108958f7d85ba170af4cd8ec6
                     } else {
                         // Reset semua field jika NIS tidak ditemukan
                         nameInput.readOnly = false;

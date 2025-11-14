@@ -146,19 +146,47 @@ function approveSiswa(userId, namaSiswa) {
         cancelButtonColor: '#718096'
     }).then((result) => {
         if (result.isConfirmed) {
-            // Submit form approve
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/verifikasi-siswa/${userId}/approve`;
+            // Get CSRF token dari meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            form.appendChild(csrfToken);
-            document.body.appendChild(form);
-            form.submit();
+            // Submit form approve menggunakan fetch
+            fetch(`/admin/verifikasi-siswa/${userId}/approve`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Pendaftaran siswa ${namaSiswa} berhasil disetujui.`,
+                        icon: 'success',
+                        confirmButtonColor: '#48bb78'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Gagal menyetujui pendaftaran siswa.',
+                        icon: 'error',
+                        confirmButtonColor: '#f56565'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#f56565'
+                });
+            });
         }
     });
 }
@@ -180,25 +208,49 @@ function rejectSiswa(userId, namaSiswa) {
         }
     }).then((result) => {
         if (result.isConfirmed) {
-            // Submit form reject
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/admin/verifikasi-siswa/${userId}/reject`;
+            // Get CSRF token dari meta tag
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             
-            const csrfToken = document.createElement('input');
-            csrfToken.type = 'hidden';
-            csrfToken.name = '_token';
-            csrfToken.value = '{{ csrf_token() }}';
-            
-            const alasan = document.createElement('input');
-            alasan.type = 'hidden';
-            alasan.name = 'alasan';
-            alasan.value = result.value || '';
-            
-            form.appendChild(csrfToken);
-            form.appendChild(alasan);
-            document.body.appendChild(form);
-            form.submit();
+            // Submit form reject menggunakan fetch
+            fetch(`/admin/verifikasi-siswa/${userId}/reject`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    alasan: result.value || ''
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `Pendaftaran siswa ${namaSiswa} berhasil ditolak dan dihapus.`,
+                        icon: 'success',
+                        confirmButtonColor: '#48bb78'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Gagal!',
+                        text: 'Gagal menolak pendaftaran siswa.',
+                        icon: 'error',
+                        confirmButtonColor: '#f56565'
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Terjadi kesalahan: ' + error.message,
+                    icon: 'error',
+                    confirmButtonColor: '#f56565'
+                });
+            });
         }
     });
 }
