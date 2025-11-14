@@ -15,32 +15,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cant            <?php
-            // 1. Cek apakah ada user
-            User::first();
-            
-            // 2. Lihat struktur user
-            User::first()->toArray();
-            
-            // 3. Cek field apa yang ada di User model
-            $user = User::first();
-            $user->getAttribute('name');
-            $user->getAttribute('username');
-            $user->getAttribute('nama_lengkap');
-            
-            // 4. Cek apakah ada siswa/guru relationship
-            $user->siswa;
-            $user->guru;
-            $user->siswa->no_hp ?? null;
-            
-            // 5. Test Fontre service
-            $service = app(\App\Services\FontteService::class);
-            $result = $service->testConnection();
-            dd($result);
-            
-            // 6. Cek .env Fontre keys
-            env('FONNTE_API_KEY');
-            env('FONNTE_SENDING_KEY');arell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             min-height: 100vh;
             display: flex;
