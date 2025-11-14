@@ -403,22 +403,23 @@ class AuthController extends Controller
      */
     public function checkNis($nis)
     {
-        $siswa = DataSiswaMaster::where('nis', $nis)->first();
-
-        if (!$siswa) {
-            return response()->json([
-                'found' => false,
-                'message' => 'NIS tidak ditemukan dalam database.'
-            ]);
-        }
-
-        // Cek apakah NIS sudah pernah digunakan untuk registrasi
+        // Cek apakah NIS sudah pernah digunakan untuk registrasi (prioritas pertama)
         $existingSiswa = Siswa::where('nis', $nis)->first();
         if ($existingSiswa) {
             return response()->json([
                 'found' => true,
                 'already_registered' => true,
                 'message' => 'NIS ini sudah pernah terdaftar.'
+            ]);
+        }
+
+        // Cek di data master
+        $siswa = DataSiswaMaster::where('nis', $nis)->first();
+
+        if (!$siswa) {
+            return response()->json([
+                'found' => false,
+                'message' => 'NIS tidak ditemukan dalam database.'
             ]);
         }
 
