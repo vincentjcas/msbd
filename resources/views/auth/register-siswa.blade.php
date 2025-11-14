@@ -462,6 +462,25 @@
         const sekolahAsalInput = document.getElementById('sekolah_asal');
         const alamatInput = document.getElementById('alamat');
 
+        // Event listener untuk unlock form ketika NIS diubah/dihapus
+        nisInput.addEventListener('input', function() {
+            if (this.value.length < 10) {
+                // Unlock semua field ketika NIS dihapus/diubah
+                nameInput.readOnly = false;
+                tempatLahirInput.readOnly = false;
+                tanggalLahirInput.readOnly = false;
+                jenisKelaminSelect.disabled = false;
+                agamaSelect.disabled = false;
+                idKelasSelect.disabled = false;
+                noHpInput.readOnly = false;
+                sekolahAsalInput.readOnly = false;
+                alamatInput.readOnly = false;
+                
+                nameHint.innerHTML = '';
+                nameHint.style.color = '#666';
+            }
+        });
+
         nisInput.addEventListener('blur', function() {
             if (this.value.length >= 10) {
                 checkNIS(this.value);
@@ -472,6 +491,44 @@
             fetch(`/api/check-nis/${nis}`)
                 .then(response => response.json())
                 .then(data => {
+                    // Prioritas 1: Cek apakah NIS sudah terdaftar (punya akun)
+                    if (data.already_registered) {
+                        // Kunci semua form
+                        nameInput.value = '';
+                        tempatLahirInput.value = '';
+                        tanggalLahirInput.value = '';
+                        noHpInput.value = '';
+                        sekolahAsalInput.value = '';
+                        alamatInput.value = '';
+                        jenisKelaminSelect.value = '';
+                        agamaSelect.value = '';
+                        idKelasSelect.value = '';
+                        
+                        nameInput.readOnly = true;
+                        tempatLahirInput.readOnly = true;
+                        tanggalLahirInput.readOnly = true;
+                        jenisKelaminSelect.disabled = true;
+                        agamaSelect.disabled = true;
+                        idKelasSelect.disabled = true;
+                        noHpInput.readOnly = true;
+                        sekolahAsalInput.readOnly = true;
+                        alamatInput.readOnly = true;
+                        
+                        nameHint.innerHTML = '<i class="fas fa-exclamation-circle"></i> NIS sudah terdaftar';
+                        nameHint.style.color = '#dc2626';
+                        
+                        Swal.fire({
+                            title: 'NIS Sudah Terdaftar!',
+                            text: 'NIS ini sudah pernah terdaftar. Silakan login dengan akun Anda atau hubungi admin jika ada masalah.',
+                            icon: 'error',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#dc2626'
+                        });
+                        
+                        return; // Stop eksekusi
+                    }
+                    
+                    // Prioritas 2: Jika ditemukan di data master dan belum terdaftar
                     if (data.found) {
                         const siswaData = data.data;
                         
@@ -482,7 +539,6 @@
                         noHpInput.value = siswaData.no_hp || '';
                         sekolahAsalInput.value = siswaData.sekolah_asal || '';
                         alamatInput.value = siswaData.alamat || '';
-
                         
                         // Set dropdown untuk jenis kelamin
                         if (siswaData.jenis_kelamin) {
@@ -512,18 +568,8 @@
                         
                         nameHint.innerHTML = '<i class="fas fa-check-circle"></i> Data siswa ditemukan - Field otomatis terisi';
                         nameHint.style.color = '#059669';
-                        
-                        if (data.already_registered) {
-                            Swal.fire({
-                                title: 'Peringatan!',
-                                text: 'NIS ini sudah pernah terdaftar. Silakan login dengan akun Anda atau hubungi admin.',
-                                icon: 'warning',
-                                confirmButtonText: 'Oke',
-                                confirmButtonColor: '#0369a1'
-                            });
-                        }
                     } else {
-                        // Reset semua field jika NIS tidak ditemukan
+                        // NIS tidak ditemukan di master data, buka form untuk isi manual
                         nameInput.readOnly = false;
                         tempatLahirInput.readOnly = false;
                         tanggalLahirInput.readOnly = false;
@@ -550,7 +596,17 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    // Error network atau server, reset form agar bisa diisi manual
                     nameInput.readOnly = false;
+                    tempatLahirInput.readOnly = false;
+                    tanggalLahirInput.readOnly = false;
+                    jenisKelaminSelect.disabled = false;
+                    agamaSelect.disabled = false;
+                    idKelasSelect.disabled = false;
+                    noHpInput.readOnly = false;
+                    sekolahAsalInput.readOnly = false;
+                    alamatInput.readOnly = false;
+                    
                     nameHint.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error saat mengecek NIS. Silakan isi data manual.';
                     nameHint.style.color = '#dc2626';
                 });
