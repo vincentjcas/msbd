@@ -81,9 +81,51 @@ Route::middleware('auth')->group(function () {
     
     // Kepala Sekolah Dashboard
     Route::get('/kepala-sekolah/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('kepala_sekolah.dashboard')->middleware('role:kepala_sekolah');
+    
+    // Kepala Sekolah - Grafik Kehadiran
+    Route::get('/kepala-sekolah/grafik-kehadiran', [KepalaSekolahController::class, 'grafikKehadiran'])->name('kepala_sekolah.grafik-kehadiran')->middleware('role:kepala_sekolah');
+    
+    // Kepala Sekolah - Rekap Presensi
+    Route::get('/kepala-sekolah/rekap-presensi', [KepalaSekolahController::class, 'rekapPresensi'])->name('kepala_sekolah.rekap-presensi')->middleware('role:kepala_sekolah');
+    
+    // Kepala Sekolah - Manajemen Izin
+    Route::get('/kepala-sekolah/izin', [KepalaSekolahController::class, 'izin'])->name('kepala_sekolah.izin')->middleware('role:kepala_sekolah');
+    Route::post('/kepala-sekolah/izin/{id}/approve', [KepalaSekolahController::class, 'approveIzin'])->name('kepala_sekolah.izin.approve')->middleware('role:kepala_sekolah');
+    
+    // Kepala Sekolah - Laporan Aktivitas
+    Route::get('/kepala-sekolah/laporan', [KepalaSekolahController::class, 'laporan'])->name('kepala_sekolah.laporan')->middleware('role:kepala_sekolah');
+    Route::post('/kepala-sekolah/laporan/{id}/review', [KepalaSekolahController::class, 'reviewLaporan'])->name('kepala_sekolah.laporan.review')->middleware('role:kepala_sekolah');
+    Route::post('/kepala-sekolah/laporan/{id}/evaluasi', [KepalaSekolahController::class, 'createEvaluasi'])->name('kepala_sekolah.evaluasi.create')->middleware('role:kepala_sekolah');
+    
+    // Kepala Sekolah - Download Rekap
+    Route::get('/kepala-sekolah/download-rekap', [KepalaSekolahController::class, 'downloadRekap'])->name('kepala_sekolah.download-rekap')->middleware('role:kepala_sekolah');
 
     // Pembina Dashboard
     Route::get('/pembina/dashboard', [PembinaController::class, 'dashboard'])->name('pembina.dashboard')->middleware('role:pembina');
+    
+    // Pembina - Statistik Kehadiran
+    Route::get('/pembina/statistik-kehadiran', [PembinaController::class, 'statistikKehadiran'])->name('pembina.statistik-kehadiran')->middleware('role:pembina');
+    Route::get('/pembina/statistik-kehadiran/kelas/{id}', [PembinaController::class, 'statistikKehadiranKelas'])->name('pembina.statistik-kehadiran.kelas')->middleware('role:pembina');
+    
+    // Pembina - Data Presensi (Read-only)
+    Route::get('/pembina/presensi', [PembinaController::class, 'dataPresensi'])->name('pembina.presensi')->middleware('role:pembina');
+    Route::get('/pembina/presensi/kelas/{id}', [PembinaController::class, 'dataPresensiKelas'])->name('pembina.presensi.kelas')->middleware('role:pembina');
+    
+    // Pembina - Jadwal Aktif
+    Route::get('/pembina/jadwal', [PembinaController::class, 'jadwalAktif'])->name('pembina.jadwal')->middleware('role:pembina');
+    
+    // Pembina - Materi Pembelajaran
+    Route::get('/pembina/materi', [PembinaController::class, 'materiPembelajaran'])->name('pembina.materi')->middleware('role:pembina');
+    Route::get('/pembina/materi/{id}/download', [PembinaController::class, 'downloadMateri'])->name('pembina.materi.download')->middleware('role:pembina');
+    
+    // Pembina - Manajemen File Materi
+    Route::get('/pembina/file-materi', [PembinaController::class, 'fileMateri'])->name('pembina.file-materi')->middleware('role:pembina');
+    Route::post('/pembina/file-materi/upload', [PembinaController::class, 'uploadFileMateri'])->name('pembina.file-materi.upload')->middleware('role:pembina');
+    Route::delete('/pembina/file-materi/{id}', [PembinaController::class, 'deleteFileMateri'])->name('pembina.file-materi.delete')->middleware('role:pembina');
+    
+    // Pembina - Catatan & Rekomendasi
+    Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');
+    Route::post('/pembina/catatan', [PembinaController::class, 'saveCatatan'])->name('pembina.catatan.save')->middleware('role:pembina');
     
     // Default Dashboard
     Route::get('/dashboard', function () {

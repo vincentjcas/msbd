@@ -1,35 +1,229 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pembina Dashboard</title>
-    <style>
-        body{font-family:Arial, Helvetica, sans-serif;background:#f3f6f8}
-        .nav{background:#16a085;color:#fff;padding:1rem;display:flex;justify-content:space-between}
-        .container{max-width:1100px;margin:2rem auto;padding:1rem}
-        .card{background:#fff;padding:1.5rem;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.05)}
-        .role{background:#16a085;color:white;padding:0.25rem 0.6rem;border-radius:12px;font-weight:600}
-    </style>
-</head>
-<body>
-    <div class="nav">
-        <div>Pembina Dashboard</div>
-        <div>
-            <span>{{ auth()->user()->name }}</span>
-            <span class="role">{{ strtoupper(auth()->user()->role) }}</span>
-            <form method="POST" action="{{ route('logout') }}" style="display:inline;margin-left:8px">
-                @csrf
-                <button type="submit" style="background:transparent;border:1px solid rgba(255,255,255,0.2);color:#fff;padding:6px 10px;border-radius:6px;">Logout</button>
-            </form>
-        </div>
-    </div>
+@extends('layouts.dashboard')
 
-    <div class="container">
-        <div class="card">
-            <h2>Selamat Datang, {{ explode(' ', auth()->user()->nama_lengkap ?? auth()->user()->name)[0] }}!</h2>
-            <p>Anda masuk sebagai <strong>Pembina</strong>. Halaman ini bisa berisi tugas pembinaan, jadwal pembinaan, dan catatan kegiatan.</p>
+@section('title', 'Pembina Dashboard')
+
+@section('content')
+<div class="welcome-card">
+    <h2><i class="fas fa-users"></i> Selamat Datang, {{ get_first_name() }}!</h2>
+    <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, selamat datang di dashboard Pembina.</p>
+    <p>Anda dapat memantau kehadiran siswa, mengelola laporan aktivitas, dan mengawasi jadwal pembelajaran.</p>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-calendar"></i>
+        </div>
+        <div class="stat-value">{{ $totalJadwal }}</div>
+        <div class="stat-label">Total Jadwal</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-value">{{ $jadwalAktif }}</div>
+        <div class="stat-label">Jadwal Aktif</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-value">{{ $totalLaporan }}</div>
+        <div class="stat-label">Total Laporan</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-hourglass-half"></i>
+        </div>
+        <div class="stat-value">{{ $laporanPending }}</div>
+        <div class="stat-label">Laporan Pending</div>
+    </div>
+</div>
+
+<div class="content-section">
+    <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Pembina</h3>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <!-- 1. Statistik Kehadiran -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-chart-bar"></i> Statistik Kehadiran
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat statistik kehadiran siswa per kelas dan bulan
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.statistik-kehadiran') }}'">
+                <i class="fas fa-chart-pie"></i> Lihat Statistik
+            </button>
+        </div>
+
+        <!-- 2. Data Presensi -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-clipboard-list"></i> Data Presensi
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Akses data presensi siswa dan guru (read-only)
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.presensi') }}'">
+                <i class="fas fa-list"></i> Lihat Data
+            </button>
+        </div>
+
+        <!-- 3. Jadwal Aktif -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-alt"></i> Jadwal Aktif
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat jadwal pembelajaran semua guru dan kelas
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.jadwal') }}'">
+                <i class="fas fa-calendar"></i> Lihat Jadwal
+            </button>
+        </div>
+
+        <!-- 4. Materi Pembelajaran -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-book"></i> Materi Pembelajaran
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat materi pembelajaran dari semua guru
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.materi') }}'">
+                <i class="fas fa-eye"></i> Lihat Materi
+            </button>
+        </div>
+
+        <!-- 5. File Materi Pembinaan -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-folder-upload"></i> File Materi
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Kelola file materi untuk pembinaan guru dan siswa
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.file-materi') }}'">
+                <i class="fas fa-upload"></i> Manajemen File
+            </button>
+        </div>
+
+        <!-- 6. Laporan Aktivitas -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-file-contract"></i> Laporan Aktivitas
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Mengelola laporan aktivitas siswa dan verifikasi
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.laporan-aktivitas') }}'">
+                <i class="fas fa-list"></i> Lihat Laporan
+            </button>
         </div>
     </div>
-</body>
-</html>
+</div>
+
+<style>
+    .welcome-card {
+        background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(3, 105, 161, 0.2);
+    }
+
+    .welcome-card h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.8rem;
+    }
+
+    .welcome-card p {
+        margin: 0.5rem 0;
+        font-size: 0.95rem;
+        opacity: 0.95;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        text-align: center;
+        border-top: 4px solid #0369a1;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+        color: #0369a1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: #2d3748;
+        margin: 0.5rem 0;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: #718096;
+        margin: 0;
+    }
+
+    .content-section {
+        margin-top: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #0369a1 0%, #06b6d4 100%);
+        color: white;
+        font-weight: 500;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(3, 105, 161, 0.3);
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+</style>
+@endsection
