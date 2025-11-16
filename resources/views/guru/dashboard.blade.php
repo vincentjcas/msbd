@@ -111,9 +111,9 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mengunggah materi pelajaran (PDF, PPT, DOCX, dll) sesuai mata pelajaran
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur upload materi akan tersedia')">
+            <a href="{{ route('guru.materi.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-upload"></i> Upload File
-            </button>
+            </a>
         </div>
 
         <!-- 6. Lihat Data Kehadiran -->
@@ -137,9 +137,9 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Memperbarui atau menghapus file materi pembelajaran
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur kelola materi akan tersedia')">
+            <a href="{{ route('guru.materi') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-cog"></i> Kelola
-            </button>
+            </a>
         </div>
 
         <!-- 8. Laporan Bulanan -->

@@ -165,11 +165,13 @@ class GuruController extends Controller
     public function createMateri()
     {
         $guru = auth()->user()->guru;
-        $kelas = Jadwal::where('id_guru', $guru->id_guru)
-            ->with('kelas')
-            ->get()
-            ->pluck('kelas')
-            ->unique('id_kelas');
+        
+        // Ambil kelas unik dari jadwal guru
+        $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
+            ->distinct()
+            ->pluck('id_kelas');
+        
+        $kelas = Kelas::whereIn('id_kelas', $kelasIds)->get();
 
         return view('guru.materi.create', compact('kelas'));
     }

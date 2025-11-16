@@ -64,6 +64,12 @@ Route::middleware('auth')->group(function () {
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
     
+    // Guru - Materi Pembelajaran
+    Route::get('/guru/materi', [GuruController::class, 'materi'])->name('guru.materi')->middleware('role:guru');
+    Route::get('/guru/materi/create', [GuruController::class, 'createMateri'])->name('guru.materi.create')->middleware('role:guru');
+    Route::post('/guru/materi', [GuruController::class, 'storeMateri'])->name('guru.materi.store')->middleware('role:guru');
+    Route::delete('/guru/materi/{id}', [GuruController::class, 'deleteMateri'])->name('guru.materi.delete')->middleware('role:guru');
+    
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
     // Materi Pembelajaran - daftar materi dan download
