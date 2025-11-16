@@ -4,8 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - MSBD System</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/yapim.png') }}">
+    <meta name="theme-color" content="#0369a1">
+    <title>Login - SMK YAPIM BIRU-BIRU</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/yapim.png?v=' . time()) }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.png?v=' . time()) }}" type="image/png">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>

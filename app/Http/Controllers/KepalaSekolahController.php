@@ -153,7 +153,21 @@ class KepalaSekolahController extends Controller
         $bulan = $request->input('bulan', date('m'));
         $tahun = $request->input('tahun', date('Y'));
 
-        $rekap = $this->dbProcedure->rekapPresensiBulanan($bulan, $tahun, null);
+        // Ambil data dari views yang sudah dibuat
+        $rekapGuru = VRekapPresensiGuruStaf::where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get();
+
+        $rekapSiswa = VRekapPresensiSiswa::where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get();
+
+        $rekap = [
+            'guru' => $rekapGuru,
+            'siswa' => $rekapSiswa,
+            'bulan' => $bulan,
+            'tahun' => $tahun
+        ];
 
         return view('kepala_sekolah.download-rekap', compact('rekap', 'bulan', 'tahun'));
     }

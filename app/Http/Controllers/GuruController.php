@@ -32,6 +32,12 @@ class GuruController extends Controller
     public function dashboard()
     {
         $guru = auth()->user()->guru;
+        
+        // Jika guru tidak ditemukan, redirect ke login
+        if (!$guru) {
+            return redirect()->route('login')->with('error', 'Data guru tidak ditemukan');
+        }
+        
         $jadwalHariIni = Jadwal::where('id_guru', $guru->id_guru)
             ->where('hari', now()->locale('id')->dayName)
             ->with('kelas')
