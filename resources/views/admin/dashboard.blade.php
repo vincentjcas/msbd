@@ -24,7 +24,7 @@
                 Siswa dengan NIS tidak terdaftar di data master memerlukan persetujuan Anda.
             </p>
         </div>
-        <a href="{{ route('admin.verifikasi-siswa') }}" class="btn btn-light" style="white-space: nowrap;">
+        <a href="{{ route('admin.verifikasi-siswa') }}" class="btn" style="background: white; color: #dc2626; font-weight: 600; border: none; white-space: nowrap;">
             <i class="fas fa-user-check"></i> Verifikasi Sekarang
         </a>
     </div>
@@ -77,7 +77,7 @@
                 Ada <strong>{{ $pendingSiswa }} siswa</strong> dengan NIS tidak terdaftar yang menunggu persetujuan Anda.
             </p>
             <div>
-                <a href="{{ route('admin.verifikasi-siswa') }}" class="btn btn-light">
+                <a href="{{ route('admin.verifikasi-siswa') }}" class="btn" style="background: white; color: #dc2626; font-weight: 600; border: none;">
                     <i class="fas fa-clipboard-check"></i> Lihat & Verifikasi
                 </a>
             </div>

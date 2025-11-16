@@ -4,7 +4,14 @@
 
 @section('content')
 <div class="content-section">
-    <h3 class="section-title"><i class="fas fa-book"></i> Materi Pembelajaran</h3>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 class="section-title" style="margin: 0;">
+            <i class="fas fa-book"></i> Materi Pembelajaran
+        </h3>
+        <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+    </div>
 
     <p style="color: #6b7280; margin-bottom: 1rem;">Daftar materi untuk kelas Anda. Klik <strong>Download</strong> untuk mengunduh atau <strong>Ajukan Pengumpulan Tugas</strong> untuk mengunggah jawaban tugas terkait.</p>
 
