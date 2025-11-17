@@ -63,6 +63,9 @@ Route::middleware('auth')->group(function () {
     
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
+    Route::get('/guru/server-time', [GuruController::class, 'getServerTime'])->name('guru.server-time')->middleware('role:guru');
+    Route::post('/guru/absen-masuk', [GuruController::class, 'absenMasuk'])->name('guru.absen-masuk')->middleware('role:guru');
+    Route::post('/guru/absen-keluar', [GuruController::class, 'absenKeluar'])->name('guru.absen-keluar')->middleware('role:guru');
     
     // Guru - Materi Pembelajaran
     Route::get('/guru/materi', [GuruController::class, 'materi'])->name('guru.materi')->middleware('role:guru');
@@ -132,7 +135,7 @@ Route::middleware('auth')->group(function () {
     // Pembina - Catatan & Rekomendasi
     Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');
     Route::post('/pembina/catatan', [PembinaController::class, 'saveCatatan'])->name('pembina.catatan.save')->middleware('role:pembina');
-    
+        
     // Default Dashboard
     Route::get('/dashboard', function () {
         $user = auth()->user();
