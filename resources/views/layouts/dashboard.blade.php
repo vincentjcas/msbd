@@ -278,64 +278,13 @@
     @yield('styles')
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-brand">
-                <a href="{{ route('dashboard') }}" style="display:flex; align-items:center; gap:0.5rem; text-decoration:none; color:inherit;">
-                    @if(file_exists(public_path('images/yapim.png')))
-                        <img src="{{ asset('images/yapim.png') }}" alt="Logo YAPIM" style="height: 45px; width: auto; object-fit: contain;">
-                    @else
-                        <i class="fas fa-school" style="font-size: 1.8rem;"></i>
-                    @endif
-                    <span style="font-weight:700; color:inherit;">SMK YAPIM BIRU-BIRU</span>
-                </a>
-            </div>
-        <div class="user-info">
-            <div class="user-name">
-                <span>{{ auth()->user()->nama_lengkap }}</span>
-                <span class="role-badge">{{ strtoupper(auth()->user()->role) }}</span>
-            </div>
-            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
-        </div>
-    </div>
+    @include('partials.navbar')
 
     <div class="container">
         @yield('content')
     </div>
 
-    @if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Oke',
-                confirmButtonColor: '#0369a1',
-                timer: 3000,
-                timerProgressBar: true
-            });
-        });
-    </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Gagal!',
-                text: "{{ session('error') }}",
-                icon: 'error',
-                confirmButtonText: 'Oke',
-                confirmButtonColor: '#0369a1'
-            });
-        });
-    </script>
-    @endif
+    @include('partials.alerts')
 
     @yield('scripts')
 </body>
