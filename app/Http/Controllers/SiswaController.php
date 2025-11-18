@@ -413,4 +413,74 @@ class SiswaController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Show form untuk ajukan izin
+     * GET /siswa/izin/buat
+     */
+    public function ajukanIzin()
+    {
+        return view('siswa.izin-create');
+    }
+
+    /**
+     * Submit ajukan izin
+     * POST /siswa/izin/submit
+     */
+    public function submitAjukanIzin(Request $request)
+    {
+        try {
+            $request->validate([
+                'tipe' => 'required|in:sakit,izin',
+                'tanggal' => 'required|date|after_or_equal:today',
+                'alasan' => 'required_if:tipe,izin|string|min:10|max:500',
+                'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            ], [
+                'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
+                'bukti_file.mimes' => 'Format file harus PDF, JPG, atau PNG',
+                'bukti_file.max' => 'Ukuran file maksimal 5 MB',
+                'tanggal.required' => 'Tanggal izin wajib diisi',
+                'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
+                'alasan.required_if' => 'Alasan izin wajib diisi ketika tipe "Izin"',
+                'alasan.min' => 'Alasan izin minimal 10 karakter',
+            ]);
+
+            $user = auth()->user();
+            $siswa = $user->siswa;
+
+            if (!$siswa) {
+                return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
+            }
+
+            // Upload file bukti
+            $file = $request->file('bukti_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('izin', $filename, 'public');
+
+            // Buat record izin
+            $izin = Izin::create([
+                'id_user' => $user->id_user,
+                'tanggal' => $request->tanggal,
+                'alasan' => $request->tipe === 'sakit' 
+                    ? 'Sakit' 
+                    : $request->alasan,
+                'bukti_file' => $path,
+                'status_approval' => 'pending',
+            ]);
+
+            // Log activity
+            $this->logActivity->log(
+                'ajukan_izin',
+                $user->id_user,
+                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal}"
+            );
+
+            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil diajukan! Status: PENDING - Menunggu approval dari guru.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
+    }
 }
