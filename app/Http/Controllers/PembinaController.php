@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Presensi;
 use App\Models\PresensiSiswa;
 use App\Models\Jadwal;
 use App\Models\JadwalStatus;
 use App\Models\Materi;
+use App\Models\Kelas;
 use App\Models\LaporanAktivitas;
 use App\Models\Views\VStatistikKehadiranKelas;
 use App\Models\Views\VRekapPresensiGuruStaf;
@@ -27,14 +29,17 @@ class PembinaController extends Controller
 
     public function dashboard()
     {
-        $statistik = VStatistikKehadiranKelas::all();
-        
+        // Statistik kehadiran sederhana tanpa view
         $totalJadwal = Jadwal::count();
         $jadwalAktif = $totalJadwal; // Placeholder - kolom is_active tidak ada di tabel
         $totalLaporan = LaporanAktivitas::count();
         $laporanPending = LaporanAktivitas::where('status', 'submitted')->count();
+        
+        // Data presensi hari ini
+        $presensiHariIni = Presensi::whereDate('tanggal', today())->count();
+        $presensiSiswaHariIni = PresensiSiswa::whereDate('tanggal', today())->count();
 
-        return view('pembina.dashboard', compact('statistik', 'totalJadwal', 'jadwalAktif', 'totalLaporan', 'laporanPending'));
+        return view('pembina.dashboard', compact('totalJadwal', 'jadwalAktif', 'totalLaporan', 'laporanPending', 'presensiHariIni', 'presensiSiswaHariIni'));
     }
 
     public function statistikKehadiran(Request $request)

@@ -52,3 +52,7 @@ UPDATE_REGISTER_SYSTEM.md
 # Data Siswa (Sensitif)
 /excel/
 *.csv
+
+# Script kredensial
+create_*.php
+setup_*.php

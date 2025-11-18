@@ -18,6 +18,7 @@ class Materi extends Model
         'file_path',
         'file_name',
         'file_size',
+        'link_eksternal',
     ];
 
     protected $casts = [
