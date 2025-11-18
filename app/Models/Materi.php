@@ -9,19 +9,14 @@ class Materi extends Model
     protected $table = 'materi';
     protected $primaryKey = 'id_materi';
     public $timestamps = false;
-    
-    const CREATED_AT = 'uploaded_at';
-    const UPDATED_AT = null;
 
     protected $fillable = [
         'id_guru',
         'id_kelas',
         'judul_materi',
-        'mata_pelajaran',
         'deskripsi',
         'file_materi',
         'link_eksternal',
-        'mata_pelajaran',
     ];
 
     protected $casts = [
