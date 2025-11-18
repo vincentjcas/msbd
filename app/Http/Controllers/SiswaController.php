@@ -433,14 +433,16 @@ class SiswaController extends Controller
             $request->validate([
                 'tipe' => 'required|in:sakit,izin',
                 'tanggal' => 'required|date|after_or_equal:today',
-                'alasan' => 'required_if:tipe,izin|string|max:500',
+                'alasan' => 'required_if:tipe,izin|string|min:10|max:500',
                 'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             ], [
                 'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
                 'bukti_file.mimes' => 'Format file harus PDF, JPG, atau PNG',
                 'bukti_file.max' => 'Ukuran file maksimal 5 MB',
-                'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal kemarin',
+                'tanggal.required' => 'Tanggal izin wajib diisi',
+                'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
                 'alasan.required_if' => 'Alasan izin wajib diisi ketika tipe "Izin"',
+                'alasan.min' => 'Alasan izin minimal 10 karakter',
             ]);
 
             $user = auth()->user();
