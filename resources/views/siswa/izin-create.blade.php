@@ -42,22 +42,24 @@
         <!-- Tanggal Izin -->
         <div style="margin-bottom: 1.5rem;">
             <label for="tanggal" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">Tanggal Izin</label>
-            <input type="text" id="tanggal" name="tanggal" required
+            <input type="date" id="tanggal" name="tanggal" required
                    value="{{ old('tanggal') }}"
-                   placeholder="Pilih tanggal (DD/MM/YYYY)"
-                   style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; cursor: pointer; background: white;">
-            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Tanggal izin harus hari ini atau di masa depan</p>
+                   min="{{ date('Y-m-d') }}"
+                   style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white; cursor: pointer;">
+            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Pilih tanggal ketidakhadiran (hari ini atau yang akan datang)</p>
             @error('tanggal')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
         </div>
 
         <!-- Alasan (muncul hanya jika tipe "Izin") -->
         <div id="alasan-container" style="display: none; margin-bottom: 1.5rem;">
-            <label for="alasan" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">Alasan Izin</label>
+            <label for="alasan" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
+                Alasan Izin <span style="color: #dc2626;">*</span>
+            </label>
             <textarea id="alasan" name="alasan" 
-                      placeholder="Contoh: Keluarga, Keperluan Mendesak, dll."
+                      placeholder="Jelaskan alasan izin Anda (contoh: Acara keluarga, Keperluan mendesak, dll.)"
                       maxlength="500"
                       style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; resize: vertical; min-height: 100px;">{{ old('alasan') }}</textarea>
-            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Maksimal 500 karakter</p>
+            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Wajib diisi jika tipe izin. Maksimal 500 karakter</p>
             @error('alasan')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
         </div>
 
@@ -126,55 +128,34 @@
         background-color: #e0f2fe;
         border-color: #0284c7;
     }
-<!-- flatpickr CSS/JS -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+</style>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const tipeSakit = document.getElementById('tipe-sakit');
-    }
-    #tanggal-display:focus {
-        outline: none;
-        border-color: #0369a1;
-        box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);
-    }
-        // Initialize flatpickr on #tanggal
-        flatpickr('#tanggal', {
-            altInput: true,
-            altFormat: 'd/m/Y',
-            dateFormat: 'Y-m-d',
-            minDate: 'today',
-            allowInput: true
-        });
-
-            this.value = value;
-
-            // Update hidden date input when user types valid date
-            if (value.length === 10) {
-                const dateInput = formatDateInput(value);
-                if (dateInput) {
-                    tanggalInput.value = dateInput;
-                }
-            }
-        });
+        const tipeIzin = document.getElementById('tipe-izin');
+        const alasanContainer = document.getElementById('alasan-container');
+        const alasanInput = document.getElementById('alasan');
+        const buktiLabel = document.getElementById('bukti-label');
+        const buktiInput = document.getElementById('bukti_file');
+        const uploadArea = document.getElementById('upload-area');
+        const fileName = document.getElementById('file-name');
 
         // Toggle alasan field based on tipe
         tipeSakit.addEventListener('change', function() {
             if (this.checked) {
                 alasanContainer.style.display = 'none';
-                buktiLabel.textContent = 'Upload Surat Sakit';
-                buktiInput.removeAttribute('required');
-                buktiInput.setAttribute('required', 'required');
+                alasanInput.removeAttribute('required');
+                alasanInput.value = '';
+                buktiLabel.innerHTML = 'Upload Surat Sakit';
             }
         });
 
         tipeIzin.addEventListener('change', function() {
             if (this.checked) {
                 alasanContainer.style.display = 'block';
-                buktiLabel.textContent = 'Upload Bukti Izin';
-                buktiInput.removeAttribute('required');
-                buktiInput.setAttribute('required', 'required');
+                alasanInput.setAttribute('required', 'required');
+                buktiLabel.innerHTML = 'Upload Bukti Izin <span style="color: #dc2626;">*</span>';
             }
         });
 
@@ -234,11 +215,11 @@
 
             if (tipe.value === 'izin') {
                 const alasan = document.getElementById('alasan').value.trim();
-                if (!alasan) {
+                if (!alasan || alasan.length < 10) {
                     e.preventDefault();
                     Swal.fire({
                         title: 'Validasi Gagal',
-                        text: 'Alasan izin wajib diisi',
+                        text: 'Alasan izin wajib diisi minimal 10 karakter',
                         icon: 'warning',
                         confirmButtonColor: '#0369a1'
                     });
