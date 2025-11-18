@@ -47,7 +47,7 @@
     }
   </style>
 </head>
-<body class="bg-gradient-to-br from-[#0369a1] via-[#06b6d4] to-[#14b8a6] min-h-screen text-white overflow-x-hidden">
+<body class="bg-linear-to-br from-[#0369a1] via-[#06b6d4] to-[#14b8a6] min-h-screen text-white overflow-x-hidden">
 
   <!-- Animated Background Elements -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -72,7 +72,7 @@
             <i class="fas fa-sign-in-alt group-hover:translate-x-1 transition-transform"></i>
             Login
           </a>
-          <a href="{{ route('register') }}" class="bg-gradient-to-r from-[#0369a1] to-[#06b6d4] hover:from-[#025a8a] hover:to-[#0891b2] px-6 py-2.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center gap-2">
+                    <a href="{{ route('register') }}" class="bg-linear-to-r from-[#0369a1] to-[#06b6d4] hover:from-[#025a8a] hover:to-[#0891b2] px-6 py-2.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <i class="fas fa-user-plus"></i>
             Register
           </a>
@@ -141,7 +141,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Portal Siswa -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-graduation-cap text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Portal Siswa</h3>
@@ -157,7 +157,7 @@
 
       <!-- Portal Guru -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Portal Guru</h3>
@@ -173,7 +173,7 @@
 
       <!-- Presensi Digital -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-clipboard-check text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Presensi Digital</h3>
@@ -189,7 +189,7 @@
 
       <!-- Manajemen Izin -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-file-medical text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Pengajuan Izin</h3>
@@ -204,7 +204,7 @@
 
       <!-- Laporan Akademik -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-indigo-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-chart-line text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Laporan & Analitik</h3>
@@ -219,7 +219,7 @@
 
       <!-- Komunikasi -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-gradient-to-br from-rose-400 to-red-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div class="w-16 h-16 bg-linear-to-br from-rose-400 to-red-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-comments text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Komunikasi Terpadu</h3>
@@ -244,11 +244,11 @@
         Bergabunglah dengan ribuan siswa dan guru yang telah merasakan kemudahan sistem kami
       </p>
       <div class="flex justify-center gap-4 flex-wrap">
-        <a href="{{ route('register.siswa') }}" class="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
+        <a href="{{ route('register.siswa') }}" class="bg-linear-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-user-graduate"></i>
           Daftar Sebagai Siswa
         </a>
-        <a href="{{ route('register.guru') }}" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
+        <a href="{{ route('register.guru') }}" class="bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-user-tie"></i>
           Daftar Sebagai Guru
         </a>

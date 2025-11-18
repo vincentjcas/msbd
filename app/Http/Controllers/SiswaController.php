@@ -312,7 +312,7 @@ class SiswaController extends Controller
                     'id_presensi_siswa' => $presensi->id_presensi_siswa,
                     'status' => $presensi->status,
                     'status_verifikasi' => $presensi->status_verifikasi,
-                    'tanggal' => $presensi->tanggal->format('d-m-Y'),
+                    'tanggal' => \Carbon\Carbon::parse($presensi->tanggal)->format('d-m-Y'),
                     'jam_submit' => $presensi->created_at->format('H:i:s')
                 ]
             ], 201);
