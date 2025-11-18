@@ -9,6 +9,9 @@ class Materi extends Model
     protected $table = 'materi';
     protected $primaryKey = 'id_materi';
     public $timestamps = false;
+    
+    const CREATED_AT = 'uploaded_at';
+    const UPDATED_AT = null;
 
     protected $fillable = [
         'id_guru',
@@ -19,6 +22,7 @@ class Materi extends Model
         'file_name',
         'file_size',
         'link_eksternal',
+        'mata_pelajaran',
     ];
 
     protected $casts = [

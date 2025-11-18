@@ -180,6 +180,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'id_kelas' => 'required|exists:kelas,id_kelas',
+            'mata_pelajaran' => 'required|string|max:100',
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:10240',
@@ -192,6 +193,7 @@ class GuruController extends Controller
         $materi = Materi::create([
             'id_guru' => auth()->user()->guru->id_guru,
             'id_kelas' => $request->id_kelas,
+            'mata_pelajaran' => $request->mata_pelajaran,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'file_path' => $path,
