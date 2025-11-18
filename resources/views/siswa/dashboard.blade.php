@@ -86,9 +86,9 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mengajukan izin ketidakhadiran dengan bukti (foto atau surat)
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur ajukan izin akan tersedia')">
+            <a href="{{ route('siswa.izin.create') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-plus-square"></i> Ajukan Izin
-            </button>
+            </a>
         </div>
 
         <!-- 4. Download Materi -->

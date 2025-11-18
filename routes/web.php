@@ -80,6 +80,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/siswa/tugas', [SiswaController::class, 'tugas'])->name('siswa.tugas')->middleware('role:siswa');
     Route::get('/siswa/tugas/{id}', [SiswaController::class, 'detailTugas'])->name('siswa.tugas.detail')->middleware('role:siswa');
     Route::post('/siswa/tugas/{id}/submit', [SiswaController::class, 'submitTugas'])->name('siswa.tugas.submit')->middleware('role:siswa');
+
+    // Izin siswa - form dan submit
+    Route::get('/siswa/izin/buat', [SiswaController::class, 'ajukanIzin'])->name('siswa.izin.create')->middleware('role:siswa');
+    Route::post('/siswa/izin/submit', [SiswaController::class, 'submitAjukanIzin'])->name('siswa.izin.submit')->middleware('role:siswa');
     
     // Siswa Presensi
     Route::post('/siswa/presensi/submit', [SiswaController::class, 'submitAbsen'])->name('siswa.presensi.submit')->middleware('role:siswa');
