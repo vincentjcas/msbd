@@ -486,7 +486,7 @@ class AdminController extends Controller
     public function fileMateri()
     {
         $materi = \App\Models\Materi::with(['guru.user', 'kelas'])
-            ->orderBy('created_at', 'desc')
+            ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
         
         return view('admin.file-materi', compact('materi'));
@@ -502,11 +502,11 @@ class AdminController extends Controller
             $materi = \App\Models\Materi::findOrFail($id);
             
             // Hapus file jika ada
-            if ($materi->nama_file && \Storage::exists('public/materi/' . $materi->nama_file)) {
-                \Storage::delete('public/materi/' . $materi->nama_file);
+            if ($materi->file_materi && \Storage::exists('public/materi/' . $materi->file_materi)) {
+                \Storage::delete('public/materi/' . $materi->file_materi);
             }
             
-            $judulMateri = $materi->judul;
+            $judulMateri = $materi->judul_materi;
             $materi->delete();
             
             $this->logActivity->log('delete_materi', auth()->user()->id_user, "Hapus materi: {$judulMateri} (ID: {$id})");

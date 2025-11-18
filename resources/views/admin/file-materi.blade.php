@@ -40,7 +40,7 @@
                         <small style="color: #718096;">NIP: {{ $item->guru->nip }}</small>
                     </td>
                     <td>
-                        <div style="font-weight: 600; margin-bottom: 0.25rem;">{{ $item->judul }}</div>
+                        <div style="font-weight: 600; margin-bottom: 0.25rem;">{{ $item->judul_materi }}</div>
                         @if($item->deskripsi)
                         <small style="color: #718096;">{{ Str::limit($item->deskripsi, 50) }}</small>
                         @endif
@@ -50,8 +50,8 @@
                         <span class="badge badge-info">{{ $item->kelas->nama_kelas }}</span>
                     </td>
                     <td>
-                        @if($item->nama_file)
-                        <a href="{{ asset('storage/materi/' . $item->nama_file) }}" target="_blank" class="btn btn-sm" style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem;">
+                        @if($item->file_materi)
+                        <a href="{{ asset('storage/materi/' . $item->file_materi) }}" target="_blank" class="btn btn-sm" style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem;">
                             <i class="fas fa-file-download"></i> File
                         </a>
                         @endif
@@ -62,8 +62,8 @@
                         @endif
                     </td>
                     <td>
-                        <small style="color: #4a5568;">{{ $item->created_at->format('d/m/Y') }}</small><br>
-                        <small style="color: #718096;">{{ $item->created_at->format('H:i') }}</small>
+                        <small style="color: #4a5568;">{{ \Carbon\Carbon::parse($item->uploaded_at)->format('d/m/Y') }}</small><br>
+                        <small style="color: #718096;">{{ \Carbon\Carbon::parse($item->uploaded_at)->format('H:i') }}</small>
                     </td>
                     <td>
                         <form action="{{ route('admin.file-materi.delete', $item->id_materi) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus materi ini?')">

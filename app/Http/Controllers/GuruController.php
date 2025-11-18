@@ -274,6 +274,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'id_kelas' => 'required|exists:kelas,id_kelas',
+            'mata_pelajaran' => 'required|string|max:100',
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:10240',
@@ -286,11 +287,10 @@ class GuruController extends Controller
         $materi = Materi::create([
             'id_guru' => auth()->user()->guru->id_guru,
             'id_kelas' => $request->id_kelas,
-            'judul' => $request->judul,
+            'judul_materi' => $request->judul,
+            'mata_pelajaran' => $request->mata_pelajaran,
             'deskripsi' => $request->deskripsi,
-            'file_path' => $path,
-            'file_name' => $filename,
-            'file_size' => $file->getSize(),
+            'file_materi' => $filename,
         ]);
 
         $this->logActivity->logCrud('create', auth()->user()->id_user, 'materi', $materi->id_materi);
@@ -306,8 +306,8 @@ class GuruController extends Controller
             abort(403);
         }
 
-        if ($materi->file_path && Storage::disk('public')->exists($materi->file_path)) {
-            Storage::disk('public')->delete($materi->file_path);
+        if ($materi->file_materi && Storage::disk('public')->exists('materi/' . $materi->file_materi)) {
+            Storage::disk('public')->delete('materi/' . $materi->file_materi);
         }
 
         $materi->delete();
