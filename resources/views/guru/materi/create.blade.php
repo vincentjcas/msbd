@@ -53,6 +53,17 @@
                 @enderror
             </div>
 
+            <!-- Mata Pelajaran -->
+            <div>
+                <label for="mata_pelajaran" style="display: block; font-size: 0.875rem; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
+                    Mata Pelajaran <span style="color: #dc2626;">*</span>
+                </label>
+                <input type="text" name="mata_pelajaran" id="mata_pelajaran" value="{{ old('mata_pelajaran') }}" required maxlength="100" style="width: 100%; padding: 0.75rem 1rem; border: 1px solid #d1d5db; border-radius: 0.5rem; font-size: 0.95rem; transition: all 0.2s;" placeholder="Contoh: Matematika, Bahasa Indonesia, IPA">
+                @error('mata_pelajaran')
+                    <p style="margin-top: 0.25rem; font-size: 0.875rem; color: #dc2626;">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Judul -->
             <div>
                 <label for="judul" style="display: block; font-size: 0.875rem; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
@@ -112,7 +123,7 @@
 </div>
 
 <style>
-#id_kelas:focus, #judul:focus, #deskripsi:focus {
+#id_kelas:focus, #mata_pelajaran:focus, #judul:focus, #deskripsi:focus {
     outline: none;
     border-color: #0369a1;
     box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.1);

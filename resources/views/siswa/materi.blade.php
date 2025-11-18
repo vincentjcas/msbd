@@ -40,7 +40,7 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
                     @foreach($items as $m)
                         <div style="background: #ffffff; border: 1px solid #e5e7eb; padding: 1.25rem; border-radius: 8px; transition: box-shadow 0.2s;" onmouseover="this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow='none'">
-                            <h5 style="margin: 0 0 0.75rem 0; font-size: 1.05rem; color: #111827;">{{ $m->judul ?? 'Untitled' }}</h5>
+                            <h5 style="margin: 0 0 0.75rem 0; font-size: 1.05rem; color: #111827;">{{ $m->judul_materi ?? 'Untitled' }}</h5>
                             @if($m->deskripsi)
                                 <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">{{ Str::limit($m->deskripsi, 140) }}</p>
                             @endif

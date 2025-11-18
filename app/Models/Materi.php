@@ -16,11 +16,10 @@ class Materi extends Model
     protected $fillable = [
         'id_guru',
         'id_kelas',
-        'judul',
+        'judul_materi',
+        'mata_pelajaran',
         'deskripsi',
-        'file_path',
-        'file_name',
-        'file_size',
+        'file_materi',
         'link_eksternal',
         'mata_pelajaran',
     ];
