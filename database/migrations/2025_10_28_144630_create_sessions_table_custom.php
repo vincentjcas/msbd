@@ -14,15 +14,12 @@ return new class extends Migration
         if (! Schema::hasTable('sessions')) {
             Schema::create('sessions', function (Blueprint $table) {
                 $table->string('id')->primary();
-                // match users.id_user (int) from the SQL dump
-                $table->unsignedInteger('user_id')->nullable()->index();
+                // match users.id_user (bigint) from the SQL dump
+                $table->unsignedBigInteger('user_id')->nullable()->index();
                 $table->string('ip_address', 45)->nullable();
                 $table->text('user_agent')->nullable();
                 $table->longText('payload');
                 $table->integer('last_activity')->index();
-
-                // reference users.id_user in the imported DB
-                $table->foreign('user_id')->references('id_user')->on('users')->onDelete('cascade');
             });
         }
     }
