@@ -479,5 +479,205 @@ class AdminController extends Controller
             return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
         }
     }
+
+    /**
+     * File Materi - Monitoring materi yang diunggah guru
+     */
+    public function fileMateri()
+    {
+        $materi = \App\Models\Materi::with(['guru.user', 'kelas'])
+            ->orderBy('uploaded_at', 'desc')
+            ->paginate(20);
+        
+        return view('admin.file-materi', compact('materi'));
+    }
+
+    /**
+     * Hapus file materi
+     */
+    public function deleteMateri($id)
+    {
+        DB::beginTransaction();
+        try {
+            $materi = \App\Models\Materi::findOrFail($id);
+            
+            // Hapus file jika ada
+            if ($materi->file_materi && \Storage::exists('public/materi/' . $materi->file_materi)) {
+                \Storage::delete('public/materi/' . $materi->file_materi);
+            }
+            
+            $judulMateri = $materi->judul_materi;
+            $materi->delete();
+            
+            $this->logActivity->log('delete_materi', auth()->user()->id_user, "Hapus materi: {$judulMateri} (ID: {$id})");
+            
+            DB::commit();
+            return redirect()->route('admin.file-materi')->with('success', 'Materi berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus materi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Kegiatan Sekolah - Daftar kegiatan
+     */
+    public function kegiatan()
+    {
+        $kegiatan = \App\Models\Kegiatan::orderBy('tanggal', 'desc')->paginate(20);
+        return view('admin.kegiatan.index', compact('kegiatan'));
+    }
+
+    /**
+     * Form tambah kegiatan
+     */
+    public function createKegiatan()
+    {
+        return view('admin.kegiatan.create');
+    }
+
+    /**
+     * Simpan kegiatan baru
+     */
+    public function storeKegiatan(Request $request)
+    {
+        $request->validate([
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis_kegiatan' => 'required|in:rapat,ujian,acara_resmi,lainnya',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required',
+            'waktu_selesai' => 'required',
+            'lokasi' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $kegiatan = \App\Models\Kegiatan::create($request->all());
+            
+            $this->logActivity->log('create_kegiatan', auth()->user()->id_user, "Tambah kegiatan: {$kegiatan->nama_kegiatan}");
+            
+            DB::commit();
+            return redirect()->route('admin.kegiatan')->with('success', 'Kegiatan berhasil ditambahkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menambahkan kegiatan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Form edit kegiatan
+     */
+    public function editKegiatan($id)
+    {
+        $kegiatan = \App\Models\Kegiatan::findOrFail($id);
+        return view('admin.kegiatan.edit', compact('kegiatan'));
+    }
+
+    /**
+     * Update kegiatan
+     */
+    public function updateKegiatan(Request $request, $id)
+    {
+        $request->validate([
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis_kegiatan' => 'required|in:rapat,ujian,acara_resmi,lainnya',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required',
+            'waktu_selesai' => 'required',
+            'lokasi' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $kegiatan = \App\Models\Kegiatan::findOrFail($id);
+            $kegiatan->update($request->all());
+            
+            $this->logActivity->log('update_kegiatan', auth()->user()->id_user, "Update kegiatan: {$kegiatan->nama_kegiatan}");
+            
+            DB::commit();
+            return redirect()->route('admin.kegiatan')->with('success', 'Kegiatan berhasil diupdate');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal mengupdate kegiatan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Hapus kegiatan
+     */
+    public function deleteKegiatan($id)
+    {
+        DB::beginTransaction();
+        try {
+            $kegiatan = \App\Models\Kegiatan::findOrFail($id);
+            $namaKegiatan = $kegiatan->nama_kegiatan;
+            $kegiatan->delete();
+            
+            $this->logActivity->log('delete_kegiatan', auth()->user()->id_user, "Hapus kegiatan: {$namaKegiatan}");
+            
+            DB::commit();
+            return redirect()->route('admin.kegiatan')->with('success', 'Kegiatan berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus kegiatan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Pengajuan Izin - Monitoring izin siswa
+     */
+    public function pengajuanIzin()
+    {
+        $izin = \App\Models\Izin::with(['siswa.user', 'siswa.kelas'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+        
+        return view('admin.pengajuan-izin', compact('izin'));
+    }
+
+    /**
+     * Approve pengajuan izin
+     */
+    public function approveIzin($id)
+    {
+        DB::beginTransaction();
+        try {
+            $izin = \App\Models\Izin::findOrFail($id);
+            $izin->update(['status' => 'disetujui']);
+            
+            $this->logActivity->log('approve_izin', auth()->user()->id_user, "Approve izin {$izin->tipe}: {$izin->siswa->user->nama_lengkap}");
+            
+            DB::commit();
+            return redirect()->route('admin.pengajuan-izin')->with('success', 'Izin berhasil disetujui');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menyetujui izin: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reject pengajuan izin
+     */
+    public function rejectIzin(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $izin = \App\Models\Izin::findOrFail($id);
+            $izin->update([
+                'status' => 'ditolak',
+                'keterangan' => $request->input('alasan', 'Tidak memenuhi syarat')
+            ]);
+            
+            $this->logActivity->log('reject_izin', auth()->user()->id_user, "Reject izin {$izin->tipe}: {$izin->siswa->user->nama_lengkap}");
+            
+            DB::commit();
+            return redirect()->route('admin.pengajuan-izin')->with('success', 'Izin berhasil ditolak');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menolak izin: ' . $e->getMessage());
+        }
+    }
 }
 

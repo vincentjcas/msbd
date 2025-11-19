@@ -52,12 +52,42 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mencatat jam masuk dan jam keluar setiap hari kerja
             </p>
-            <button class="btn btn-primary btn-sm" onclick="absenMasuk()" style="margin-bottom: 10px">
-                <i class="fas fa-sign-in-alt"></i> Absen Masuk
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="absenKeluar()">
-                <i class="fas fa-sign-out-alt"></i> Absen Keluar
-            </button>
+            
+            <!-- Status Absen -->
+            <div data-absen-info>
+                @if($statusAbsen['sudah_masuk'] && $statusAbsen['sudah_keluar'])
+                    <span class="badge bg-success">✓ Masuk: {{ $statusAbsen['jam_masuk'] }} | Keluar: {{ $statusAbsen['jam_keluar'] }}</span>
+                @elseif($statusAbsen['sudah_masuk'] && !$statusAbsen['sudah_keluar'])
+                    <span class="badge bg-warning text-dark">Masuk: {{ $statusAbsen['jam_masuk'] }} | Silakan absen keluar</span>
+                @else
+                    <span class="badge bg-info">Silakan absen masuk</span>
+                @endif
+            </div>
+            
+            <div style="margin-top: 0.75rem;">
+                @if($statusAbsen['sudah_masuk'] && $statusAbsen['sudah_keluar'])
+                    <button id="btnAbsenMasuk" class="btn btn-primary btn-sm" disabled style="opacity: 0.6; margin-bottom: 10px">
+                        <i class="fas fa-sign-in-alt"></i> ✓ Sudah Absen Masuk
+                    </button>
+                    <button id="btnAbsenKeluar" class="btn btn-secondary btn-sm" disabled style="opacity: 0.6">
+                        <i class="fas fa-sign-out-alt"></i> ✓ Sudah Absen Keluar
+                    </button>
+                @elseif($statusAbsen['sudah_masuk'] && !$statusAbsen['sudah_keluar'])
+                    <button id="btnAbsenMasuk" class="btn btn-primary btn-sm" disabled style="opacity: 0.6; margin-bottom: 10px">
+                        <i class="fas fa-sign-in-alt"></i> ✓ Sudah Absen Masuk
+                    </button>
+                    <button id="btnAbsenKeluar" class="btn btn-warning btn-sm" onclick="absenKeluar()" style="margin-bottom: 10px">
+                        <i class="fas fa-sign-out-alt"></i> Absen Keluar
+                    </button>
+                @else
+                    <button id="btnAbsenMasuk" class="btn btn-primary btn-sm" onclick="absenMasuk()" style="margin-bottom: 10px">
+                        <i class="fas fa-sign-in-alt"></i> Absen Masuk
+                    </button>
+                    <button id="btnAbsenKeluar" class="btn btn-secondary btn-sm" disabled style="opacity: 0.6">
+                        <i class="fas fa-sign-out-alt"></i> Absen Keluar
+                    </button>
+                @endif
+            </div>
         </div>
 
         <!-- 2. Absen Siswa -->
@@ -166,40 +196,180 @@
 </div>
 
 <script>
+// Variabel global untuk menyimpan jam masuk
+let jamMasukDicatat = null;
+
 function absenMasuk() {
+    // Ambil waktu dari browser
     const now = new Date();
-    const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const jamBrowser = `${hours}:${minutes}:${seconds}`;
     
+    // Step 1: Tampilkan popup konfirmasi dengan jam dari BROWSER
     Swal.fire({
         title: 'Konfirmasi Absen Masuk',
-        text: 'Anda akan absen masuk pada jam ' + time,
+        text: `Anda akan absen masuk pada jam ${jamBrowser}. Lanjutkan?`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Ya, Absen Masuk',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            // TODO: Kirim ke backend
-            Swal.fire('Berhasil!', 'Anda telah absen masuk pada ' + time, 'success');
+            // Simpan jam masuk ke variabel global
+            jamMasukDicatat = jamBrowser;
+            
+            // Step 2: User sudah setuju, sekarang benar-benar absen
+            Swal.fire({
+                title: 'Mengirim...',
+                text: 'Memproses absen masuk...',
+                icon: 'info',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
+            fetch('{{ route("guru.absen-masuk") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || ''
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Absen Masuk Response:', data);
+                
+                if (data.success) {
+                    // Update badge info dengan jam yang disimpan
+                    const infoBadge = document.querySelector('[data-absen-info]');
+                    if (infoBadge) {
+                        infoBadge.innerHTML = `<span class="badge bg-warning text-dark">Masuk: ${jamMasukDicatat} | Silakan absen keluar</span>`;
+                    }
+                    
+                    // Update tombol berdasarkan ID
+                    const masukBtn = document.getElementById('btnAbsenMasuk');
+                    const keluarBtn = document.getElementById('btnAbsenKeluar');
+                    
+                    if (masukBtn) {
+                        masukBtn.disabled = true;
+                        masukBtn.style.opacity = '0.6';
+                        masukBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ✓ Sudah Absen Masuk';
+                    }
+                    
+                    if (keluarBtn) {
+                        keluarBtn.disabled = false;
+                        keluarBtn.style.opacity = '1';
+                        keluarBtn.onclick = function() { absenKeluar(); };
+                        keluarBtn.classList.remove('btn-secondary');
+                        keluarBtn.classList.add('btn-warning');
+                    }
+                    
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `✅ Absen masuk berhasil dicatat pada jam ${jamMasukDicatat}`,
+                        icon: 'success'
+                    });
+                } else {
+                    Swal.fire('Gagal!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Gagal!', 'Terjadi kesalahan: ' + error.message, 'error');
+            });
         }
     });
 }
 
 function absenKeluar() {
+    // Ambil waktu dari browser
     const now = new Date();
-    const time = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const seconds = now.getSeconds().toString().padStart(2, '0');
+    const jamBrowser = `${hours}:${minutes}:${seconds}`;
     
+    // Step 1: Tampilkan popup konfirmasi dengan jam dari BROWSER
     Swal.fire({
         title: 'Konfirmasi Absen Keluar',
-        text: 'Anda akan absen keluar pada jam ' + time,
+        text: `Anda akan absen keluar pada jam ${jamBrowser}. Lanjutkan?`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonText: 'Ya, Absen Keluar',
         cancelButtonText: 'Batal'
     }).then((result) => {
         if (result.isConfirmed) {
-            // TODO: Kirim ke backend
-            Swal.fire('Berhasil!', 'Anda telah absen keluar pada ' + time, 'success');
+            // Step 2: User sudah setuju, sekarang benar-benar absen
+            Swal.fire({
+                title: 'Mengirim...',
+                text: 'Memproses absen keluar...',
+                icon: 'info',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            
+            fetch('{{ route("guru.absen-keluar") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || ''
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Absen Keluar Response:', data);
+                
+                if (data.success) {
+                    // Gunakan jam masuk yang disimpan di variabel global
+                    const jamMasukFinnal = jamMasukDicatat || data.jam_masuk;
+                    
+                    // Update badge info dengan jam yang disimpan
+                    const infoBadge = document.querySelector('[data-absen-info]');
+                    if (infoBadge) {
+                        infoBadge.innerHTML = `<span class="badge bg-success">✓ Masuk: ${jamMasukFinnal} | Keluar: ${jamBrowser}</span>`;
+                    }
+                    
+                    // Update tombol berdasarkan ID
+                    const keluarBtn = document.getElementById('btnAbsenKeluar');
+                    const masukBtn = document.getElementById('btnAbsenMasuk');
+                    
+                    if (keluarBtn) {
+                        keluarBtn.disabled = true;
+                        keluarBtn.style.opacity = '0.6';
+                        keluarBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> ✓ Sudah Absen Keluar';
+                        keluarBtn.classList.remove('btn-warning');
+                        keluarBtn.classList.add('btn-secondary');
+                        keluarBtn.onclick = null;
+                    }
+                    
+                    if (masukBtn) {
+                        masukBtn.disabled = true;
+                    }
+                    
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: `✅ Absen keluar berhasil dicatat pada jam ${jamBrowser}`,
+                        icon: 'success'
+                    });
+                } else {
+                    Swal.fire('Gagal!', data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                Swal.fire('Gagal!', 'Terjadi kesalahan: ' + error.message, 'error');
+            });
         }
     });
 }

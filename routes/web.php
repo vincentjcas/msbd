@@ -61,8 +61,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/verifikasi-siswa/{id}/approve', [AdminController::class, 'approveSiswa'])->name('admin.approve-siswa')->middleware('role:admin');
     Route::post('/admin/verifikasi-siswa/{id}/reject', [AdminController::class, 'rejectSiswa'])->name('admin.reject-siswa')->middleware('role:admin');
     
+    // Admin - File Materi
+    Route::get('/admin/file-materi', [AdminController::class, 'fileMateri'])->name('admin.file-materi')->middleware('role:admin');
+    Route::delete('/admin/file-materi/{id}', [AdminController::class, 'deleteMateri'])->name('admin.file-materi.delete')->middleware('role:admin');
+    
+    // Admin - Kegiatan Sekolah
+    Route::get('/admin/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan')->middleware('role:admin');
+    Route::get('/admin/kegiatan/create', [AdminController::class, 'createKegiatan'])->name('admin.kegiatan.create')->middleware('role:admin');
+    Route::post('/admin/kegiatan', [AdminController::class, 'storeKegiatan'])->name('admin.kegiatan.store')->middleware('role:admin');
+    Route::get('/admin/kegiatan/{id}/edit', [AdminController::class, 'editKegiatan'])->name('admin.kegiatan.edit')->middleware('role:admin');
+    Route::put('/admin/kegiatan/{id}', [AdminController::class, 'updateKegiatan'])->name('admin.kegiatan.update')->middleware('role:admin');
+    Route::delete('/admin/kegiatan/{id}', [AdminController::class, 'deleteKegiatan'])->name('admin.kegiatan.delete')->middleware('role:admin');
+    
+    // Admin - Pengajuan Izin
+    Route::get('/admin/pengajuan-izin', [AdminController::class, 'pengajuanIzin'])->name('admin.pengajuan-izin')->middleware('role:admin');
+    Route::post('/admin/pengajuan-izin/{id}/approve', [AdminController::class, 'approveIzin'])->name('admin.pengajuan-izin.approve')->middleware('role:admin');
+    Route::post('/admin/pengajuan-izin/{id}/reject', [AdminController::class, 'rejectIzin'])->name('admin.pengajuan-izin.reject')->middleware('role:admin');
+    
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
+    Route::get('/guru/server-time', [GuruController::class, 'getServerTime'])->name('guru.server-time')->middleware('role:guru');
+    Route::post('/guru/absen-masuk', [GuruController::class, 'absenMasuk'])->name('guru.absen-masuk')->middleware('role:guru');
+    Route::post('/guru/absen-keluar', [GuruController::class, 'absenKeluar'])->name('guru.absen-keluar')->middleware('role:guru');
     
     // Guru - Materi Pembelajaran
     Route::get('/guru/materi', [GuruController::class, 'materi'])->name('guru.materi')->middleware('role:guru');
@@ -136,7 +156,7 @@ Route::middleware('auth')->group(function () {
     // Pembina - Catatan & Rekomendasi
     Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');
     Route::post('/pembina/catatan', [PembinaController::class, 'saveCatatan'])->name('pembina.catatan.save')->middleware('role:pembina');
-    
+        
     // Default Dashboard
     Route::get('/dashboard', function () {
         $user = auth()->user();

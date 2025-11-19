@@ -149,9 +149,9 @@
                 Menyediakan dan mengatur fitur pengajuan izin digital (hadir, izin, sakit, alpha)
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur izin akan tersedia')">
+                <a href="{{ route('admin.pengajuan-izin') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-clipboard-list"></i> Kelola Izin
-                </button>
+                </a>
             </div>
         </div>
 
@@ -164,9 +164,9 @@
                 Menambah, memperbarui, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur kegiatan akan tersedia')">
+                <a href="{{ route('admin.kegiatan') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus-circle"></i> Kelola Kegiatan
-                </button>
+                </a>
             </div>
         </div>
 
@@ -194,9 +194,9 @@
                 Memantau file materi pembelajaran yang diunggah guru sesuai ketentuan
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur materi akan tersedia')">
+                <a href="{{ route('admin.file-materi') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-search"></i> Lihat Materi
-                </button>
+                </a>
             </div>
         </div>
 

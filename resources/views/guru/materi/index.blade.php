@@ -40,9 +40,6 @@
                                 File
                             </th>
                             <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em;">
-                                Ukuran
-                            </th>
-                            <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em;">
                                 Tanggal Upload
                             </th>
                             <th style="padding: 0.75rem 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 600; color: white; text-transform: uppercase; letter-spacing: 0.05em;">
@@ -54,7 +51,7 @@
                         @foreach($materi as $m)
                         <tr style="border-bottom: 1px solid #e5e7eb; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'" onmouseout="this.style.backgroundColor='white'">
                             <td style="padding: 1rem 1.5rem;">
-                                <div style="font-size: 0.875rem; font-weight: 600; color: #111827;">{{ $m->judul }}</div>
+                                <div style="font-size: 0.875rem; font-weight: 600; color: #111827;">{{ $m->judul_materi }}</div>
                                 @if($m->deskripsi)
                                     <div style="font-size: 0.875rem; color: #6b7280; margin-top: 0.25rem;">{{ Str::limit($m->deskripsi, 50) }}</div>
                                 @endif
@@ -65,16 +62,13 @@
                                 </span>
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                {{ $m->file_name }}
-                            </td>
-                            <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
-                                {{ $m->getFileSizeFormatted() }}
+                                {{ $m->file_materi }}
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; color: #6b7280;">
                                 {{ \Carbon\Carbon::parse($m->uploaded_at)->format('d M Y H:i') }}
                             </td>
                             <td style="padding: 1rem 1.5rem; white-space: nowrap; font-size: 0.875rem; font-weight: 500;">
-                                <a href="{{ Storage::url($m->file_path) }}" target="_blank" style="color: #2563eb; margin-right: 0.75rem; text-decoration: none;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#2563eb'">
+                                <a href="{{ asset('storage/materi/' . $m->file_materi) }}" target="_blank" style="color: #2563eb; margin-right: 0.75rem; text-decoration: none;" onmouseover="this.style.color='#1e3a8a'" onmouseout="this.style.color='#2563eb'">
                                     <svg style="width: 1.25rem; height: 1.25rem; display: inline;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                     </svg>

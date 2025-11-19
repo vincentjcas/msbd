@@ -100,9 +100,9 @@ class SiswaController extends Controller
             abort(403);
         }
 
-        $this->logActivity->log('download_materi', auth()->user()->id_user, 'Download materi: ' . $materi->judul);
+        $this->logActivity->log('download_materi', auth()->user()->id_user, 'Download materi: ' . $materi->judul_materi);
 
-        return response()->download(storage_path('app/public/' . $materi->file_path), $materi->file_name);
+        return response()->download(storage_path('app/public/materi/' . $materi->file_materi), $materi->file_materi);
     }
 
     public function tugas()
@@ -312,7 +312,7 @@ class SiswaController extends Controller
                     'id_presensi_siswa' => $presensi->id_presensi_siswa,
                     'status' => $presensi->status,
                     'status_verifikasi' => $presensi->status_verifikasi,
-                    'tanggal' => $presensi->tanggal->format('d-m-Y'),
+                    'tanggal' => \Carbon\Carbon::parse($presensi->tanggal)->format('d-m-Y'),
                     'jam_submit' => $presensi->created_at->format('H:i:s')
                 ]
             ], 201);
