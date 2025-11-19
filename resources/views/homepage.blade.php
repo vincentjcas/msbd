@@ -1,45 +1,61 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SMK YAPIM BIRU-BIRU</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="icon" href="yapim.png">
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="icon" href="{{ (asset('images/yapim.png')) }}">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
     }
+
     .gradient-text {
       background: linear-gradient(135deg, #fff 0%, #e0f2fe 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
+
     .animate-float {
       animation: float 6s ease-in-out infinite;
     }
+
     @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
+
+      0%,
+      100% {
+        transform: translateY(0px);
+      }
+
+      50% {
+        transform: translateY(-20px);
+      }
     }
+
     .animate-pulse-slow {
       animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
+
     .glass-effect {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.15);
     }
+
     .feature-card {
       transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
+
     .feature-card:hover {
       transform: translateY(-12px);
       box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
     }
+
     .stats-number {
       font-size: 3rem;
       font-weight: 800;
@@ -47,13 +63,20 @@
     }
   </style>
 </head>
+
 <body class="bg-linear-to-br from-[#0369a1] via-[#06b6d4] to-[#14b8a6] min-h-screen text-white overflow-x-hidden">
 
   <!-- Animated Background Elements -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute -top-40 -right-40 w-80 h-80 bg-[#06b6d4] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-[#14b8a6] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow" style="animation-delay: 2s;"></div>
-    <div class="absolute top-1/2 left-1/2 w-80 h-80 bg-[#0369a1] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow" style="animation-delay: 4s;"></div>
+    <div
+      class="absolute -top-40 -right-40 w-80 h-80 bg-[#06b6d4] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow">
+    </div>
+    <div
+      class="absolute -bottom-40 -left-40 w-80 h-80 bg-[#14b8a6] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"
+      style="animation-delay: 2s;"></div>
+    <div
+      class="absolute top-1/2 left-1/2 w-80 h-80 bg-[#0369a1] rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"
+      style="animation-delay: 4s;"></div>
   </div>
 
   <!-- Navbar -->
@@ -68,11 +91,13 @@
           </div>
         </div>
         <div class="flex gap-3">
-          <a href="{{ route('login') }}" class="glass-effect hover:bg-white/20 px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 group">
+          <a href="{{ route('login') }}"
+            class="glass-effect hover:bg-white/20 px-6 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 group">
             <i class="fas fa-sign-in-alt group-hover:translate-x-1 transition-transform"></i>
             Login
           </a>
-                    <a href="{{ route('register') }}" class="bg-linear-to-r from-[#0369a1] to-[#06b6d4] hover:from-[#025a8a] hover:to-[#0891b2] px-6 py-2.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+          <a href="{{ route('register') }}"
+            class="bg-linear-to-r from-[#0369a1] to-[#06b6d4] hover:from-[#025a8a] hover:to-[#0891b2] px-6 py-2.5 rounded-xl font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
             <i class="fas fa-user-plus"></i>
             Register
           </a>
@@ -99,11 +124,13 @@
         dan meningkatkan komunikasi antara guru, siswa, dan sekolah.
       </p>
       <div class="flex justify-center gap-4 flex-wrap">
-        <a href="{{ route('login') }}" class="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4 rounded-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center gap-2">
+        <a href="{{ route('login') }}"
+          class="bg-white text-blue-900 hover:bg-gray-100 px-8 py-4 rounded-xl font-bold shadow-2xl hover:shadow-3xl transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-rocket"></i>
           Mulai Sekarang
         </a>
-        <a href="#fitur" class="glass-effect hover:bg-white/20 px-8 py-4 rounded-xl font-bold transition-all duration-300 flex items-center gap-2">
+        <a href="#fitur"
+          class="glass-effect hover:bg-white/20 px-8 py-4 rounded-xl font-bold transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-info-circle"></i>
           Pelajari Lebih Lanjut
         </a>
@@ -141,12 +168,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       <!-- Portal Siswa -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-graduation-cap text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Portal Siswa</h3>
         <p class="text-cyan-100 leading-relaxed mb-6">
-          Akses mudah ke jadwal pelajaran, materi pembelajaran, tugas, dan informasi akademik lengkap dalam satu platform.
+          Akses mudah ke jadwal pelajaran, materi pembelajaran, tugas, dan informasi akademik lengkap dalam satu
+          platform.
         </p>
         <div class="flex gap-2 flex-wrap">
           <span class="bg-blue-500/30 px-3 py-1 rounded-lg text-xs font-semibold">Materi</span>
@@ -157,7 +186,8 @@
 
       <!-- Portal Guru -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-chalkboard-teacher text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Portal Guru</h3>
@@ -173,7 +203,8 @@
 
       <!-- Presensi Digital -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-green-400 to-emerald-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-clipboard-check text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Presensi Digital</h3>
@@ -189,12 +220,14 @@
 
       <!-- Manajemen Izin -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-file-medical text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Pengajuan Izin</h3>
         <p class="text-cyan-100 leading-relaxed mb-6">
-          Ajukan izin atau surat sakit secara online dengan upload bukti digital. Proses approval yang cepat dan transparan.
+          Ajukan izin atau surat sakit secara online dengan upload bukti digital. Proses approval yang cepat dan
+          transparan.
         </p>
         <div class="flex gap-2 flex-wrap">
           <span class="bg-yellow-500/30 px-3 py-1 rounded-lg text-xs font-semibold">Online</span>
@@ -204,7 +237,8 @@
 
       <!-- Laporan Akademik -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-indigo-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-indigo-400 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-chart-line text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Laporan & Analitik</h3>
@@ -219,7 +253,8 @@
 
       <!-- Komunikasi -->
       <div class="feature-card glass-effect rounded-3xl p-8 shadow-2xl">
-        <div class="w-16 h-16 bg-linear-to-br from-rose-400 to-red-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+        <div
+          class="w-16 h-16 bg-linear-to-br from-rose-400 to-red-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
           <i class="fas fa-comments text-3xl text-white"></i>
         </div>
         <h3 class="text-2xl font-bold mb-4">Komunikasi Terpadu</h3>
@@ -244,11 +279,13 @@
         Bergabunglah dengan ribuan siswa dan guru yang telah merasakan kemudahan sistem kami
       </p>
       <div class="flex justify-center gap-4 flex-wrap">
-        <a href="{{ route('register.siswa') }}" class="bg-linear-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
+        <a href="{{ route('register.siswa') }}"
+          class="bg-linear-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-user-graduate"></i>
           Daftar Sebagai Siswa
         </a>
-        <a href="{{ route('register.guru') }}" class="bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
+        <a href="{{ route('register.guru') }}"
+          class="bg-linear-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 px-8 py-4 rounded-xl font-bold shadow-xl transition-all duration-300 flex items-center gap-2">
           <i class="fas fa-user-tie"></i>
           Daftar Sebagai Guru
         </a>
@@ -272,9 +309,12 @@
         <div>
           <h4 class="font-bold mb-4">Link Cepat</h4>
           <ul class="space-y-2 text-cyan-100 text-sm">
-            <li><a href="{{ route('login') }}" class="hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i> Login</a></li>
-            <li><a href="{{ route('register') }}" class="hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i> Register</a></li>
-            <li><a href="#fitur" class="hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i> Fitur</a></li>
+            <li><a href="{{ route('login') }}" class="hover:text-white transition-colors"><i
+                  class="fas fa-chevron-right text-xs"></i> Login</a></li>
+            <li><a href="{{ route('register') }}" class="hover:text-white transition-colors"><i
+                  class="fas fa-chevron-right text-xs"></i> Register</a></li>
+            <li><a href="#fitur" class="hover:text-white transition-colors"><i class="fas fa-chevron-right text-xs"></i>
+                Fitur</a></li>
           </ul>
         </div>
         <div>
@@ -306,4 +346,5 @@
   </script>
 
 </body>
+
 </html>
