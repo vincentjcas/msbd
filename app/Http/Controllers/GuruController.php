@@ -260,12 +260,8 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         
-        // Ambil kelas unik dari jadwal guru
-        $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
-            ->distinct()
-            ->pluck('id_kelas');
-        
-        $kelas = Kelas::whereIn('id_kelas', $kelasIds)->get();
+        // Ambil semua kelas yang tersedia
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
 
         return view('guru.materi.create', compact('kelas'));
     }

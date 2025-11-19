@@ -424,7 +424,7 @@ class AuthController extends Controller
                 'nama_siswa' => $siswa->nama_siswa,
                 'jenis_kelamin' => $siswa->jenis_kelamin,
                 'tempat_lahir' => $siswa->tempat_lahir,
-                'tanggal_lahir' => $siswa->tanggal_lahir ? (string) $siswa->tanggal_lahir : null,
+                'tanggal_lahir' => $siswa->tanggal_lahir ? \Carbon\Carbon::parse($siswa->tanggal_lahir)->format('Y-m-d') : null,
                 'agama' => $siswa->agama,
                 'sekolah_asal' => $siswa->sekolah_asal,
                 'alamat' => $siswa->alamat,
