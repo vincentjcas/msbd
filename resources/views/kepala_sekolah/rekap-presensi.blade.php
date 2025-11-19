@@ -60,7 +60,7 @@
                 <div class="form-group">
                     <label class="form-label">Tipe</label>
                     <select name="tipe" class="form-control">
-                        <option value="guru" {{ $tipe == 'guru' ? 'selected' : '' }}>Guru & Staf</option>
+                        <option value="guru" {{ $tipe == 'guru' ? 'selected' : '' }}>Guru</option>
                         <option value="siswa" {{ $tipe == 'siswa' ? 'selected' : '' }}>Siswa</option>
                     </select>
                 </div>
@@ -73,7 +73,7 @@
     <!-- Rekap Table -->
     <div class="data-card">
         <div class="data-title">
-            Rekap {{ $tipe == 'guru' ? 'Guru & Staf' : 'Siswa' }} - {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->format('F Y') }}
+            Rekap {{ $tipe == 'guru' ? 'Guru' : 'Siswa' }} - {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->format('F Y') }}
         </div>
         
         <div style="overflow-x: auto;">
