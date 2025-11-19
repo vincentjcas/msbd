@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Drop placeholder tables if they exist from import
+        DB::statement('DROP TABLE IF EXISTS v_grafik_kehadiran_siswa_harian');
+        DB::statement('DROP TABLE IF EXISTS v_rekap_presensi_siswa');
+
         // Create v_grafik_kehadiran_siswa_harian view
         DB::statement('
             CREATE OR REPLACE VIEW v_grafik_kehadiran_siswa_harian AS

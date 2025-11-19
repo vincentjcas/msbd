@@ -14,7 +14,7 @@ return new class extends Migration
         // Create simple view untuk statistik kehadiran per kelas
         // View ini hanya menampilkan data kosong terlebih dahulu untuk placeholder
         DB::statement("
-            CREATE VIEW v_statistik_kehadiran_kelas AS
+            CREATE OR REPLACE VIEW v_statistik_kehadiran_kelas AS
             SELECT 
                 0 as id_kelas,
                 'Placeholder' as nama_kelas,

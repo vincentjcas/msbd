@@ -11,8 +11,10 @@ return new class extends Migration
     public function up(): void
     {
         // Create view untuk rekap presensi guru dan staf
+        DB::statement("DROP TABLE IF EXISTS v_rekap_presensi_guru_staf");
+        
         DB::statement("
-            CREATE VIEW v_rekap_presensi_guru_staf AS
+            CREATE OR REPLACE VIEW v_rekap_presensi_guru_staf AS
             SELECT 
                 0 as id_rekap,
                 MONTH(NOW()) as bulan,
