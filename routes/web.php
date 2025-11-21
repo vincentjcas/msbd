@@ -90,6 +90,14 @@ Route::middleware('auth')->group(function () {
     Route::post('/guru/materi', [GuruController::class, 'storeMateri'])->name('guru.materi.store')->middleware('role:guru');
     Route::delete('/guru/materi/{id}', [GuruController::class, 'deleteMateri'])->name('guru.materi.delete')->middleware('role:guru');
     
+    // Guru - Tugas
+    Route::get('/guru/tugas', [GuruController::class, 'tugas'])->name('guru.tugas')->middleware('role:guru');
+    Route::get('/guru/tugas/create', [GuruController::class, 'createTugas'])->name('guru.tugas.create')->middleware('role:guru');
+    Route::post('/guru/tugas', [GuruController::class, 'storeTugas'])->name('guru.tugas.store')->middleware('role:guru');
+    Route::get('/guru/tugas/{id}', [GuruController::class, 'detailTugas'])->name('guru.tugas.detail')->middleware('role:guru');
+    Route::post('/guru/tugas/{id}/nilai', [GuruController::class, 'nilaiTugas'])->name('guru.tugas.nilai')->middleware('role:guru');
+    Route::delete('/guru/tugas/{id}', [GuruController::class, 'deleteTugas'])->name('guru.tugas.delete')->middleware('role:guru');
+    
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
     // Materi Pembelajaran - daftar materi dan download

@@ -316,9 +316,9 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         $tugas = Tugas::where('id_guru', $guru->id_guru)
-            ->with('kelas')
+            ->with(['kelas', 'pengumpulan'])
             ->orderBy('deadline', 'desc')
-            ->paginate(20);
+            ->get();
 
         return view('guru.tugas.index', compact('tugas'));
     }
@@ -378,12 +378,32 @@ class GuruController extends Controller
         $pengumpulan = PengumpulanTugas::findOrFail($id);
         $pengumpulan->update([
             'nilai' => $request->nilai,
-            'feedback' => $request->feedback,
+            'feedback_guru' => $request->feedback,
         ]);
 
         $this->logActivity->log('penilaian', auth()->user()->id_user, 'Menilai tugas ID: ' . $id);
 
         return redirect()->back()->with('success', 'Nilai berhasil diberikan');
+    }
+
+    public function deleteTugas($id)
+    {
+        $tugas = Tugas::findOrFail($id);
+        
+        // Check if user is owner
+        if ($tugas->id_guru !== auth()->user()->guru->id_guru) {
+            abort(403);
+        }
+
+        // Delete all pengumpulan first
+        PengumpulanTugas::where('id_tugas', $id)->delete();
+        
+        // Delete tugas
+        $tugas->delete();
+
+        $this->logActivity->logCrud('delete', auth()->user()->id_user, 'tugas', $id);
+
+        return redirect()->route('guru.tugas')->with('success', 'Tugas berhasil dihapus');
     }
 
     public function izin()
