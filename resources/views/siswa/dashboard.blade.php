@@ -68,10 +68,10 @@
         <!-- 2. Lihat Jadwal -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-calendar"></i> Lihat Jadwal
+                <i class="fas fa-calendar"></i> Roster
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Melihat jadwal harian dan status kehadiran rapat
+                Melihat roster
             </p>
             <button class="btn btn-primary btn-sm" onclick="alert('Fitur jadwal akan tersedia')">
                 <i class="fas fa-eye"></i> Lihat Jadwal
@@ -130,18 +130,7 @@
             </button>
         </div>
 
-        <!-- 7. Status Izin -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-info-circle"></i> Status Izin
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Melihat status pengajuan izin dan verifikasi guru
-            </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur status izin akan tersedia')">
-                <i class="fas fa-list-alt"></i> Cek Status
-            </button>
-        </div>
+
     </div>
 </div>
 

@@ -98,7 +98,7 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mencatat kehadiran siswa sesuai kelas yang diampu
             </p>
-            <div style="margin-top: 42px;">
+            <div style="display: flex; gap: 0.5rem;">
                 <button class="btn btn-primary btn-sm" onclick="alert('Fitur absen siswa akan tersedia')">
                     <i class="fas fa-check-square"></i> Isi Absen
                 </button>
@@ -113,7 +113,7 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Otomatis mengkonfirmasi kehadiran berdasarkan jadwal yang aktif
             </p>
-            <div style="margin-top: 42px;">
+            <div style="display: flex; gap: 0.5rem;">
                 <span class="badge badge-success">Otomatis Terkonfirmasi</span>
             </div>
         </div>
@@ -126,7 +126,7 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Menolak pengajuan izin siswa dengan notifikasi otomatis
             </p>
-            <div style="margin-top: 42px;">
+            <div style="display: flex; gap: 0.5rem;">
                 <button class="btn btn-primary btn-sm" onclick="alert('Fitur tolak izin akan tersedia')">
                     <i class="fas fa-list"></i> Lihat Pengajuan
                 </button>
@@ -154,12 +154,14 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Membuat tugas, melihat pengumpulan, dan memberikan nilai
             </p>
-            <a href="{{ route('guru.tugas') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-list"></i> Lihat Tugas
-            </a>
-            <a href="{{ route('guru.tugas.create') }}" class="btn btn-success btn-sm" style="margin-left: 0.5rem;">
-                <i class="fas fa-plus"></i> Buat Tugas
-            </a>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ route('guru.tugas') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-list"></i> Lihat Tugas
+                </a>
+                <a href="{{ route('guru.tugas.create') }}" class="btn btn-sm" style="background-color: #f59e0b; color: white; border: none;">
+                    <i class="fas fa-plus"></i> Buat Tugas
+                </a>
+            </div>
         </div>
 
         <!-- 7. Lihat Data Kehadiran -->
@@ -170,9 +172,11 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Melihat data kehadiran per kelas atau per bulan
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur data kehadiran akan tersedia')">
-                <i class="fas fa-eye"></i> Lihat Data
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary btn-sm" onclick="alert('Fitur data kehadiran akan tersedia')">
+                    <i class="fas fa-eye"></i> Lihat Data
+                </button>
+            </div>
         </div>
 
         <!-- 8. Update/Hapus Materi -->
@@ -183,9 +187,11 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Memperbarui atau menghapus file materi pembelajaran
             </p>
-            <a href="{{ route('guru.materi') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-cog"></i> Kelola
-            </a>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ route('guru.materi') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-cog"></i> Kelola
+                </a>
+            </div>
         </div>
 
         <!-- 9. Laporan Bulanan -->
@@ -196,9 +202,11 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Melihat rekap kehadiran per bulan untuk evaluasi
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur laporan akan tersedia')">
-                <i class="fas fa-download"></i> Download Laporan
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary btn-sm" onclick="alert('Fitur laporan akan tersedia')">
+                    <i class="fas fa-download"></i> Download Laporan
+                </button>
+            </div>
         </div>
     </div>
 </div>
