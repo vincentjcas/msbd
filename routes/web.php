@@ -126,9 +126,8 @@ Route::middleware('auth')->group(function () {
     // Kepala Sekolah - Rekap Presensi
     Route::get('/kepala-sekolah/rekap-presensi', [KepalaSekolahController::class, 'rekapPresensi'])->name('kepala_sekolah.rekap-presensi')->middleware('role:kepala_sekolah');
     
-    // Kepala Sekolah - Manajemen Izin
+    // Kepala Sekolah - Lihat Pengajuan Izin (Read-only)
     Route::get('/kepala-sekolah/izin', [KepalaSekolahController::class, 'izin'])->name('kepala_sekolah.izin')->middleware('role:kepala_sekolah');
-    Route::post('/kepala-sekolah/izin/{id}/approve', [KepalaSekolahController::class, 'approveIzin'])->name('kepala_sekolah.izin.approve')->middleware('role:kepala_sekolah');
     
     // Kepala Sekolah - Laporan Aktivitas
     Route::get('/kepala-sekolah/laporan', [KepalaSekolahController::class, 'laporan'])->name('kepala_sekolah.laporan')->middleware('role:kepala_sekolah');

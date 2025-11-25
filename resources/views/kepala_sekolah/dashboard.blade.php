@@ -144,14 +144,14 @@
             </div>
         </a>
 
-        <!-- Manajemen Izin -->
+        <!-- Lihat Pengajuan Izin -->
         <a href="{{ route('kepala_sekolah.izin') }}" class="link-card">
             <div class="link-icon" style="background: #ccfbf1; color: #14b8a6;">
-                <i class="fas fa-file-alt"></i>
+                <i class="fas fa-file-check"></i>
             </div>
             <div>
-                <div class="link-title">Manajemen Izin</div>
-                <div class="link-desc">Approve/Reject izin</div>
+                <div class="link-title">Lihat Pengajuan Izin</div>
+                <div class="link-desc">Pantau izin siswa</div>
             </div>
         </a>
 

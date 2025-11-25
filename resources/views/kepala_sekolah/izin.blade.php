@@ -39,8 +39,8 @@
 
 <div style="max-width: 1000px; margin: 0 auto;">
     <!-- Header -->
-    <div class="page-title">Manajemen Izin</div>
-    <div class="page-desc">Approve atau reject permohonan izin guru dan siswa</div>
+    <div class="page-title">Lihat Pengajuan Izin</div>
+    <div class="page-desc">Pantau semua pengajuan izin siswa dan guru</div>
 
     <!-- Alerts -->
     @if($errors->any())
@@ -91,28 +91,25 @@
                     <div class="izin-section-content">{{ $izin->keterangan }}</div>
                 </div>
 
-                <!-- Action Buttons -->
-                @if($izin->status_approval == 'pending')
-                    <form method="POST" action="{{ route('kepala_sekolah.izin.approve', $izin->id_izin) }}">
-                        @csrf
-                        
-                        <div class="form-group">
-                            <label class="form-label">Catatan (Opsional)</label>
-                            <textarea name="catatan" rows="2" class="form-control" placeholder="Masukkan catatan..."></textarea>
-                        </div>
-
-                        <div class="btn-group">
-                            <button type="submit" name="status" value="approved" class="btn btn-approve">✓ Approve</button>
-                            <button type="submit" name="status" value="rejected" class="btn btn-reject">✗ Reject</button>
-                        </div>
-                    </form>
-                @else
-                    <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid #cbd5e0;">
-                        <div style="font-size: 0.9rem; color: #4a5568; margin-bottom: 0.5rem;">Diproses oleh:</div>
-                        <div style="font-weight: 600; color: #2d3748;">{{ $izin->approver->nama_lengkap ?? $izin->approver->name ?? 'System' }}</div>
-                        <div style="font-size: 0.85rem; color: #718096; margin-top: 0.5rem;">{{ $izin->updated_at->format('d M Y H:i') }}</div>
+                <!-- Info Status (Read-only) -->
+                <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid #cbd5e0;">
+                    <div style="font-size: 0.9rem; color: #4a5568; margin-bottom: 0.5rem;">Status:</div>
+                    <div style="font-weight: 600; color: #2d3748; margin-bottom: 1rem;">
+                        @if($izin->status_approval == 'pending')
+                            <span style="background: #fef3c7; color: #92400e; padding: 0.35rem 0.85rem; border-radius: 20px;">Menunggu Persetujuan</span>
+                        @elseif($izin->status_approval == 'approved')
+                            <span style="background: #dcfce7; color: #166534; padding: 0.35rem 0.85rem; border-radius: 20px;">✓ Disetujui</span>
+                        @else
+                            <span style="background: #fee2e2; color: #7f1d1d; padding: 0.35rem 0.85rem; border-radius: 20px;">✗ Ditolak</span>
+                        @endif
                     </div>
-                @endif
+                    @if($izin->status_approval != 'pending')
+                        <div style="font-size: 0.85rem; color: #718096; margin-top: 0.5rem;">
+                            <strong>Diproses oleh:</strong> {{ $izin->approver->nama_lengkap ?? $izin->approver->name ?? 'System' }}<br>
+                            <strong>Tanggal:</strong> {{ $izin->updated_at->format('d M Y H:i') }}
+                        </div>
+                    @endif
+                </div>
             </div>
         </div>
     @empty
