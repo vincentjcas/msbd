@@ -73,22 +73,30 @@
 
     <!-- Status Pengumpulan -->
     @if($pengumpulan)
-        <div style="background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; border-left: 4px solid #10b981;">
+        @php
+            $submitTime = \Carbon\Carbon::parse($pengumpulan->waktu_submit);
+            $deadline = \Carbon\Carbon::parse($tugas->deadline);
+            $isLate = $submitTime->gt($deadline);
+            $lateDiff = $isLate ? $submitTime->diff($deadline) : null;
+        @endphp
+        <div style="background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 2rem; margin-bottom: 2rem; border-left: 4px solid {{ $isLate ? '#dc2626' : '#10b981' }};">
             <h3 style="font-size: 1.125rem; font-weight: 600; color: #1e293b; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                <i class="fas fa-check-circle" style="color: {{ $isLate ? '#dc2626' : '#10b981' }};"></i>
                 Tugas Sudah Dikumpulkan
             </h3>
-            
             <div style="display: grid; gap: 1rem;">
                 <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f8fafc; border-radius: 0.5rem;">
                     <span style="color: #64748b; font-weight: 500;">Waktu Pengumpulan:</span>
-                    <span style="font-weight: 600; color: #1e293b;">{{ \Carbon\Carbon::parse($pengumpulan->waktu_submit)->format('d M Y, H:i') }}</span>
+                    <span style="font-weight: 600; color: #1e293b;">{{ $submitTime->format('d M Y, H:i') }}</span>
                 </div>
-                
                 <div style="display: flex; justify-content: space-between; padding: 0.75rem; background: #f8fafc; border-radius: 0.5rem;">
                     <span style="color: #64748b; font-weight: 500;">Status:</span>
-                    @if($pengumpulan->status === 'terlambat')
-                        <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">Terlambat</span>
+                    @if($isLate)
+                        <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">Terlambat
+                            <span style="display: inline-block; margin-left: 0.5rem; font-weight: 600; color: #991b1b; font-size: 0.875rem;">
+                                ({{ $lateDiff->d > 0 ? $lateDiff->d . ' hari ' : '' }}{{ $lateDiff->h > 0 ? $lateDiff->h . ' jam ' : '' }}{{ $lateDiff->i > 0 ? $lateDiff->i . ' menit' : '' }})
+                            </span>
+                        </span>
                     @else
                         <span style="background: #d1fae5; color: #065f46; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600;">Tepat Waktu</span>
                     @endif
