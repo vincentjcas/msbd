@@ -34,10 +34,23 @@
         <div style="display: grid; gap: 1.5rem;">
             @foreach($tugasWithStatus as $t)
                 @php
-                    $deadline = \Carbon\Carbon::parse($t->deadline);
-                    $now = \Carbon\Carbon::now();
-                    $isOverdue = $now->gt($deadline);
-                    $hoursLeft = $now->diffInHours($deadline, false);
+                    // Parse deadline - asumsikan sudah dalam timezone Asia/Jakarta (bukan UTC)
+                    $deadline = \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $t->deadline, 'Asia/Jakarta');
+                    // Ambil waktu sekarang dalam timezone app
+                    $now = \Carbon\Carbon::now('Asia/Jakarta');
+                    
+                    // Tentukan status: jika sekarang LEBIH BESAR dari deadline, maka terlambat
+                    $isOverdue = $now->greaterThan($deadline);
+                    
+                    if ($isOverdue) {
+                        // Sudah melewati deadline - hitung keterlambatan
+                        $diff = $now->diff($deadline);
+                        $timeDisplay = 'Terlambat ' . $diff->days . ' hari ' . $diff->h . ' jam ' . $diff->i . ' menit';
+                    } else {
+                        // Belum melewati deadline - hitung sisa waktu
+                        $diff = $deadline->diff($now);
+                        $timeDisplay = $diff->days . ' hari ' . $diff->h . ' jam ' . $diff->i . ' menit lagi';
+                    }
                 @endphp
                 
                 <div style="background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; border-left: 4px solid {{ $t->sudah_mengumpulkan ? '#10b981' : ($isOverdue ? '#ef4444' : '#0369a1') }};">
@@ -70,11 +83,11 @@
                                 @endif
                             @elseif($isOverdue)
                                 <span style="background: #fee2e2; color: #991b1b; padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; white-space: nowrap;">
-                                    <i class="fas fa-exclamation-triangle"></i> Terlambat
+                                    <i class="fas fa-exclamation-triangle"></i> {{ $timeDisplay }}
                                 </span>
                             @else
                                 <span style="background: #dbeafe; color: #1e40af; padding: 0.375rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 600; white-space: nowrap;">
-                                    <i class="fas fa-clock"></i> {{ $hoursLeft > 24 ? floor($hoursLeft / 24) . ' hari lagi' : $hoursLeft . ' jam lagi' }}
+                                    <i class="fas fa-clock"></i> {{ $timeDisplay }}
                                 </span>
                             @endif
                         </div>
