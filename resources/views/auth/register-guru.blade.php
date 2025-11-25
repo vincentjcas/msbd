@@ -246,19 +246,9 @@
         <form action="{{ route('register.guru.submit') }}" method="POST">
             @csrf
 
-            <!-- NIP -->
-            <div class="form-group">
-                <label for="nip">NIP (Nomor Induk Pegawai)</label>
-                <input type="text" id="nip" name="nip" required 
-                       placeholder="Contoh: 123456789012345678"
-                       value="{{ old('nip') }}">
-                <p class="hint-text">Masukkan NIP dengan benar sesuai data pegawai</p>
-                @error('nip')<p class="error-text">{{ $message }}</p>@enderror
-            </div>
-
             <!-- Nama Lengkap -->
             <div class="form-group">
-                <label for="name">Nama Lengkap</label>
+                <label for="name">Nama Lengkap <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="name" name="name" required 
                        placeholder="Masukkan nama lengkap"
                        value="{{ old('name') }}">
@@ -267,16 +257,17 @@
 
             <!-- Email -->
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">Email <span style="color: #dc2626;">*</span></label>
                 <input type="email" id="email" name="email" required 
                        placeholder="contoh@email.com"
                        value="{{ old('email') }}">
+                <p class="hint-text">Email digunakan untuk login</p>
                 @error('email')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
             <!-- Nomor HP -->
             <div class="form-group">
-                <label for="no_hp">Nomor HP</label>
+                <label for="no_hp">Nomor HP <span style="color: #dc2626;">*</span></label>
                 <input type="text" id="no_hp" name="no_hp" required 
                        placeholder="08xxxxxxxxxx"
                        value="{{ old('no_hp') }}"
@@ -288,7 +279,7 @@
             <!-- Jenis Kelamin -->
             <div class="form-row">
                 <div class="form-group">
-                    <label for="jenis_kelamin">Jenis Kelamin</label>
+                    <label for="jenis_kelamin">Jenis Kelamin <span style="color: #dc2626;">*</span></label>
                     <select id="jenis_kelamin" name="jenis_kelamin" required>
                         <option value="">Pilih Jenis Kelamin</option>
                         <option value="L" {{ old('jenis_kelamin') == 'L' ? 'selected' : '' }}>Laki-laki</option>
@@ -299,7 +290,7 @@
 
                 <!-- Agama -->
                 <div class="form-group">
-                    <label for="agama">Agama</label>
+                    <label for="agama">Agama <span style="color: #dc2626;">*</span></label>
                     <select id="agama" name="agama" required>
                         <option value="">Pilih Agama</option>
                         <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
@@ -315,10 +306,10 @@
 
             <!-- Password -->
             <div class="form-group has-password">
-                <label for="password">Password</label>
+                <label for="password">Password <span style="color: #dc2626;">*</span></label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" required 
-                           placeholder="Minimal 8 karakter">
+                           placeholder="Minimal 6 karakter">
                     <span class="password-toggle" onclick="togglePassword('password')">
                         <i class="fas fa-eye"></i>
                     </span>
@@ -328,7 +319,7 @@
 
             <!-- Konfirmasi Password -->
             <div class="form-group has-password">
-                <label for="password_confirmation">Konfirmasi Password</label>
+                <label for="password_confirmation">Konfirmasi Password <span style="color: #dc2626;">*</span></label>
                 <div class="password-wrapper">
                     <input type="password" id="password_confirmation" name="password_confirmation" required 
                            placeholder="Ulangi password">

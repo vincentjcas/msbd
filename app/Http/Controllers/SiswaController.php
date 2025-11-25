@@ -109,19 +109,26 @@ class SiswaController extends Controller
     {
         $siswa = auth()->user()->siswa;
         $tugas = Tugas::where('id_kelas', $siswa->id_kelas)
-            ->with(['guru.user'])
-            ->withCount(['pengumpulan as sudah_mengumpulkan' => function ($query) use ($siswa) {
-                $query->where('id_siswa', $siswa->id_siswa);
-            }])
+            ->with(['guru.user', 'kelas'])
             ->orderBy('deadline', 'desc')
-            ->paginate(20);
+            ->get();
 
-        return view('siswa.tugas', compact('tugas'));
+        // Check which tugas already submitted
+        $tugasWithStatus = $tugas->map(function($t) use ($siswa) {
+            $pengumpulan = PengumpulanTugas::where('id_tugas', $t->id_tugas)
+                ->where('id_siswa', $siswa->id_siswa)
+                ->first();
+            $t->sudah_mengumpulkan = $pengumpulan ? true : false;
+            $t->pengumpulan_data = $pengumpulan;
+            return $t;
+        });
+
+        return view('siswa.tugas.index', compact('tugasWithStatus'));
     }
 
     public function detailTugas($id)
     {
-        $tugas = Tugas::with(['guru.user'])->findOrFail($id);
+        $tugas = Tugas::with(['guru.user', 'kelas'])->findOrFail($id);
         $siswa = auth()->user()->siswa;
 
         if ($tugas->id_kelas !== $siswa->id_kelas) {
@@ -132,13 +139,14 @@ class SiswaController extends Controller
             ->where('id_siswa', $siswa->id_siswa)
             ->first();
 
-        return view('siswa.tugas-detail', compact('tugas', 'pengumpulan'));
+        return view('siswa.tugas.detail', compact('tugas', 'pengumpulan'));
     }
 
     public function submitTugas(Request $request, $id)
     {
         $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:5120',
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,zip,rar|max:10240',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
         $tugas = Tugas::findOrFail($id);
@@ -148,22 +156,33 @@ class SiswaController extends Controller
             abort(403);
         }
 
-        $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('tugas', $filename, 'public');
+        // Check if already submitted
+        $existing = PengumpulanTugas::where('id_tugas', $id)
+            ->where('id_siswa', $siswa->id_siswa)
+            ->first();
 
-        PengumpulanTugas::updateOrCreate(
-            [
-                'id_tugas' => $id,
-                'id_siswa' => $siswa->id_siswa,
-            ],
-            [
-                'file_path' => $path,
-                'file_name' => $filename,
-                'file_size' => $file->getSize(),
-                'waktu_submit' => now(),
-            ]
-        );
+        if ($existing) {
+            return redirect()->back()->with('error', 'Anda sudah mengumpulkan tugas ini sebelumnya');
+        }
+
+        // Upload file
+        $file = $request->file('file');
+        $filename = time() . '_' . $siswa->id_siswa . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('tugas_submissions', $filename, 'public');
+
+        // Determine status (tepat_waktu or terlambat)
+        $now = now();
+        $deadline = \Carbon\Carbon::parse($tugas->deadline);
+        $status = $now->lte($deadline) ? 'tepat_waktu' : 'terlambat';
+
+        PengumpulanTugas::create([
+            'id_tugas' => $id,
+            'id_siswa' => $siswa->id_siswa,
+            'file_jawaban' => $path,
+            'keterangan' => $request->keterangan,
+            'waktu_submit' => $now,
+            'status' => $status,
+        ]);
 
         $this->logActivity->log('submit_tugas', auth()->user()->id_user, 'Submit tugas: ' . $tugas->judul_tugas);
 

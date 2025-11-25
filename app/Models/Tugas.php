@@ -10,5 +10,22 @@ class Tugas extends Model
 
     protected $primaryKey = 'id_tugas';
 
-    protected $fillable = ['judul', 'deskripsi', 'due_date'];
+    protected $fillable = ['id_guru', 'id_kelas', 'judul_tugas', 'deskripsi', 'deadline'];
+
+    public $timestamps = false;
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
+
+    public function kelas()
+    {
+        return $this->belongsTo(Kelas::class, 'id_kelas', 'id_kelas');
+    }
+
+    public function pengumpulan()
+    {
+        return $this->hasMany(PengumpulanTugas::class, 'id_tugas', 'id_tugas');
+    }
 }

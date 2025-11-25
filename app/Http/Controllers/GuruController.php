@@ -260,12 +260,8 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         
-        // Ambil kelas unik dari jadwal guru
-        $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
-            ->distinct()
-            ->pluck('id_kelas');
-        
-        $kelas = Kelas::whereIn('id_kelas', $kelasIds)->get();
+        // Ambil semua kelas yang tersedia
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
 
         return view('guru.materi.create', compact('kelas'));
     }
@@ -320,9 +316,9 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         $tugas = Tugas::where('id_guru', $guru->id_guru)
-            ->with('kelas')
+            ->with(['kelas', 'pengumpulan'])
             ->orderBy('deadline', 'desc')
-            ->paginate(20);
+            ->get();
 
         return view('guru.tugas.index', compact('tugas'));
     }
@@ -334,7 +330,13 @@ class GuruController extends Controller
             ->with('kelas')
             ->get()
             ->pluck('kelas')
-            ->unique('id_kelas');
+            ->unique('id_kelas')
+            ->filter();
+
+        // Jika guru belum punya jadwal, fallback ke semua kelas aktif
+        if ($kelas->isEmpty()) {
+            $kelas = \App\Models\Kelas::all();
+        }
 
         return view('guru.tugas.create', compact('kelas'));
     }
@@ -382,12 +384,32 @@ class GuruController extends Controller
         $pengumpulan = PengumpulanTugas::findOrFail($id);
         $pengumpulan->update([
             'nilai' => $request->nilai,
-            'feedback' => $request->feedback,
+            'feedback_guru' => $request->feedback,
         ]);
 
         $this->logActivity->log('penilaian', auth()->user()->id_user, 'Menilai tugas ID: ' . $id);
 
         return redirect()->back()->with('success', 'Nilai berhasil diberikan');
+    }
+
+    public function deleteTugas($id)
+    {
+        $tugas = Tugas::findOrFail($id);
+        
+        // Check if user is owner
+        if ($tugas->id_guru !== auth()->user()->guru->id_guru) {
+            abort(403);
+        }
+
+        // Delete all pengumpulan first
+        PengumpulanTugas::where('id_tugas', $id)->delete();
+        
+        // Delete tugas
+        $tugas->delete();
+
+        $this->logActivity->logCrud('delete', auth()->user()->id_user, 'tugas', $id);
+
+        return redirect()->route('guru.tugas')->with('success', 'Tugas berhasil dihapus');
     }
 
     public function izin()

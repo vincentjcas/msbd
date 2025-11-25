@@ -470,8 +470,14 @@
                 tempatLahirInput.readOnly = false;
                 tanggalLahirInput.readOnly = false;
                 jenisKelaminSelect.disabled = false;
+                jenisKelaminSelect.style.pointerEvents = 'auto';
+                jenisKelaminSelect.style.opacity = '1';
                 agamaSelect.disabled = false;
+                agamaSelect.style.pointerEvents = 'auto';
+                agamaSelect.style.opacity = '1';
                 idKelasSelect.disabled = false;
+                idKelasSelect.style.pointerEvents = 'auto';
+                idKelasSelect.style.opacity = '1';
                 noHpInput.readOnly = false;
                 sekolahAsalInput.readOnly = false;
                 alamatInput.readOnly = false;
@@ -559,10 +565,17 @@
                         nameInput.readOnly = true;
                         tempatLahirInput.readOnly = true;
                         tanggalLahirInput.readOnly = true;
-                        jenisKelaminSelect.disabled = true;
-                        agamaSelect.disabled = true;
-                        idKelasSelect.disabled = true;
-                        noHpInput.readOnly = true;
+                        
+                        // Untuk select, jangan pakai disabled agar value tetap terkirim
+                        // Pakai style pointer-events untuk mencegah user mengubah
+                        jenisKelaminSelect.style.pointerEvents = 'none';
+                        jenisKelaminSelect.style.opacity = '0.6';
+                        agamaSelect.style.pointerEvents = 'none';
+                        agamaSelect.style.opacity = '0.6';
+                        idKelasSelect.style.pointerEvents = 'none';
+                        idKelasSelect.style.opacity = '0.6';
+                        
+                        noHpInput.readOnly = false; // Biarkan user edit nomor HP
                         sekolahAsalInput.readOnly = true;
                         alamatInput.readOnly = true;
                         
@@ -574,8 +587,14 @@
                         tempatLahirInput.readOnly = false;
                         tanggalLahirInput.readOnly = false;
                         jenisKelaminSelect.disabled = false;
+                        jenisKelaminSelect.style.pointerEvents = 'auto';
+                        jenisKelaminSelect.style.opacity = '1';
                         agamaSelect.disabled = false;
+                        agamaSelect.style.pointerEvents = 'auto';
+                        agamaSelect.style.opacity = '1';
                         idKelasSelect.disabled = false;
+                        idKelasSelect.style.pointerEvents = 'auto';
+                        idKelasSelect.style.opacity = '1';
                         noHpInput.readOnly = false;
                         sekolahAsalInput.readOnly = false;
                         alamatInput.readOnly = false;

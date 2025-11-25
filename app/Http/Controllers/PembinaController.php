@@ -12,7 +12,7 @@ use App\Models\Materi;
 use App\Models\Kelas;
 use App\Models\LaporanAktivitas;
 use App\Models\Views\VStatistikKehadiranKelas;
-use App\Models\Views\VRekapPresensiGuruStaf;
+use App\Models\Views\VRekapPresensiGuru;
 use App\Services\DatabaseFunctionService;
 use App\Services\LogActivityService;
 
@@ -49,7 +49,7 @@ class PembinaController extends Controller
 
         $statistikKelas = VStatistikKehadiranKelas::all();
 
-        $rekapGuru = VRekapPresensiGuruStaf::where('bulan', $bulan)
+        $rekapGuru = VRekapPresensiGuru::where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get();
 

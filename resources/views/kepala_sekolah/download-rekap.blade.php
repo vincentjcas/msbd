@@ -74,12 +74,12 @@
 
     <!-- Rekap Preview -->
     @if($rekap && (count($rekap['guru']) > 0 || count($rekap['siswa']) > 0))
-        <!-- Rekap Guru/Staf -->
+        <!-- Rekap Guru -->
         @if(count($rekap['guru']) > 0)
             <div class="data-card">
                 <div class="data-header">
                     <div>
-                        <div class="data-title">Rekap Presensi Guru/Staf - {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->format('F Y') }}</div>
+                        <div class="data-title">Rekap Presensi Guru - {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->format('F Y') }}</div>
                         <div class="data-subtitle">Total: {{ count($rekap['guru']) }} orang</div>
                     </div>
                     <button onclick="window.print()" class="btn-print">

@@ -9,7 +9,7 @@ use App\Models\LaporanAktivitas;
 use App\Models\EvaluasiKepsek;
 use App\Models\Views\VGrafikKehadiranHarian;
 use App\Models\Views\VGrafikKehadiranSiswaHarian;
-use App\Models\Views\VRekapPresensiGuruStaf;
+use App\Models\Views\VRekapPresensiGuru;
 use App\Models\Views\VRekapPresensiSiswa;
 use App\Services\DatabaseProcedureService;
 use App\Services\LogActivityService;
@@ -58,7 +58,7 @@ class KepalaSekolahController extends Controller
         $tipe = $request->input('tipe', 'guru');
 
         if ($tipe === 'guru') {
-            $rekap = VRekapPresensiGuruStaf::where('bulan', $bulan)
+            $rekap = VRekapPresensiGuru::where('bulan', $bulan)
                 ->where('tahun', $tahun)
                 ->get();
         } else {
@@ -154,7 +154,7 @@ class KepalaSekolahController extends Controller
         $tahun = $request->input('tahun', date('Y'));
 
         // Ambil data dari views yang sudah dibuat
-        $rekapGuru = VRekapPresensiGuruStaf::where('bulan', $bulan)
+        $rekapGuru = VRekapPresensiGuru::where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get();
 

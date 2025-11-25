@@ -146,7 +146,23 @@
             </a>
         </div>
 
-        <!-- 6. Lihat Data Kehadiran -->
+        <!-- 6. Kelola Tugas -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-tasks"></i> Kelola Tugas
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Membuat tugas, melihat pengumpulan, dan memberikan nilai
+            </p>
+            <a href="{{ route('guru.tugas') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-list"></i> Lihat Tugas
+            </a>
+            <a href="{{ route('guru.tugas.create') }}" class="btn btn-success btn-sm" style="margin-left: 0.5rem;">
+                <i class="fas fa-plus"></i> Buat Tugas
+            </a>
+        </div>
+
+        <!-- 7. Lihat Data Kehadiran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-bar"></i> Data Kehadiran
@@ -159,7 +175,7 @@
             </button>
         </div>
 
-        <!-- 7. Update/Hapus Materi -->
+        <!-- 8. Update/Hapus Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-edit"></i> Kelola Materi
@@ -172,7 +188,7 @@
             </a>
         </div>
 
-        <!-- 8. Laporan Bulanan -->
+        <!-- 9. Laporan Bulanan -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-alt"></i> Laporan Bulanan
