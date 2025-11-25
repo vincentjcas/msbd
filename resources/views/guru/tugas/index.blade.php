@@ -26,9 +26,6 @@
         <div class="empty-state">
             <i class="fas fa-clipboard-list"></i>
             <p>Belum ada tugas yang dibuat</p>
-            <a href="{{ route('guru.tugas.create') }}" class="btn btn-primary" style="margin-top: 1rem;">
-                <i class="fas fa-plus"></i> Buat Tugas Pertama
-            </a>
         </div>
     @else
         <div style="background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;">
