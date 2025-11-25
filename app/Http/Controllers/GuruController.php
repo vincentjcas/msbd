@@ -330,7 +330,13 @@ class GuruController extends Controller
             ->with('kelas')
             ->get()
             ->pluck('kelas')
-            ->unique('id_kelas');
+            ->unique('id_kelas')
+            ->filter();
+
+        // Jika guru belum punya jadwal, fallback ke semua kelas aktif
+        if ($kelas->isEmpty()) {
+            $kelas = \App\Models\Kelas::all();
+        }
 
         return view('guru.tugas.create', compact('kelas'));
     }
