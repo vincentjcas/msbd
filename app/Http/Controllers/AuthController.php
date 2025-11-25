@@ -31,7 +31,7 @@ class AuthController extends Controller
             'identifier' => 'required|string',
             'password' => 'required',
         ], [
-            'identifier.required' => 'NIS/NIP/Email wajib diisi.',
+            'identifier.required' => 'Email/NIS/NIP wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
@@ -70,7 +70,7 @@ class AuthController extends Controller
         // Cek apakah user ditemukan dan password cocok
         if (!$user || !Hash::check($password, $user->password)) {
             return back()->withErrors([
-                'identifier' => 'NIS/NIP/Email atau password salah.',
+                'identifier' => 'Email/NIS/NIP atau password salah.',
             ])->withInput();
         }
 
@@ -87,7 +87,7 @@ class AuthController extends Controller
 
         // ✅ Simpan pesan selamat datang dengan nama depan
         $firstName = explode(' ', $user->nama_lengkap)[0];
-        session()->flash('success', "Selamat datang kembali, {$firstName}!");
+        session()->flash('success', "Selamat datang, {$firstName}!");
 
         // ✅ Redirect otomatis sesuai role
         switch ($user->role) {
@@ -143,15 +143,15 @@ class AuthController extends Controller
     public function registerGuru(Request $request)
     {
         $request->validate([
-            'nip' => 'required|string|unique:guru,nip|max:30',
+            'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
             'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:guru,no_hp|max:20',
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'password' => 'required|confirmed|min:6',
         ], [
-            'nip.required' => 'NIP wajib diisi.',
-            'nip.unique' => 'NIP sudah terdaftar.',
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'name.max' => 'Nama lengkap maksimal 100 karakter.',
             'email.required' => 'Email wajib diisi.',
             'email.email' => 'Format email tidak valid.',
             'email.unique' => 'Email sudah terdaftar.',
@@ -167,26 +167,31 @@ class AuthController extends Controller
 
         DB::beginTransaction();
         try {
-            // Generate nama_lengkap dari NIP (bisa diupdate nanti)
-            $namaLengkap = 'Guru-' . $request->nip;
-
-            // Generate username dari NIP
-            $username = 'guru_' . $request->nip;
+            // Generate username dari email (bagian sebelum @)
+            $baseUsername = strtolower(explode('@', $request->email)[0]);
+            $username = $baseUsername;
+            $counter = 1;
+            
+            // Jika username sudah ada, tambahkan angka
+            while (User::where('username', $username)->exists()) {
+                $username = $baseUsername . $counter;
+                $counter++;
+            }
 
             // Buat user - GURU LANGSUNG AKTIF (status_aktif = 1)
             $user = User::create([
                 'username' => $username,
-                'nama_lengkap' => $namaLengkap,
+                'nama_lengkap' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
                 'role' => 'guru',
+                'no_hp' => $request->no_hp,
                 'status_aktif' => 1, // ✅ Langsung aktif tanpa approval
             ]);
 
             // Buat data guru
             Guru::create([
                 'id_user' => $user->id_user,
-                'nip' => $request->nip,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'agama' => $request->agama,
                 'no_hp' => $request->no_hp,
@@ -194,7 +199,7 @@ class AuthController extends Controller
 
             DB::commit();
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan akun Anda.');
+            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan email dan password Anda.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
