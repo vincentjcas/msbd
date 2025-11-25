@@ -9,7 +9,7 @@ use App\Models\LaporanAktivitas;
 use App\Models\EvaluasiKepsek;
 use App\Models\Views\VGrafikKehadiranHarian;
 use App\Models\Views\VGrafikKehadiranSiswaHarian;
-use App\Models\Views\VRekapPresensiGuruStaf;
+use App\Models\Views\VRekapPresensiGuru;
 use App\Models\Views\VRekapPresensiSiswa;
 use App\Services\DatabaseProcedureService;
 use App\Services\LogActivityService;
@@ -58,7 +58,7 @@ class KepalaSekolahController extends Controller
         $tipe = $request->input('tipe', 'guru');
 
         if ($tipe === 'guru') {
-            $rekap = VRekapPresensiGuruStaf::where('bulan', $bulan)
+            $rekap = VRekapPresensiGuru::where('bulan', $bulan)
                 ->where('tahun', $tahun)
                 ->get();
         } else {
@@ -153,7 +153,21 @@ class KepalaSekolahController extends Controller
         $bulan = $request->input('bulan', date('m'));
         $tahun = $request->input('tahun', date('Y'));
 
-        $rekap = $this->dbProcedure->rekapPresensiBulanan($bulan, $tahun, null);
+        // Ambil data dari views yang sudah dibuat
+        $rekapGuru = VRekapPresensiGuru::where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get();
+
+        $rekapSiswa = VRekapPresensiSiswa::where('bulan', $bulan)
+            ->where('tahun', $tahun)
+            ->get();
+
+        $rekap = [
+            'guru' => $rekapGuru,
+            'siswa' => $rekapSiswa,
+            'bulan' => $bulan,
+            'tahun' => $tahun
+        ];
 
         return view('kepala_sekolah.download-rekap', compact('rekap', 'bulan', 'tahun'));
     }

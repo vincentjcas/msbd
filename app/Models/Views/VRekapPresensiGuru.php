@@ -4,9 +4,9 @@ namespace App\Models\Views;
 
 use Illuminate\Database\Eloquent\Model;
 
-class VRekapPresensiGuruStaf extends Model
+class VRekapPresensiGuru extends Model
 {
-    protected $table = 'v_rekap_presensi_guru_staf';
+    protected $table = 'v_rekap_presensi_guru';
     public $timestamps = false;
     public $incrementing = false;
 

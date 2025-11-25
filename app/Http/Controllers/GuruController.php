@@ -32,6 +32,12 @@ class GuruController extends Controller
     public function dashboard()
     {
         $guru = auth()->user()->guru;
+        
+        // Jika guru tidak ditemukan, redirect ke login
+        if (!$guru) {
+            return redirect()->route('login')->with('error', 'Data guru tidak ditemukan');
+        }
+        
         $jadwalHariIni = Jadwal::where('id_guru', $guru->id_guru)
             ->where('hari', now()->locale('id')->dayName)
             ->with('kelas')
@@ -44,39 +50,133 @@ class GuruController extends Controller
         $totalMateri = Materi::where('id_guru', $guru->id_guru)->count();
         $totalTugas = Tugas::where('id_guru', $guru->id_guru)->count();
 
-        return view('guru.dashboard', compact('jadwalHariIni', 'totalKelas', 'totalMateri', 'totalTugas'));
-    }
-
-    public function presensi()
-    {
+        // Ambil presensi hari ini
         $today = date('Y-m-d');
-        $presensi = Presensi::where('id_user', auth()->user()->id_user)
+        $userId = auth()->user()->id_user;
+        $presensiHariIni = Presensi::where('id_user', $userId)
             ->where('tanggal', $today)
             ->first();
 
-        return view('guru.presensi', compact('presensi'));
+        // Tentukan status absen
+        $statusAbsen = [
+            'sudah_masuk' => $presensiHariIni && !is_null($presensiHariIni->jam_masuk),
+            'sudah_keluar' => $presensiHariIni && !is_null($presensiHariIni->jam_keluar),
+            'jam_masuk' => $presensiHariIni->jam_masuk ?? null,
+            'jam_keluar' => $presensiHariIni->jam_keluar ?? null,
+        ];
+
+        $view = view('guru.dashboard', compact('jadwalHariIni', 'totalKelas', 'totalMateri', 'totalTugas', 'statusAbsen'));
+        return response($view)
+            ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', '0');
     }
 
-    public function inputPresensi(Request $request)
+    public function getServerTime()
     {
-        $request->validate([
-            'tanggal' => 'required|date',
-            'jam_masuk' => 'required',
-            'status' => 'required|in:hadir,izin,sakit,alpha',
-            'keterangan' => 'nullable|string',
+        return response()->json([
+            'jam_sekarang' => now()->format('H:i:s'),
+            'timestamp' => now()->timestamp
         ]);
+    }
 
-        $this->dbProcedure->inputPresensiHarian(
-            auth()->user()->id_user,
-            $request->tanggal,
-            $request->jam_masuk,
-            $request->status,
-            $request->keterangan
-        );
+    public function absenMasuk()
+    {
+        $today = date('Y-m-d');
+        $userId = auth()->user()->id_user;
+        $jamSekarang = now()->format('H:i:s'); // Gunakan Carbon timezone-aware
 
-        $this->logActivity->log('presensi', auth()->user()->id_user, 'Input presensi ' . $request->status);
+        try {
+            // Cek apakah sudah absen masuk hari ini
+            $presensiHariIni = Presensi::where('id_user', $userId)
+                ->where('tanggal', $today)
+                ->lockForUpdate()
+                ->first();
 
-        return redirect()->route('guru.presensi')->with('success', 'Presensi berhasil dicatat');
+            if ($presensiHariIni && !is_null($presensiHariIni->jam_masuk)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Anda sudah absen masuk pada jam ' . $presensiHariIni->jam_masuk . '. Silakan absen keluar terlebih dahulu sebelum absen masuk lagi.'
+                ]);
+            }
+
+            // Buat atau update presensi - SELALU update dengan jam sekarang
+            $presensi = Presensi::updateOrCreate(
+                [
+                    'id_user' => $userId,
+                    'tanggal' => $today,
+                ],
+                [
+                    'jam_masuk' => $jamSekarang,
+                    'jam_keluar' => null,  // Reset jam keluar
+                    'status' => 'hadir',
+                ]
+            );
+
+            $this->logActivity->log('presensi_masuk', $userId, 'Absen masuk - ' . $jamSekarang);
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Absen masuk berhasil dicatat pada jam ' . $jamSekarang,
+                'jam_masuk' => $jamSekarang,
+                'jam_keluar' => null
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function absenKeluar()
+    {
+        $today = date('Y-m-d');
+        $userId = auth()->user()->id_user;
+        $jamSekarang = now()->format('H:i:s'); // Gunakan Carbon timezone-aware
+
+        try {
+            // Cek presensi hari ini
+            $presensiHariIni = Presensi::where('id_user', $userId)
+                ->where('tanggal', $today)
+                ->lockForUpdate()
+                ->first();
+
+            // Validasi: harus sudah absen masuk
+            if (!$presensiHariIni || is_null($presensiHariIni->jam_masuk)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Anda belum absen masuk. Silakan absen masuk terlebih dahulu'
+                ]);
+            }
+
+            // Validasi: belum absen keluar
+            if (!is_null($presensiHariIni->jam_keluar)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => '❌ Anda sudah absen keluar pada jam ' . $presensiHariIni->jam_keluar
+                ]);
+            }
+
+            // Update dengan jam_keluar - SELALU update dengan jam sekarang
+            $presensi = $presensiHariIni->update([
+                'jam_keluar' => $jamSekarang,
+            ]);
+
+            $this->logActivity->log('presensi_keluar', $userId, 'Absen keluar - ' . $jamSekarang);
+
+            return response()->json([
+                'success' => true,
+                'message' => '✅ Absen keluar berhasil dicatat pada jam ' . $jamSekarang,
+                'jam_masuk' => $presensiHariIni->jam_masuk,
+                'jam_keluar' => $jamSekarang
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function presensiSiswa()
@@ -159,11 +259,9 @@ class GuruController extends Controller
     public function createMateri()
     {
         $guru = auth()->user()->guru;
-        $kelas = Jadwal::where('id_guru', $guru->id_guru)
-            ->with('kelas')
-            ->get()
-            ->pluck('kelas')
-            ->unique('id_kelas');
+        
+        // Ambil semua kelas yang tersedia
+        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
 
         return view('guru.materi.create', compact('kelas'));
     }
@@ -172,6 +270,7 @@ class GuruController extends Controller
     {
         $request->validate([
             'id_kelas' => 'required|exists:kelas,id_kelas',
+            'mata_pelajaran' => 'required|string|max:100',
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string',
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:10240',
@@ -184,11 +283,10 @@ class GuruController extends Controller
         $materi = Materi::create([
             'id_guru' => auth()->user()->guru->id_guru,
             'id_kelas' => $request->id_kelas,
-            'judul' => $request->judul,
+            'judul_materi' => $request->judul,
+            'mata_pelajaran' => $request->mata_pelajaran,
             'deskripsi' => $request->deskripsi,
-            'file_path' => $path,
-            'file_name' => $filename,
-            'file_size' => $file->getSize(),
+            'file_materi' => $filename,
         ]);
 
         $this->logActivity->logCrud('create', auth()->user()->id_user, 'materi', $materi->id_materi);
@@ -204,8 +302,8 @@ class GuruController extends Controller
             abort(403);
         }
 
-        if ($materi->file_path && Storage::disk('public')->exists($materi->file_path)) {
-            Storage::disk('public')->delete($materi->file_path);
+        if ($materi->file_materi && Storage::disk('public')->exists('materi/' . $materi->file_materi)) {
+            Storage::disk('public')->delete('materi/' . $materi->file_materi);
         }
 
         $materi->delete();
@@ -218,9 +316,9 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         $tugas = Tugas::where('id_guru', $guru->id_guru)
-            ->with('kelas')
+            ->with(['kelas', 'pengumpulan'])
             ->orderBy('deadline', 'desc')
-            ->paginate(20);
+            ->get();
 
         return view('guru.tugas.index', compact('tugas'));
     }
@@ -280,12 +378,32 @@ class GuruController extends Controller
         $pengumpulan = PengumpulanTugas::findOrFail($id);
         $pengumpulan->update([
             'nilai' => $request->nilai,
-            'feedback' => $request->feedback,
+            'feedback_guru' => $request->feedback,
         ]);
 
         $this->logActivity->log('penilaian', auth()->user()->id_user, 'Menilai tugas ID: ' . $id);
 
         return redirect()->back()->with('success', 'Nilai berhasil diberikan');
+    }
+
+    public function deleteTugas($id)
+    {
+        $tugas = Tugas::findOrFail($id);
+        
+        // Check if user is owner
+        if ($tugas->id_guru !== auth()->user()->guru->id_guru) {
+            abort(403);
+        }
+
+        // Delete all pengumpulan first
+        PengumpulanTugas::where('id_tugas', $id)->delete();
+        
+        // Delete tugas
+        $tugas->delete();
+
+        $this->logActivity->logCrud('delete', auth()->user()->id_user, 'tugas', $id);
+
+        return redirect()->route('guru.tugas')->with('success', 'Tugas berhasil dihapus');
     }
 
     public function izin()

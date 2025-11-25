@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Presensi;
 use App\Models\PresensiSiswa;
 use App\Models\Jadwal;
 use App\Models\JadwalStatus;
 use App\Models\Materi;
+use App\Models\Kelas;
 use App\Models\LaporanAktivitas;
 use App\Models\Views\VStatistikKehadiranKelas;
-use App\Models\Views\VRekapPresensiGuruStaf;
+use App\Models\Views\VRekapPresensiGuru;
 use App\Services\DatabaseFunctionService;
 use App\Services\LogActivityService;
 
@@ -27,14 +29,17 @@ class PembinaController extends Controller
 
     public function dashboard()
     {
-        $statistik = VStatistikKehadiranKelas::all();
-        
+        // Statistik kehadiran sederhana tanpa view
         $totalJadwal = Jadwal::count();
-        $jadwalAktif = Jadwal::where('is_active', true)->count();
+        $jadwalAktif = $totalJadwal; // Placeholder - kolom is_active tidak ada di tabel
         $totalLaporan = LaporanAktivitas::count();
         $laporanPending = LaporanAktivitas::where('status', 'submitted')->count();
+        
+        // Data presensi hari ini
+        $presensiHariIni = Presensi::whereDate('tanggal', today())->count();
+        $presensiSiswaHariIni = PresensiSiswa::whereDate('tanggal', today())->count();
 
-        return view('pembina.dashboard', compact('statistik', 'totalJadwal', 'jadwalAktif', 'totalLaporan', 'laporanPending'));
+        return view('pembina.dashboard', compact('totalJadwal', 'jadwalAktif', 'totalLaporan', 'laporanPending', 'presensiHariIni', 'presensiSiswaHariIni'));
     }
 
     public function statistikKehadiran(Request $request)
@@ -44,7 +49,7 @@ class PembinaController extends Controller
 
         $statistikKelas = VStatistikKehadiranKelas::all();
 
-        $rekapGuru = VRekapPresensiGuruStaf::where('bulan', $bulan)
+        $rekapGuru = VRekapPresensiGuru::where('bulan', $bulan)
             ->where('tahun', $tahun)
             ->get();
 
@@ -171,4 +176,203 @@ class PembinaController extends Controller
 
         return redirect()->back()->with('success', 'Laporan berhasil disubmit');
     }
+
+    /**
+     * Data Presensi per Kelas
+     */
+    public function dataPresensiKelas($id)
+    {
+        try {
+            $kelas = Kelas::findOrFail($id);
+            $presensi = PresensiSiswa::whereHas('jadwal', function ($query) use ($id) {
+                $query->where('id_kelas', $id);
+            })->with(['siswa', 'jadwal'])
+                ->orderBy('tanggal_presensi', 'desc')
+                ->paginate(20);
+
+            return view('pembina.presensi-kelas', compact('presensi', 'kelas'));
+        } catch (\Exception $e) {
+            \Log::error('Error in dataPresensiKelas: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil data presensi kelas');
+        }
+    }
+
+    /**
+     * Jadwal Aktif
+     */
+    public function jadwalAktif()
+    {
+        try {
+            $jadwal = Jadwal::with(['kelas', 'guru'])
+                ->orderBy('hari')
+                ->orderBy('jam_mulai')
+                ->get();
+
+            $hariIni = now()->locale('id')->dayName;
+            $jadwalHariIni = $jadwal->filter(function ($j) use ($hariIni) {
+                return $j->hari === $hariIni;
+            });
+
+            return view('pembina.jadwal', compact('jadwal', 'jadwalHariIni', 'hariIni'));
+        } catch (\Exception $e) {
+            \Log::error('Error in jadwalAktif: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil data jadwal');
+        }
+    }
+
+    /**
+     * Materi Pembelajaran - View Only
+     */
+    public function materiPembelajaran()
+    {
+        try {
+            $materi = Materi::with(['guru', 'kelas'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+
+            return view('pembina.materi', compact('materi'));
+        } catch (\Exception $e) {
+            \Log::error('Error in materiPembelajaran: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil data materi');
+        }
+    }
+
+    /**
+     * Download Materi
+     */
+    public function downloadMateri($id)
+    {
+        try {
+            $materi = Materi::findOrFail($id);
+            
+            if (!file_exists(storage_path('app/' . $materi->file_path))) {
+                return back()->with('error', 'File tidak ditemukan');
+            }
+
+            return Storage::download($materi->file_path, $materi->nama_file);
+        } catch (\Exception $e) {
+            \Log::error('Error in downloadMateri: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengunduh file');
+        }
+    }
+
+    /**
+     * File Materi - Upload & Manage
+     */
+    public function fileMateri()
+    {
+        try {
+            // Cek jika pembina punya folder materi sendiri
+            $fileMateriBaru = [];
+            $materiFolder = storage_path('app/pembina-materi');
+            
+            if (is_dir($materiFolder)) {
+                $files = scandir($materiFolder);
+                foreach ($files as $file) {
+                    if ($file !== '.' && $file !== '..' && is_file($materiFolder . '/' . $file)) {
+                        $fileMateriBaru[] = [
+                            'name' => $file,
+                            'path' => 'pembina-materi/' . $file,
+                            'size' => filesize($materiFolder . '/' . $file),
+                            'time' => filemtime($materiFolder . '/' . $file)
+                        ];
+                    }
+                }
+            }
+
+            return view('pembina.file-materi', compact('fileMateriBaru'));
+        } catch (\Exception $e) {
+            \Log::error('Error in fileMateri: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil data file');
+        }
+    }
+
+    /**
+     * Upload File Materi
+     */
+    public function uploadFileMateri(Request $request)
+    {
+        try {
+            $request->validate([
+                'file' => 'required|file|max:50000|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,zip'
+            ]);
+
+            $folder = 'pembina-materi';
+            $path = $request->file('file')->store($folder);
+
+            return back()->with('success', 'File berhasil diupload');
+        } catch (\Exception $e) {
+            \Log::error('Error in uploadFileMateri: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengupload file: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Delete File Materi
+     */
+    public function deleteFileMateri($id)
+    {
+        try {
+            // Decode id yang di-encode
+            $filePath = base64_decode($id);
+            
+            if (Storage::exists($filePath)) {
+                Storage::delete($filePath);
+                return back()->with('success', 'File berhasil dihapus');
+            }
+
+            return back()->with('error', 'File tidak ditemukan');
+        } catch (\Exception $e) {
+            \Log::error('Error in deleteFileMateri: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menghapus file');
+        }
+    }
+
+    /**
+     * Laporan Aktivitas
+     */
+    public function laporanAktivitas()
+    {
+        try {
+            $laporan = LaporanAktivitas::with(['pembina', 'kelas'])
+                ->orderBy('created_at', 'desc')
+                ->paginate(20);
+
+            return view('pembina.laporan-aktivitas', compact('laporan'));
+        } catch (\Exception $e) {
+            \Log::error('Error in laporanAktivitas: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengambil data laporan');
+        }
+    }
+
+    /**
+     * Save Catatan/Rekomendasi
+     */
+    public function saveCatatan(Request $request)
+    {
+        try {
+            $request->validate([
+                'target_type' => 'required|in:guru,siswa,kelas',
+                'target_id' => 'required|integer',
+                'catatan' => 'required|string|min:10'
+            ]);
+
+            $catatan = [
+                'user_id' => auth()->user()->id_user,
+                'target_type' => $request->target_type,
+                'target_id' => $request->target_id,
+                'catatan' => $request->catatan,
+                'tanggal' => now()
+            ];
+
+            // Simpan ke session atau database (sesuaikan dengan struktur yang ada)
+            session()->put('catatan_' . $request->target_type . '_' . $request->target_id, $catatan);
+
+            return back()->with('success', 'Catatan berhasil disimpan');
+        } catch (\Exception $e) {
+            \Log::error('Error in saveCatatan: ' . $e->getMessage());
+            return back()->with('error', 'Gagal menyimpan catatan');
+        }
+    }
 }
+

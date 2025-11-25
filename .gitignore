@@ -27,7 +27,9 @@ db_simak_smk_new.sql
 db_simak_smk.sql
 db_simak_smk_UPDATED.sql
 
-# Dokumentasi / File Markdown
+# Dokumentasi / File Markdown (kecuali README.md)
+*.md
+!README.md
 PENYESUAIAN_DATABASE.md
 QUICK_REFERENCE.md
 README_SINKRONISASI.md
@@ -40,3 +42,22 @@ REGISTER_KELAS_UPDATE.md
 SYNC_SUMMARY
 DASHBOARD_UPDATE.md
 DATABASE_SYNC.md
+PERUBAHAN_KONEKSI_DATABASE.md
+COMMIT_MESSAGE.md
+VERIFIKASI_GURU.md
+REGISTRASI_BARU.md
+PERUBAHAN_REGISTRASI.md
+UPDATE_REGISTER_SYSTEM.md
+EXPORT_CHECKLIST.md
+PERBANDINGAN_SEBELUM_SESUDAH.md
+GURU_REGISTRATION_UPDATE.md
+MIGRASI_GURU_EXISTING.md
+GUIDE_GURU_LAMA.md
+
+# Data Siswa (Sensitif)
+/excel/
+*.csv
+
+# Script kredensial
+create_*.php
+setup_*.php

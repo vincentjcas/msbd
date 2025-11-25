@@ -15,20 +15,53 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['name' => 'Admin Demo', 'email' => 'admin@example.com', 'role' => 'admin'],
-            ['name' => 'Guru Demo', 'email' => 'guru@example.com', 'role' => 'guru'],
-            ['name' => 'Siswa Demo', 'email' => 'siswa@example.com', 'role' => 'siswa'],
-            ['name' => 'Pembina Demo', 'email' => 'pembina@example.com', 'role' => 'pembina'],
+            [
+                'username' => 'admin',
+                'nama_lengkap' => 'Administrator',
+                'email' => 'admin@admin.com',
+                'password' => 'admin123',
+                'role' => 'admin'
+            ],
+            [
+                'username' => 'guru',
+                'nama_lengkap' => 'Guru Demo',
+                'email' => 'guru@example.com',
+                'password' => 'password',
+                'role' => 'guru'
+            ],
+            [
+                'username' => 'siswa',
+                'nama_lengkap' => 'Siswa Demo',
+                'email' => 'siswa@example.com',
+                'password' => 'password',
+                'role' => 'siswa'
+            ],
+            [
+                'username' => 'kepala_sekolah',
+                'nama_lengkap' => 'Kepala Sekolah Demo',
+                'email' => 'kepala_sekolah@example.com',
+                'password' => 'password',
+                'role' => 'kepala_sekolah'
+            ],
+            [
+                'username' => 'pembina',
+                'nama_lengkap' => 'Pembina Demo',
+                'email' => 'pembina@example.com',
+                'password' => 'password',
+                'role' => 'pembina'
+            ],
         ];
 
         foreach ($users as $u) {
+            $password = $u['password'];
+            unset($u['password']);
+            
             User::updateOrCreate(
                 ['email' => $u['email']],
-                [
-                    'name' => $u['name'],
-                    'password' => Hash::make('password'), // default password: password
-                    'role' => $u['role'],
-                ]
+                array_merge($u, [
+                    'password' => Hash::make($password),
+                    'status_aktif' => true
+                ])
             );
         }
     }

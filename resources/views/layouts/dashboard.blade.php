@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - MSBD System</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="theme-color" content="#0369a1">
+    <link rel="icon" type="image/png" href="{{ asset('images/yapim.png?v=' . time()) }}">
+    <link rel="shortcut icon" href="{{ asset('favicon.png?v=' . time()) }}" type="image/png">
+    <title>@yield('title', 'Dashboard') - SMK YAPIM BIRU-BIRU</title>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -19,7 +23,7 @@
         }
         /* Navbar */
         .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             color: white;
             padding: 1rem 2rem;
             display: flex;
@@ -80,10 +84,10 @@
         }
         /* Welcome Card */
         .welcome-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             padding: 2.5rem;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 30px rgba(3, 105, 161, 0.3);
             margin-bottom: 2rem;
             color: white;
         }
@@ -120,7 +124,7 @@
             left: 0;
             width: 5px;
             height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
         }
         .stat-card:hover {
             transform: translateY(-5px);
@@ -129,7 +133,7 @@
         .stat-icon {
             width: 50px;
             height: 50px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #0369a1 0%, #06b6d4 50%, #14b8a6 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -200,12 +204,12 @@
             cursor: pointer;
         }
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
             color: white;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
         }
         .btn-secondary {
             background: #e2e8f0;
@@ -274,58 +278,13 @@
     @yield('styles')
 </head>
 <body>
-    <div class="navbar">
-        <div class="navbar-brand">
-            <i class="fas fa-graduation-cap"></i>
-            SMK YAPIM BIRU-BIRU
-        </div>
-        <div class="user-info">
-            <div class="user-name">
-                <span>{{ auth()->user()->nama_lengkap }}</span>
-                <span class="role-badge">{{ strtoupper(auth()->user()->role) }}</span>
-            </div>
-            <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                @csrf
-                <button type="submit" class="logout-btn">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
-            </form>
-        </div>
-    </div>
+    @include('partials.navbar')
 
     <div class="container">
         @yield('content')
     </div>
 
-    @if(session('success'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Berhasil!',
-                text: "{{ session('success') }}",
-                icon: 'success',
-                confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea',
-                timer: 3000,
-                timerProgressBar: true
-            });
-        });
-    </script>
-    @endif
-
-    @if(session('error'))
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            Swal.fire({
-                title: 'Gagal!',
-                text: "{{ session('error') }}",
-                icon: 'error',
-                confirmButtonText: 'Oke',
-                confirmButtonColor: '#667eea'
-            });
-        });
-    </script>
-    @endif
+    @include('partials.alerts')
 
     @yield('scripts')
 </body>

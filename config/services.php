@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    // 👇👇 TAMBAHAN UNTUK FONNTE (WA GATEWAY) 👇👇
+    'fonnte' => [
+        'api_key' => env('FONNTE_API_KEY'),
+        'sending_key' => env('FONNTE_SENDING_KEY', 'n'), // Default 'n' kalau tidak diisi
+    ],
+
 ];

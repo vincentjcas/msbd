@@ -100,28 +100,35 @@ class SiswaController extends Controller
             abort(403);
         }
 
-        $this->logActivity->log('download_materi', auth()->user()->id_user, 'Download materi: ' . $materi->judul);
+        $this->logActivity->log('download_materi', auth()->user()->id_user, 'Download materi: ' . $materi->judul_materi);
 
-        return response()->download(storage_path('app/public/' . $materi->file_path), $materi->file_name);
+        return response()->download(storage_path('app/public/materi/' . $materi->file_materi), $materi->file_materi);
     }
 
     public function tugas()
     {
         $siswa = auth()->user()->siswa;
         $tugas = Tugas::where('id_kelas', $siswa->id_kelas)
-            ->with(['guru.user'])
-            ->withCount(['pengumpulan as sudah_mengumpulkan' => function ($query) use ($siswa) {
-                $query->where('id_siswa', $siswa->id_siswa);
-            }])
+            ->with(['guru.user', 'kelas'])
             ->orderBy('deadline', 'desc')
-            ->paginate(20);
+            ->get();
 
-        return view('siswa.tugas', compact('tugas'));
+        // Check which tugas already submitted
+        $tugasWithStatus = $tugas->map(function($t) use ($siswa) {
+            $pengumpulan = PengumpulanTugas::where('id_tugas', $t->id_tugas)
+                ->where('id_siswa', $siswa->id_siswa)
+                ->first();
+            $t->sudah_mengumpulkan = $pengumpulan ? true : false;
+            $t->pengumpulan_data = $pengumpulan;
+            return $t;
+        });
+
+        return view('siswa.tugas.index', compact('tugasWithStatus'));
     }
 
     public function detailTugas($id)
     {
-        $tugas = Tugas::with(['guru.user'])->findOrFail($id);
+        $tugas = Tugas::with(['guru.user', 'kelas'])->findOrFail($id);
         $siswa = auth()->user()->siswa;
 
         if ($tugas->id_kelas !== $siswa->id_kelas) {
@@ -132,13 +139,14 @@ class SiswaController extends Controller
             ->where('id_siswa', $siswa->id_siswa)
             ->first();
 
-        return view('siswa.tugas-detail', compact('tugas', 'pengumpulan'));
+        return view('siswa.tugas.detail', compact('tugas', 'pengumpulan'));
     }
 
     public function submitTugas(Request $request, $id)
     {
         $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx,zip|max:5120',
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,zip,rar|max:10240',
+            'keterangan' => 'nullable|string|max:500',
         ]);
 
         $tugas = Tugas::findOrFail($id);
@@ -148,22 +156,33 @@ class SiswaController extends Controller
             abort(403);
         }
 
-        $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('tugas', $filename, 'public');
+        // Check if already submitted
+        $existing = PengumpulanTugas::where('id_tugas', $id)
+            ->where('id_siswa', $siswa->id_siswa)
+            ->first();
 
-        PengumpulanTugas::updateOrCreate(
-            [
-                'id_tugas' => $id,
-                'id_siswa' => $siswa->id_siswa,
-            ],
-            [
-                'file_path' => $path,
-                'file_name' => $filename,
-                'file_size' => $file->getSize(),
-                'waktu_submit' => now(),
-            ]
-        );
+        if ($existing) {
+            return redirect()->back()->with('error', 'Anda sudah mengumpulkan tugas ini sebelumnya');
+        }
+
+        // Upload file
+        $file = $request->file('file');
+        $filename = time() . '_' . $siswa->id_siswa . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('tugas_submissions', $filename, 'public');
+
+        // Determine status (tepat_waktu or terlambat)
+        $now = now();
+        $deadline = \Carbon\Carbon::parse($tugas->deadline);
+        $status = $now->lte($deadline) ? 'tepat_waktu' : 'terlambat';
+
+        PengumpulanTugas::create([
+            'id_tugas' => $id,
+            'id_siswa' => $siswa->id_siswa,
+            'file_jawaban' => $path,
+            'keterangan' => $request->keterangan,
+            'waktu_submit' => $now,
+            'status' => $status,
+        ]);
 
         $this->logActivity->log('submit_tugas', auth()->user()->id_user, 'Submit tugas: ' . $tugas->judul_tugas);
 
@@ -220,5 +239,267 @@ class SiswaController extends Controller
         $persentase = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
 
         return view('siswa.persentase-kehadiran', compact('persentase', 'bulan', 'tahun'));
+    }
+
+    /**
+     * Submit absen siswa untuk jadwal hari ini
+     * POST /siswa/presensi/submit
+     */
+    public function submitAbsen(Request $request)
+    {
+        try {
+            $request->validate([
+                'status' => 'required|in:hadir,izin,sakit',
+                'keterangan' => 'nullable|string|max:255',
+            ]);
+
+            $user = auth()->user();
+            $siswa = $user->siswa;
+
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data siswa tidak ditemukan'
+                ], 404);
+            }
+
+            $today = now()->format('Y-m-d');
+            $currentTime = now()->format('H:i:s');
+            $dayName = now()->format('l'); // Monday, Tuesday, etc
+            $dayMapping = [
+                'Monday' => 'Senin',
+                'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis',
+                'Friday' => 'Jumat',
+                'Saturday' => 'Sabtu',
+                'Sunday' => 'Minggu'
+            ];
+            $hari = $dayMapping[$dayName] ?? null;
+
+            // Cek jadwal yang sedang aktif (berdasarkan jam pelajaran)
+            $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
+                ->where('hari', $hari)
+                ->where('jam_mulai', '<=', $currentTime)
+                ->where('jam_selesai', '>=', $currentTime)
+                ->first();
+
+            if (!$jadwalHariIni) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tidak ada jadwal pelajaran yang sedang aktif pada saat ini'
+                ], 400);
+            }
+
+            // Cek apakah sudah pernah absen hari ini untuk jadwal ini
+            $presensiExisting = PresensiSiswa::where('id_siswa', $siswa->id_siswa)
+                ->where('id_jadwal', $jadwalHariIni->id_jadwal)
+                ->where('tanggal', $today)
+                ->first();
+
+            if ($presensiExisting) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda sudah pernah absen untuk mata pelajaran ini hari ini. Status: ' . ucfirst($presensiExisting->status),
+                    'existing_status' => $presensiExisting->status,
+                    'existing_at' => $presensiExisting->created_at->format('H:i:s')
+                ], 409);
+            }
+
+            // Submit absen
+            $presensi = PresensiSiswa::create([
+                'id_siswa' => $siswa->id_siswa,
+                'id_jadwal' => $jadwalHariIni->id_jadwal,
+                'tanggal' => $today,
+                'status' => $request->status,
+                'keterangan' => $request->keterangan,
+                'status_verifikasi' => 'pending',
+                'diinput_oleh_tipe' => 'siswa',
+            ]);
+
+            // Log activity
+            $this->logActivity->log(
+                'presensi_siswa_submit',
+                $user->id_user,
+                "Submit absen: {$request->status} untuk jadwal {$jadwalHariIni->id_jadwal}"
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Absen berhasil dikirim! Status: ' . ucfirst($request->status),
+                'data' => [
+                    'id_presensi_siswa' => $presensi->id_presensi_siswa,
+                    'status' => $presensi->status,
+                    'status_verifikasi' => $presensi->status_verifikasi,
+                    'tanggal' => \Carbon\Carbon::parse($presensi->tanggal)->format('d-m-Y'),
+                    'jam_submit' => $presensi->created_at->format('H:i:s')
+                ]
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Lihat status absen siswa
+     * GET /siswa/presensi/status
+     */
+    public function statusAbsenHariIni()
+    {
+        try {
+            $user = auth()->user();
+            $siswa = $user->siswa;
+
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data siswa tidak ditemukan'
+                ], 404);
+            }
+
+            $today = now()->format('Y-m-d');
+            $currentTime = now()->format('H:i:s');
+            $dayName = now()->format('l'); // Monday, Tuesday, etc
+            $dayMapping = [
+                'Monday' => 'Senin',
+                'Tuesday' => 'Selasa',
+                'Wednesday' => 'Rabu',
+                'Thursday' => 'Kamis',
+                'Friday' => 'Jumat',
+                'Saturday' => 'Sabtu',
+                'Sunday' => 'Minggu'
+            ];
+            $hari = $dayMapping[$dayName] ?? null;
+
+            // Cek jadwal yang sedang aktif (berdasarkan jam pelajaran)
+            $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
+                ->where('hari', $hari)
+                ->where('jam_mulai', '<=', $currentTime)
+                ->where('jam_selesai', '>=', $currentTime)
+                ->first();
+
+            if (!$jadwalHariIni) {
+                return response()->json([
+                    'success' => true,
+                    'sudah_absen' => false,
+                    'message' => 'Tidak ada jadwal pelajaran yang sedang aktif pada saat ini',
+                    'data' => null
+                ]);
+            }
+
+            // Cek absen hari ini
+            $absenHariIni = PresensiSiswa::where('id_siswa', $siswa->id_siswa)
+                ->where('id_jadwal', $jadwalHariIni->id_jadwal)
+                ->where('tanggal', $today)
+                ->with('jadwal.guru.user')
+                ->first();
+
+            if ($absenHariIni) {
+                return response()->json([
+                    'success' => true,
+                    'sudah_absen' => true,
+                    'message' => 'Anda sudah melakukan absen hari ini',
+                    'data' => [
+                        'id_presensi_siswa' => $absenHariIni->id_presensi_siswa,
+                        'status' => $absenHariIni->status,
+                        'status_verifikasi' => $absenHariIni->status_verifikasi,
+                        'mata_pelajaran' => $absenHariIni->jadwal->nama_matpel ?? 'N/A',
+                        'guru' => $absenHariIni->jadwal->guru->user->nama_lengkap ?? 'N/A',
+                        'jam_submit' => $absenHariIni->created_at->format('H:i:s'),
+                        'verifikasi_at' => $absenHariIni->diverifikasi_at?->format('d-m-Y H:i:s')
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'sudah_absen' => false,
+                'message' => 'Anda belum melakukan absen',
+                'data' => [
+                    'jadwal' => $jadwalHariIni->id_jadwal,
+                    'nama_matpel' => $jadwalHariIni->nama_matpel ?? 'N/A',
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Show form untuk ajukan izin
+     * GET /siswa/izin/buat
+     */
+    public function ajukanIzin()
+    {
+        return view('siswa.izin-create');
+    }
+
+    /**
+     * Submit ajukan izin
+     * POST /siswa/izin/submit
+     */
+    public function submitAjukanIzin(Request $request)
+    {
+        try {
+            $request->validate([
+                'tipe' => 'required|in:sakit,izin',
+                'tanggal' => 'required|date|after_or_equal:today',
+                'alasan' => 'required_if:tipe,izin|string|min:10|max:500',
+                'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            ], [
+                'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
+                'bukti_file.mimes' => 'Format file harus PDF, JPG, atau PNG',
+                'bukti_file.max' => 'Ukuran file maksimal 5 MB',
+                'tanggal.required' => 'Tanggal izin wajib diisi',
+                'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
+                'alasan.required_if' => 'Alasan izin wajib diisi ketika tipe "Izin"',
+                'alasan.min' => 'Alasan izin minimal 10 karakter',
+            ]);
+
+            $user = auth()->user();
+            $siswa = $user->siswa;
+
+            if (!$siswa) {
+                return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
+            }
+
+            // Upload file bukti
+            $file = $request->file('bukti_file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('izin', $filename, 'public');
+
+            // Buat record izin
+            $izin = Izin::create([
+                'id_user' => $user->id_user,
+                'tanggal' => $request->tanggal,
+                'alasan' => $request->tipe === 'sakit' 
+                    ? 'Sakit' 
+                    : $request->alasan,
+                'bukti_file' => $path,
+                'status_approval' => 'pending',
+            ]);
+
+            // Log activity
+            $this->logActivity->log(
+                'ajukan_izin',
+                $user->id_user,
+                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal}"
+            );
+
+            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil diajukan! Status: PENDING - Menunggu approval dari guru.');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
     }
 }

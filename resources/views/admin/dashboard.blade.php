@@ -4,10 +4,32 @@
 
 @section('content')
 <div class="welcome-card">
-    <h2><i class="fas fa-user-shield"></i> Selamat Datang, Admin!</h2>
+    <h2><i class="fas fa-user-shield"></i> Selamat Datang, {{ get_first_name() }}!</h2>
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, Anda memiliki akses penuh terhadap seluruh fitur dan database sistem.</p>
     <p>Anda dapat mengelola keamanan basis data, mengatur struktur dan data, serta melakukan monitoring sistem.</p>
 </div>
+
+{{-- Notifikasi Pending Guru - DISABLED (Guru langsung aktif tanpa approval) --}}
+
+{{-- Notifikasi Pending Siswa - untuk siswa dengan NIS tidak terdaftar di data master --}}
+@if($pendingSiswa > 0)
+<div style="padding: 1rem; margin-bottom: 1.5rem; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; border-radius: 8px; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <i class="fas fa-exclamation-circle" style="font-size: 2rem;"></i>
+        <div style="flex-grow: 1;">
+            <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.25rem;">
+                Ada {{ $pendingSiswa }} siswa menunggu verifikasi!
+            </strong>
+            <p style="margin: 0; opacity: 0.95;">
+                Siswa dengan NIS tidak terdaftar di data master memerlukan persetujuan Anda.
+            </p>
+        </div>
+        <a href="{{ route('admin.verifikasi-siswa') }}" class="btn" style="background: white; color: #dc2626; font-weight: 600; border: none; white-space: nowrap;">
+            <i class="fas fa-user-check"></i> Verifikasi Sekarang
+        </a>
+    </div>
+</div>
+@endif
 
 <div class="stats-grid">
     <div class="stat-card">
@@ -44,7 +66,36 @@
     <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Admin</h3>
     
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
-        <!-- 1. Akses Penuh Database -->
+        
+        {{-- Card Verifikasi Siswa Baru - untuk siswa dengan NIS tidak terdaftar di data master --}}
+        @if($pendingSiswa > 0)
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); color: white; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3);">
+            <h4 style="color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-user-check"></i> Verifikasi Siswa Baru
+            </h4>
+            <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
+                Ada <strong>{{ $pendingSiswa }} siswa</strong> dengan NIS tidak terdaftar yang menunggu persetujuan Anda.
+            </p>
+            <div>
+                <a href="{{ route('admin.verifikasi-siswa') }}" class="btn" style="background: white; color: #dc2626; font-weight: 600; border: none;">
+                    <i class="fas fa-clipboard-check"></i> Lihat & Verifikasi
+                </a>
+            </div>
+        </div>
+        @endif
+        
+        {{-- Card Verifikasi Guru - DISABLED (Guru langsung aktif tanpa approval)
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; min-height: 200px; display: flex; flex-direction: column; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);">
+            <h4 style="color: white; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-user-check"></i> Verifikasi Guru
+            </h4>
+            <p style="color: rgba(255,255,255,0.9); font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
+                Tinjau dan setujui pendaftaran guru baru. Guru yang belum disetujui tidak dapat login ke sistem.
+            </p>
+        </div>
+        --}}
+
+        <!-- 1. Akses Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-database"></i> Akses Database
@@ -59,7 +110,7 @@
             </div>
         </div>
 
-        <!-- 2. Mengatur Struktur Data -->
+        <!-- 3. Kelola Struktur & Data -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-sitemap"></i> Kelola Struktur & Data
@@ -74,7 +125,7 @@
             </div>
         </div>
 
-        <!-- 3. Monitoring & Validasi -->
+        <!-- 4. Monitoring Sistem -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-shield-alt"></i> Monitoring Sistem
@@ -89,7 +140,7 @@
             </div>
         </div>
 
-        <!-- 4. Izin Digital -->
+        <!-- 5. Pengajuan Izin -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-medical"></i> Pengajuan Izin
@@ -98,28 +149,28 @@
                 Menyediakan dan mengatur fitur pengajuan izin digital (hadir, izin, sakit, alpha)
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur izin akan tersedia')">
+                <a href="{{ route('admin.pengajuan-izin') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-clipboard-list"></i> Kelola Izin
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- 5. Kegiatan Sekolah -->
+        <!-- 6. Kegiatan Sekolah -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Menambah, memperbaruii, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
+                Menambah, memperbarui, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur kegiatan akan tersedia')">
+                <a href="{{ route('admin.kegiatan') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-plus-circle"></i> Kelola Kegiatan
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- 6. Jadwal Pelajaran -->
+        <!-- 7. Jadwal Pelajaran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-table"></i> Jadwal Pelajaran
@@ -134,7 +185,7 @@
             </div>
         </div>
 
-        <!-- 7. File Materi -->
+        <!-- 8. File Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-folder-open"></i> File Materi
@@ -143,13 +194,13 @@
                 Memantau file materi pembelajaran yang diunggah guru sesuai ketentuan
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur materi akan tersedia')">
+                <a href="{{ route('admin.file-materi') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-search"></i> Lihat Materi
-                </button>
+                </a>
             </div>
         </div>
 
-        <!-- 8. Backup Database -->
+        <!-- 9. Backup Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-hdd"></i> Backup Database

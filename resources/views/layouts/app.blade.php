@@ -4,8 +4,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
+        <meta name="theme-color" content="#0369a1">
+        <link rel="icon" type="image/png" href="{{ asset('images/yapim.png?v=' . time()) }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.png?v=' . time()) }}" type="image/png">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'SMK YAPIM BIRU-BIRU') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -32,13 +35,13 @@
 
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="min-h-screen bg-linear-to-br from-blue-50 via-cyan-50 to-teal-50 dark:bg-linear-to-br dark:from-blue-900 dark:via-cyan-900 dark:to-teal-900">
             @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white dark:bg-gray-800 shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <header class="bg-linear-to-r from-blue-600 via-cyan-500 to-teal-600 shadow-lg">
+                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 text-white">
                         {{ $header }}
                     </div>
                 </header>
