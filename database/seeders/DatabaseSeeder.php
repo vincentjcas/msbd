@@ -13,8 +13,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Seed demo users for roles
+        // Seed classes and users
         $this->call([
+             KelasSeeder::class,
             UserSeeder::class,
             KelasSeeder::class,
         ]);
