@@ -4,122 +4,184 @@
 <style>
 
     .izin-wrapper {
-        max-width: 1000px;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 1rem;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
     }
 
     .section-title {
         font-size: 1.6rem;
         font-weight: 700;
         color: #2d3748;
+        margin-bottom: 0.5rem;
     }
 
     .section-desc {
         color: #718096;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
     }
 
-    /* CARD HORIZONTAL */
-    .izin-card {
+    /* TABLE STYLE */
+    .izin-table-wrapper {
         background: white;
-        border-radius: 14px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.07);
-        display: flex;
-        padding: 1.5rem;
-        gap: 1.5rem;
-        margin-bottom: 1.8rem;
-        transition: .25s ease;
-        align-items: flex-start;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
 
-    .izin-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    .izin-table {
+        width: 100%;
+        border-collapse: collapse;
     }
 
-    /* LEFT SIDE (Avatar + Name) */
-    .izin-left {
-        width: 180px;
+    .izin-table thead {
+        background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+        color: white;
+    }
+
+    .izin-table thead th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .izin-table tbody tr {
+        border-bottom: 1px solid #e2e8f0;
+        transition: background 0.2s ease;
+    }
+
+    .izin-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .izin-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .izin-table tbody td {
+        padding: 1.2rem 1rem;
+        color: #1e293b;
+        vertical-align: middle;
+    }
+
+    /* Cell No */
+    .cell-no {
         text-align: center;
+        font-weight: 600;
+        width: 60px;
+    }
+
+    /* Cell User */
+    .cell-user {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
     }
 
     .avatar-box {
-        width: 85px;
-        height: 85px;
+        width: 50px;
+        height: 50px;
         border-radius: 50%;
-        margin: 0 auto 0.7rem;
         background: #dbeafe;
         display: flex;
         justify-content: center;
         align-items: center;
-        font-size: 2.2rem;
+        font-size: 1.3rem;
         color: #1e40af;
         font-weight: 700;
+        flex-shrink: 0;
     }
 
-    .name {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #1e293b;
-    }
-
-    .role {
-        font-size: .9rem;
-        color: #475569;
-        margin-top: 2px;
-    }
-
-    /* RIGHT SIDE (Detail informasi) */
-    .izin-right {
-        flex: 1;
-    }
-
-    .top-row {
+    .user-info {
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-        flex-wrap: wrap;
+        flex-direction: column;
     }
 
-    .jenis-izin {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #334155;
+    .user-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.95rem;
     }
 
-    .tanggal {
-        font-size: .9rem;
+    .user-role {
+        font-size: 0.85rem;
         color: #64748b;
     }
 
-    /* Data rows */
-    .data-row {
-        margin-bottom: 14px;
+    /* Cell Jenis Izin */
+    .badge-izin {
+        display: inline-block;
+        padding: 0.4rem 0.9rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
     }
 
-    .label {
-        font-size: .9rem;
-        font-weight: 600;
+    .badge-sakit {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .badge-umum {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    /* Cell Alasan */
+    .cell-alasan {
+        max-width: 300px;
         color: #475569;
-        margin-bottom: 4px;
-        display: block;
+        font-size: 0.9rem;
     }
 
-    .value-box {
-        background: #f8fafc;
-        border-radius: 8px;
-        padding: .65rem 1rem;
-        border: 1px solid #e2e8f0;
-        color: #1e293b;
+    /* Cell Tanggal */
+    .cell-tanggal {
+        color: #64748b;
+        font-size: 0.9rem;
+        white-space: nowrap;
     }
 
-    .btn-link {
-        text-decoration: none;
-        color: #0369a1;
+    /* Cell Aksi */
+    .cell-aksi {
+        text-align: center;
+    }
+
+    .btn-detail {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 1rem;
+        background: #0284c7;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.85rem;
         font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.2s ease;
     }
 
-    .btn-link:hover {
+    .btn-detail:hover {
+        background: #0369a1;
+    }
+
+    .btn-lihat-bukti {
+        color: #0284c7;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 0.85rem;
+    }
+
+    .btn-lihat-bukti:hover {
         text-decoration: underline;
     }
 
@@ -133,6 +195,17 @@
         color: #1e3a8a;
     }
 
+    @media (max-width: 768px) {
+        .izin-table {
+            font-size: 0.85rem;
+        }
+        
+        .izin-table thead th,
+        .izin-table tbody td {
+            padding: 0.8rem 0.6rem;
+        }
+    }
+
 </style>
 
 <div class="izin-wrapper">
@@ -140,70 +213,82 @@
     <h2 class="section-title">Lihat Pengajuan Izin</h2>
     <p class="section-desc">Pantau semua pengajuan izin siswa dan guru</p>
 
-    @forelse($izinList as $izin)
-    <div class="izin-card">
+    @if($izinList->count() > 0)
+    <div class="izin-table-wrapper">
+        <table class="izin-table">
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Jenis Izin</th>
+                    <th>Alasan / Keterangan</th>
+                    <th>Tanggal</th>
+                    <th>Bukti</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($izinList as $index => $izin)
+                    <tr>
+                        <!-- No -->
+                        <td class="cell-no">{{ $index + 1 }}</td>
 
-        <!-- LEFT SIDE -->
-        <div class="izin-left">
+                        <!-- Nama & Role -->
+                        <td>
+                            <div class="cell-user">
+                                <div class="avatar-box">
+                                    {{ strtoupper(substr($izin->user->nama_lengkap ?? $izin->user->name, 0, 1)) }}
+                                </div>
+                                <div class="user-info">
+                                    <span class="user-name">{{ $izin->user->nama_lengkap ?? $izin->user->name }}</span>
+                                </div>
+                            </div>
+                        </td>
 
-            <!-- Avatar inisial -->
-            <div class="avatar-box">
-                {{ strtoupper(substr($izin->user->nama_lengkap ?? $izin->user->name, 0, 1)) }}
-            </div>
+                        <!-- Kelas -->
+                        <td>
+                            <span class="user-role">{{ $izin->user->kelas ?? '-' }}</span>
+                        </td>
 
-            <div class="name">
-                {{ $izin->user->nama_lengkap ?? $izin->user->name }}
-            </div>
+                        <!-- Jenis Izin -->
+                        <td>
+                            @if($izin->alasan === 'Sakit')
+                                <span class="badge-izin badge-sakit">Sakit</span>
+                            @else
+                                <span class="badge-izin badge-umum">Izin</span>
+                            @endif
+                        </td>
 
-            <div class="role">{{ ucfirst($izin->user->role) }}</div>
-        </div>
+                        <!-- Alasan / Keterangan -->
+                        <td class="cell-alasan">
+                            @if($izin->alasan === 'Sakit')
+                                -
+                            @else
+                                {{ $izin->alasan }}
+                            @endif
+                        </td>
 
-        <!-- RIGHT SIDE -->
-        <div class="izin-right">
+                        <!-- Tanggal -->
+                        <td class="cell-tanggal">
+                            {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y, H:i') : '-' }}
+                        </td>
 
-            <!-- Top Row -->
-            <div class="top-row">
-                <div class="jenis-izin">
-                    {{ $izin->alasan === 'Sakit' ? 'Sakit' : 'Izin' }}
-                </div>
-
-                <div class="tanggal">
-                    {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y') : '-' }}
-                </div>
-            </div>
-
-            <!-- Data Row -->
-            <div class="data-row">
-                <label class="label">Jenis Izin</label>
-                <div class="value-box">
-                    {{ $izin->alasan === 'Sakit' ? 'Sakit' : 'Izin' }}
-                </div>
-            </div>
-
-            @if($izin->alasan !== 'Sakit')
-            <div class="data-row">
-                <label class="label">Alasan / Keterangan</label>
-                <div class="value-box">{{ $izin->alasan }}</div>
-            </div>
-            @endif
-
-            @if($izin->bukti_file)
-            <div class="data-row">
-                <label class="label">Bukti File</label>
-                <div class="value-box">
-                    <a class="btn-link" href="{{ asset('storage/' . $izin->bukti_file) }}" target="_blank">Lihat Bukti</a>
-                </div>
-            </div>
-            @endif
-
-        </div>
-
+                        <!-- Bukti File -->
+                        <td class="cell-aksi">
+                            @if($izin->bukti_file)
+                                <a class="btn-lihat-bukti" href="{{ asset('storage/' . $izin->bukti_file) }}" target="_blank">Lihat Bukti</a>
+                            @else
+                                <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
+                            @endif
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
-    @empty
-
+    @else
     <div class="empty-state">Tidak ada permohonan izin</div>
-
-    @endforelse
+    @endif
 
     @if($izinList->hasPages())
     <div style="margin-top: 1.5rem;">
