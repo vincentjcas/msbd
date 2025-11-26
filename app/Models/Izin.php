@@ -33,24 +33,5 @@ class Izin extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    public function approver()
-    {
-        return $this->belongsTo(User::class, 'disetujui_oleh', 'id_user');
-    }
-
-    // Scopes
-    public function scopePending($query)
-    {
-        return $query->where('status_approval', 'pending');
-    }
-
-    public function scopeApproved($query)
-    {
-        return $query->where('status_approval', 'approved');
-    }
-
-    public function scopeRejected($query)
-    {
-        return $query->where('status_approval', 'rejected');
-    }
+    // (Relasi dan scope status dihapus karena sudah tidak dipakai)
 }

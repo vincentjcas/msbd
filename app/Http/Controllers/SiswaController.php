@@ -228,7 +228,7 @@ class SiswaController extends Controller
         $izin = Izin::create($data);
         $this->logActivity->log('submit_izin', auth()->user()->id_user, 'Mengajukan izin untuk tanggal: ' . $request->tanggal);
 
-        return redirect()->route('siswa.izin')->with('success', 'Izin berhasil diajukan');
+        return redirect()->route('siswa.izin')->with('success', 'Izin berhasil dikirim.');
     }
 
     public function persentaseKehadiran()
@@ -452,7 +452,7 @@ class SiswaController extends Controller
             $request->validate([
                 'tipe' => 'required|in:sakit,izin',
                 'tanggal' => 'required|date|after_or_equal:today',
-                'alasan' => 'required_if:tipe,izin|string|min:10|max:500',
+                'alasan' => $request->tipe === 'izin' ? 'required|string|min:10|max:500' : 'nullable|string',
                 'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             ], [
                 'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
@@ -460,7 +460,7 @@ class SiswaController extends Controller
                 'bukti_file.max' => 'Ukuran file maksimal 5 MB',
                 'tanggal.required' => 'Tanggal izin wajib diisi',
                 'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
-                'alasan.required_if' => 'Alasan izin wajib diisi ketika tipe "Izin"',
+                'alasan.required' => 'Alasan izin wajib diisi ketika tipe "Izin"',
                 'alasan.min' => 'Alasan izin minimal 10 karakter',
             ]);
 
@@ -494,7 +494,7 @@ class SiswaController extends Controller
                 "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal}"
             );
 
-            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil diajukan! Status: PENDING - Menunggu approval dari guru.');
+            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil dikirim.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();

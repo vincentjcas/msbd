@@ -62,54 +62,34 @@
 
     <!-- Izin List -->
     @forelse($izinList as $izin)
-        <div class="izin-card">
-            <div class="izin-header {{ $izin->status_approval }}">
-                <div class="izin-grid">
-                    <div class="izin-info">
-                        <div class="izin-label">Nama Pemohon</div>
-                        <div class="izin-value">{{ $izin->user->nama_lengkap ?? $izin->user->name }}</div>
-                        <div class="izin-label" style="margin-top: 0.5rem;">{{ ucfirst($izin->user->role) }}</div>
-                    </div>
-                    <div class="izin-info">
-                        <div class="izin-label">Jenis Izin</div>
-                        <div class="izin-value" style="text-transform: uppercase;">{{ $izin->jenis_izin }}</div>
-                        <div class="izin-label" style="margin-top: 0.5rem;">{{ \Carbon\Carbon::parse($izin->tanggal_mulai)->format('d M Y') }} - {{ \Carbon\Carbon::parse($izin->tanggal_akhir)->format('d M Y') }}</div>
-                    </div>
-                    <div class="izin-info" style="text-align: right;">
-                        <div class="izin-label">Status</div>
-                        <div class="izin-status" style="background: white; color: #2d3748;">
-                            {{ ucfirst(str_replace('_', ' ', $izin->status_approval)) }}
-                        </div>
-                    </div>
+        <div class="izin-card" style="background: #fff; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 1.5rem; padding: 0; overflow: hidden;">
+            <div style="background: linear-gradient(135deg, #ea580c 0%, #f97316 100%); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 1.1rem; font-weight: 700; color: #fff;">{{ $izin->user->nama_lengkap ?? $izin->user->name }}</div>
+                    <div style="font-size: 0.95rem; color: #fff; opacity: 0.85; margin-top: 0.25rem;">{{ ucfirst($izin->user->role) }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.95rem; color: #fff; font-weight: 500;">{{ $izin->alasan === 'Sakit' ? 'Sakit' : 'Izin' }}</div>
+                    <div style="font-size: 0.85rem; color: #fff; opacity: 0.85; margin-top: 0.25rem;">{{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y') : '-' }}</div>
                 </div>
             </div>
-
-            <div class="izin-body">
-                <!-- Keterangan -->
-                <div class="izin-section">
-                    <div class="izin-section-label">Keterangan</div>
-                    <div class="izin-section-content">{{ $izin->keterangan }}</div>
+            <div style="padding: 1.25rem 1.5rem;">
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #334155; margin-bottom: 0.25rem;">Alasan / Keterangan</div>
+                    <div style="background: #f7fafc; padding: 0.75rem 1rem; border-radius: 7px; color: #2d3748; font-size: 0.95rem;">{{ $izin->alasan === 'Sakit' ? 'Sakit' : $izin->alasan }}</div>
                 </div>
-
-                <!-- Info Status (Read-only) -->
-                <div style="background: #f7fafc; padding: 1rem; border-radius: 8px; border-left: 4px solid #cbd5e0;">
-                    <div style="font-size: 0.9rem; color: #4a5568; margin-bottom: 0.5rem;">Status:</div>
-                    <div style="font-weight: 600; color: #2d3748; margin-bottom: 1rem;">
-                        @if($izin->status_approval == 'pending')
-                            <span style="background: #fef3c7; color: #92400e; padding: 0.35rem 0.85rem; border-radius: 20px;">Menunggu Persetujuan</span>
-                        @elseif($izin->status_approval == 'approved')
-                            <span style="background: #dcfce7; color: #166534; padding: 0.35rem 0.85rem; border-radius: 20px;">✓ Disetujui</span>
-                        @else
-                            <span style="background: #fee2e2; color: #7f1d1d; padding: 0.35rem 0.85rem; border-radius: 20px;">✗ Ditolak</span>
-                        @endif
+                @if($izin->bukti_file)
+                <div style="margin-bottom: 0.75rem;">
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #334155; margin-bottom: 0.25rem;">Bukti File</div>
+                    <div style="background: #f7fafc; padding: 0.75rem 1rem; border-radius: 7px;">
+                        <a href="{{ asset('storage/' . $izin->bukti_file) }}" target="_blank" style="color: #0369a1; font-weight: 600;">
+                            Lihat Bukti
+                        </a>
                     </div>
-                    @if($izin->status_approval != 'pending')
-                        <div style="font-size: 0.85rem; color: #718096; margin-top: 0.5rem;">
-                            <strong>Diproses oleh:</strong> {{ $izin->approver->nama_lengkap ?? $izin->approver->name ?? 'System' }}<br>
-                            <strong>Tanggal:</strong> {{ $izin->updated_at->format('d M Y H:i') }}
-                        </div>
-                    @endif
                 </div>
+                @endif
+            </div>
+        </div>
             </div>
         </div>
     @empty
