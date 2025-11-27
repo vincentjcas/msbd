@@ -419,7 +419,7 @@ class GuruController extends Controller
         $siswaIds = Siswa::whereIn('id_kelas', $kelasIds)->pluck('id_user');
 
         $izinList = Izin::whereIn('id_user', $siswaIds)
-            ->with(['user.siswa', 'approver'])
+            ->with(['user.siswa.kelas'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
