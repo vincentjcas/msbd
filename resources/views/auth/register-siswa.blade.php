@@ -358,19 +358,14 @@
                 @error('id_kelas')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
-            <!-- Semester -->
+            <!-- Semester (Hidden field - auto-filled) -->
+            <input type="hidden" id="semester" name="semester" value="">
             <div class="form-group">
-                <label for="semester">Semester</label>
-                <select id="semester" name="semester" required>
-                    <option value="">Pilih Semester</option>
-                    <option value="X Semester Ganjil 2023/2024" {{ old('semester') == 'X Semester Ganjil 2023/2024' ? 'selected' : '' }}>X Semester Ganjil 2023/2024</option>
-                    <option value="X Semester Genap 2023/2024" {{ old('semester') == 'X Semester Genap 2023/2024' ? 'selected' : '' }}>X Semester Genap 2023/2024</option>
-                    <option value="XI Semester Ganjil 2024/2025" {{ old('semester') == 'XI Semester Ganjil 2024/2025' ? 'selected' : '' }}>XI Semester Ganjil 2024/2025</option>
-                    <option value="XI Semester Genap 2024/2025" {{ old('semester') == 'XI Semester Genap 2024/2025' ? 'selected' : '' }}>XI Semester Genap 2024/2025</option>
-                    <option value="XII Semester Ganjil 2025/2026" {{ old('semester') == 'XII Semester Ganjil 2025/2026' ? 'selected' : '' }}>XII Semester Ganjil 2025/2026</option>
-                    <option value="XII Semester Genap 2025/2026" {{ old('semester') == 'XII Semester Genap 2025/2026' ? 'selected' : '' }}>XII Semester Genap 2025/2026</option>
-                </select>
-                <p class="hint-text">Pilih tingkat dan semester yang sedang Anda jalani</p>
+                <label>Semester</label>
+                <div style="padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; background: #f9fafb; color: #666; font-size: 0.95rem;">
+                    <span id="semester-display">Akan terisi otomatis sesuai kelas</span>
+                </div>
+                <p class="hint-text">Semester akan otomatis terisi berdasarkan data master siswa</p>
                 @error('semester')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
@@ -575,6 +570,8 @@
                         // Set dropdown untuk kelas
                         if (siswaData.id_kelas) {
                             idKelasSelect.value = siswaData.id_kelas;
+                            // Trigger change event untuk auto-fill semester
+                            idKelasSelect.dispatchEvent(new Event('change'));
                         }
                         
                         // Set all fields sebagai readOnly untuk mencegah perubahan data
@@ -658,6 +655,45 @@
                 toggle.innerHTML = '<i class="fas fa-eye"></i>';
             }
         }
+
+        // Function untuk auto-fill semester berdasarkan kelas
+        function autoFillSemester() {
+            const kelasSelect = document.getElementById('id_kelas');
+            const selectedOption = kelasSelect.options[kelasSelect.selectedIndex];
+            const semesterInput = document.getElementById('semester');
+            const semesterDisplay = document.getElementById('semester-display');
+            
+            if (!selectedOption.value) {
+                semesterInput.value = '';
+                semesterDisplay.textContent = 'Akan terisi otomatis sesuai kelas';
+                return;
+            }
+            
+            const selectedText = selectedOption.text;
+            let semesterValue = '';
+            
+            // Deteksi tingkat dari teks kelas
+            if (selectedText.includes('XII')) {
+                semesterValue = 'XII Semester Ganjil 2027/2028';
+                semesterDisplay.textContent = semesterValue;
+            } else if (selectedText.includes('XI')) {
+                semesterValue = 'XI Semester Ganjil 2026/2027';
+                semesterDisplay.textContent = semesterValue;
+            } else if (selectedText.includes('X')) {
+                semesterValue = 'X Semester Ganjil 2025/2026';
+                semesterDisplay.textContent = semesterValue;
+            }
+            
+            semesterInput.value = semesterValue;
+        }
+        
+        // Event listener saat kelas berubah
+        document.getElementById('id_kelas').addEventListener('change', autoFillSemester);
+
+        // Trigger event saat halaman load jika ada kelas yang sudah dipilih
+        window.addEventListener('DOMContentLoaded', function() {
+            autoFillSemester();
+        });
     </script>
 </body>
 </html>

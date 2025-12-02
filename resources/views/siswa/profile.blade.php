@@ -152,6 +152,28 @@
 <script>
 function editSemester() {
     const currentSemester = `{{ $siswa->semester ?? '' }}`;
+    const siswaKelas = `{{ $siswa->kelas->nama_kelas ?? '' }}`;
+    const tingkat = siswaKelas.charAt(0); // Ambil X, XI, atau XII
+    
+    let options = '<option value="">-- Pilih Semester --</option>';
+    
+    // Tentukan opsi semester berdasarkan tingkat kelas
+    if (tingkat === 'X') {
+        options += `
+            <option value="X Semester Ganjil 2025/2026" ${currentSemester === 'X Semester Ganjil 2025/2026' ? 'selected' : ''}>X Semester Ganjil 2025/2026</option>
+            <option value="X Semester Genap 2025/2026" ${currentSemester === 'X Semester Genap 2025/2026' ? 'selected' : ''}>X Semester Genap 2025/2026</option>
+        `;
+    } else if (siswaKelas.includes('XI')) {
+        options += `
+            <option value="XI Semester Ganjil 2026/2027" ${currentSemester === 'XI Semester Ganjil 2026/2027' ? 'selected' : ''}>XI Semester Ganjil 2026/2027</option>
+            <option value="XI Semester Genap 2026/2027" ${currentSemester === 'XI Semester Genap 2026/2027' ? 'selected' : ''}>XI Semester Genap 2026/2027</option>
+        `;
+    } else if (siswaKelas.includes('XII')) {
+        options += `
+            <option value="XII Semester Ganjil 2027/2028" ${currentSemester === 'XII Semester Ganjil 2027/2028' ? 'selected' : ''}>XII Semester Ganjil 2027/2028</option>
+            <option value="XII Semester Genap 2027/2028" ${currentSemester === 'XII Semester Genap 2027/2028' ? 'selected' : ''}>XII Semester Genap 2027/2028</option>
+        `;
+    }
     
     Swal.fire({
         title: 'Ubah Semester',
@@ -159,16 +181,10 @@ function editSemester() {
             <div style="text-align: left; margin: 1rem 0;">
                 <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #333;">Pilih Semester Baru:</label>
                 <select id="semesterSelect" style="width: 100%; padding: 0.6rem; border: 2px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
-                    <option value="">-- Pilih Semester --</option>
-                    <option value="X Semester Ganjil 2023/2024" ${currentSemester === 'X Semester Ganjil 2023/2024' ? 'selected' : ''}>X Semester Ganjil 2023/2024</option>
-                    <option value="X Semester Genap 2023/2024" ${currentSemester === 'X Semester Genap 2023/2024' ? 'selected' : ''}>X Semester Genap 2023/2024</option>
-                    <option value="XI Semester Ganjil 2024/2025" ${currentSemester === 'XI Semester Ganjil 2024/2025' ? 'selected' : ''}>XI Semester Ganjil 2024/2025</option>
-                    <option value="XI Semester Genap 2024/2025" ${currentSemester === 'XI Semester Genap 2024/2025' ? 'selected' : ''}>XI Semester Genap 2024/2025</option>
-                    <option value="XII Semester Ganjil 2025/2026" ${currentSemester === 'XII Semester Ganjil 2025/2026' ? 'selected' : ''}>XII Semester Ganjil 2025/2026</option>
-                    <option value="XII Semester Genap 2025/2026" ${currentSemester === 'XII Semester Genap 2025/2026' ? 'selected' : ''}>XII Semester Genap 2025/2026</option>
+                    ${options}
                 </select>
                 <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                    <i class="fas fa-info-circle"></i> Anda dapat mengubah semester kapan saja untuk mereview materi dari semester sebelumnya.
+                    <i class="fas fa-info-circle"></i> Anda dapat mengubah semester hanya dalam periode yang berlaku untuk tingkat kelas Anda.
                 </p>
             </div>
         `,
