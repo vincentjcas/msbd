@@ -135,7 +135,7 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:guru,no_hp|max:20',
+            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:users,no_hp|max:20',
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'password' => 'required|confirmed|min:6',
@@ -184,7 +184,6 @@ class AuthController extends Controller
                 'id_user' => $user->id_user,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'agama' => $request->agama,
-                'no_hp' => $request->no_hp,
             ]);
 
             DB::commit();
