@@ -39,6 +39,9 @@ Route::post('/register/siswa', [AuthController::class, 'registerSiswa'])->name('
 // API Route untuk cek NIS siswa
 Route::get('/api/check-nis/{nis}', [AuthController::class, 'checkNis'])->name('api.check-nis');
 
+// API Route untuk get jadwal by kelas dan hari
+Route::get('/api/jadwal', [SiswaController::class, 'getJadwal'])->middleware('auth')->name('api.jadwal');
+
 // Legacy register route (redirect ke pilihan)
 Route::get('/register', function() {
     return redirect()->route('register.siswa');
@@ -51,10 +54,10 @@ Route::middleware('auth')->group(function () {
     // Admin Routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware('role:admin');
     
-    // Admin - Verifikasi Guru (DISABLED - Guru langsung aktif tanpa approval)
-    // Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
-    // Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
-    // Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
+    // Admin - Verifikasi Guru
+    Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
     
     // Admin - Verifikasi Siswa Baru (untuk siswa dengan NIS tidak terdaftar di data master)
     Route::get('/admin/verifikasi-siswa', [AdminController::class, 'verifikasiSiswa'])->name('admin.verifikasi-siswa')->middleware('role:admin');

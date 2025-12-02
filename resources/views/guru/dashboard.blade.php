@@ -105,35 +105,22 @@
             </div>
         </div>
 
-        <!-- 3. Konfirmasi Rapat Otomatis -->
+        <!-- 3. Lihat Pengajuan Izin -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-users"></i> Konfirmasi Rapat
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Otomatis mengkonfirmasi kehadiran berdasarkan jadwal yang aktif
-            </p>
-            <div style="display: flex; gap: 0.5rem;">
-                <span class="badge badge-success">Otomatis Terkonfirmasi</span>
-            </div>
-        </div>
-
-        <!-- 4. Lihat Pengajuan Izin -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-list"></i> Lihat Pengajuan Izin
+                <i class="fas fa-file-alt"></i> Lihat Pengajuan Izin
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Pantau pengajuan izin siswa untuk kelas yang Anda ampu
             </p>
             <div style="display: flex; gap: 0.5rem;">
                 <a href="{{ route('guru.izin') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-list"></i> Lihat Pengajuan
+                    <i class="fas fa-eye"></i> Lihat Pengajuan
                 </a>
             </div>
         </div>
 
-        <!-- 5. Upload Materi -->
+        <!-- 4. Upload Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-cloud-upload-alt"></i> Upload Materi
@@ -146,7 +133,7 @@
             </a>
         </div>
 
-        <!-- 6. Kelola Tugas -->
+        <!-- 5. Kelola Tugas -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-tasks"></i> Kelola Tugas
@@ -164,7 +151,7 @@
             </div>
         </div>
 
-        <!-- 7. Lihat Data Kehadiran -->
+        <!-- 6. Lihat Data Kehadiran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-bar"></i> Data Kehadiran
@@ -179,7 +166,7 @@
             </div>
         </div>
 
-        <!-- 8. Update/Hapus Materi -->
+        <!-- 7. Update/Hapus Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-edit"></i> Kelola Materi
@@ -194,7 +181,7 @@
             </div>
         </div>
 
-        <!-- 9. Laporan Bulanan -->
+        <!-- 8. Laporan Bulanan -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-alt"></i> Laporan Bulanan

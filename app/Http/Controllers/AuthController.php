@@ -29,7 +29,7 @@ class AuthController extends Controller
     {
         $request->validate([
             'identifier' => 'required|string',
-            'password' => 'required',
+            'password' => 'required|string',
         ], [
             'identifier.required' => 'Email/NIS wajib diisi.',
             'password.required' => 'Password wajib diisi.',
@@ -37,7 +37,7 @@ class AuthController extends Controller
 
         $identifier = $request->identifier;
         $password = $request->password;
-        
+
         $user = null;
 
         // Auto-detect: Coba cari di tabel siswa dulu (berdasarkan NIS)
@@ -103,10 +103,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect()->route('login');
     }
 
@@ -132,6 +132,7 @@ class AuthController extends Controller
      */
     public function registerGuru(Request $request)
     {
+        // Validasi dengan custom rule untuk no_hp yang cek relasi dengan user
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
@@ -147,7 +148,6 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.regex' => 'Nomor HP harus berisi 10-15 digit angka.',
-            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'agama.required' => 'Agama wajib dipilih.',
             'password.required' => 'Password wajib diisi.',
@@ -161,14 +161,14 @@ class AuthController extends Controller
             $baseUsername = strtolower(explode('@', $request->email)[0]);
             $username = $baseUsername;
             $counter = 1;
-            
+
             // Jika username sudah ada, tambahkan angka
             while (User::where('username', $username)->exists()) {
                 $username = $baseUsername . $counter;
                 $counter++;
             }
 
-            // Buat user - GURU LANGSUNG AKTIF (status_aktif = 1)
+            // Buat user - GURU MENUNGGU APPROVAL (status_approval = pending)
             $user = User::create([
                 'username' => $username,
                 'nama_lengkap' => $request->name,
@@ -176,7 +176,8 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => 'guru',
                 'no_hp' => $request->no_hp,
-                'status_aktif' => 1, // ✅ Langsung aktif tanpa approval
+                'status_aktif' => 1,
+                'status_approval' => 'pending', // ✅ Menunggu approval admin
             ]);
 
             // Buat data guru
@@ -188,7 +189,11 @@ class AuthController extends Controller
 
             DB::commit();
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan email dan password Anda.');
+            return redirect()->route('login')->with('success_sweet', [
+                'title' => 'Registrasi Berhasil!',
+                'message' => 'Akun Anda telah dibuat dan menunggu persetujuan dari admin. Anda akan dapat login setelah admin menyetujui akun Anda.',
+                'icon' => 'success'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -202,7 +207,7 @@ class AuthController extends Controller
     {
         // Cek apakah NIS ada di data master untuk conditional validation
         $siswaMasterExists = DataSiswaMaster::where('nis', $request->nis)->exists();
-        
+
         $rules = [
             'nis' => 'required|string|unique:siswa,nis|max:20',
             'email' => 'required|email|unique:users,email',
@@ -217,12 +222,12 @@ class AuthController extends Controller
             'alamat' => 'required|string|max:500',
             'password' => 'required|confirmed|min:6',
         ];
-        
+
         // Jika NIS TIDAK ada di data master, maka name WAJIB diisi
         if (!$siswaMasterExists) {
             $rules['name'] = 'required|string|max:255';
         }
-        
+
         $request->validate($rules, [
             'nis.required' => 'NIS wajib diisi.',
             'nis.unique' => 'NIS sudah terdaftar.',
@@ -254,11 +259,11 @@ class AuthController extends Controller
         try {
             // Cek apakah NIS ada di data master
             $siswaMaster = DataSiswaMaster::where('nis', $request->nis)->first();
-            
+
             // Tentukan status aktif berdasarkan apakah NIS terdaftar di data master
             // NIS terdaftar = langsung aktif, NIS tidak terdaftar = pending approval
             $statusAktif = $siswaMaster ? 1 : 0;
-            
+
             // Generate nama_lengkap dari data master atau dari input form
             $namaLengkap = $siswaMaster ? $siswaMaster->nama_siswa : $request->name;
 

@@ -50,6 +50,38 @@
             @error('tanggal')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
         </div>
 
+        <!-- Pilih Hari -->
+        <div style="margin-bottom: 1.5rem;">
+            <label for="hari" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
+                Hari Pelajaran <span style="color: #dc2626;">*</span>
+            </label>
+            <select id="hari" name="hari" required
+                    style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white; cursor: pointer;">
+                <option value="">-- Pilih Hari --</option>
+                <option value="Senin" {{ old('hari') == 'Senin' ? 'selected' : '' }}>Senin</option>
+                <option value="Selasa" {{ old('hari') == 'Selasa' ? 'selected' : '' }}>Selasa</option>
+                <option value="Rabu" {{ old('hari') == 'Rabu' ? 'selected' : '' }}>Rabu</option>
+                <option value="Kamis" {{ old('hari') == 'Kamis' ? 'selected' : '' }}>Kamis</option>
+                <option value="Jumat" {{ old('hari') == 'Jumat' ? 'selected' : '' }}>Jumat</option>
+                <option value="Sabtu" {{ old('hari') == 'Sabtu' ? 'selected' : '' }}>Sabtu</option>
+            </select>
+            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Pilih hari untuk melihat jadwal pelajaran</p>
+            @error('hari')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
+        </div>
+
+        <!-- Pilih Jadwal (Jam Pelajaran) -->
+        <div id="jadwal-container" style="margin-bottom: 1.5rem; display: none;">
+            <label for="id_jadwal" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
+                Jam Pelajaran <span style="color: #dc2626;">*</span>
+            </label>
+            <select id="id_jadwal" name="id_jadwal" required
+                    style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white; cursor: pointer;">
+                <option value="">-- Pilih Jam Pelajaran --</option>
+            </select>
+            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Izin akan diajukan ke guru yang mengajar pada jam ini</p>
+            @error('id_jadwal')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
+        </div>
+
         <!-- Alasan (muncul hanya jika tipe "Izin") -->
         <div id="alasan-container" style="display: none; margin-bottom: 1.5rem;">
             <label for="alasan" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
@@ -147,6 +179,70 @@
         const buktiInput = document.getElementById('bukti_file');
         const uploadArea = document.getElementById('upload-area');
         const fileName = document.getElementById('file-name');
+        const hariSelect = document.getElementById('hari');
+        const jadwalContainer = document.getElementById('jadwal-container');
+        const jadwalSelect = document.getElementById('id_jadwal');
+
+        // Get siswa kelas from auth
+        const idKelas = {{ auth()->user()->siswa->id_kelas ?? 'null' }};
+
+        // Load jadwal when hari is selected
+        hariSelect.addEventListener('change', function() {
+            const hari = this.value;
+            
+            if (!hari) {
+                jadwalContainer.style.display = 'none';
+                jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
+                jadwalSelect.removeAttribute('required');
+                return;
+            }
+
+            if (!idKelas) {
+                Swal.fire({
+                    title: 'Error',
+                    text: 'Data kelas tidak ditemukan',
+                    icon: 'error',
+                    confirmButtonColor: '#dc2626'
+                });
+                return;
+            }
+
+            // Fetch jadwal
+            fetch(`/api/jadwal?id_kelas=${idKelas}&hari=${hari}`)
+                .then(response => response.json())
+                .then(data => {
+                    jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
+                    
+                    if (data.length === 0) {
+                        Swal.fire({
+                            title: 'Tidak Ada Jadwal',
+                            text: `Tidak ada jadwal pelajaran di hari ${hari}`,
+                            icon: 'info',
+                            confirmButtonColor: '#0369a1'
+                        });
+                        jadwalContainer.style.display = 'none';
+                        jadwalSelect.removeAttribute('required');
+                    } else {
+                        data.forEach(jadwal => {
+                            const option = document.createElement('option');
+                            option.value = jadwal.id_jadwal;
+                            option.textContent = `${jadwal.jam_mulai} - ${jadwal.jam_selesai} | ${jadwal.mata_pelajaran} (${jadwal.guru_nama})`;
+                            jadwalSelect.appendChild(option);
+                        });
+                        jadwalContainer.style.display = 'block';
+                        jadwalSelect.setAttribute('required', 'required');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Gagal memuat jadwal',
+                        icon: 'error',
+                        confirmButtonColor: '#dc2626'
+                    });
+                });
+        });
 
         // Toggle alasan field based on tipe
         tipeSakit.addEventListener('change', function() {
@@ -214,6 +310,28 @@
                 Swal.fire({
                     title: 'Validasi Gagal',
                     text: 'Pilih tipe ketidakhadiran (Sakit atau Izin)',
+                    icon: 'warning',
+                    confirmButtonColor: '#0369a1'
+                });
+                return false;
+            }
+
+            if (!hariSelect.value) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Validasi Gagal',
+                    text: 'Pilih hari pelajaran terlebih dahulu',
+                    icon: 'warning',
+                    confirmButtonColor: '#0369a1'
+                });
+                return false;
+            }
+
+            if (!jadwalSelect.value) {
+                e.preventDefault();
+                Swal.fire({
+                    title: 'Validasi Gagal',
+                    text: 'Pilih jam pelajaran terlebih dahulu',
                     icon: 'warning',
                     confirmButtonColor: '#0369a1'
                 });

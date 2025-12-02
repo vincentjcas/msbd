@@ -217,10 +217,10 @@
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            
+
             <div class="form-group">
-                <label for="identifier">NIS / NIP / Email</label>
-                <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="Masukkan NIS, NIP, atau Email" required>
+                <label for="identifier">NIS / Username / Email</label>
+                <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="Masukkan NIS, Username, atau Email" required>
                 <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
                 </small>
             </div>
@@ -267,7 +267,7 @@
             @foreach ($errors->all() as $error)
                 errorMessages += '{{ $error }}<br>';
             @endforeach
-            
+
             Swal.fire({
                 title: 'Terjadi Kesalahan!',
                 html: errorMessages,
@@ -295,6 +295,20 @@
     </script>
     @endif
 
+    @if(session('success_sweet'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: "{{ session('success_sweet')['title'] }}",
+                text: "{{ session('success_sweet')['message'] }}",
+                icon: "{{ session('success_sweet')['icon'] }}",
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
+        });
+    </script>
+    @endif
+
     @if(session('error'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -302,6 +316,20 @@
                 title: 'Gagal Login!',
                 text: "{{ session('error') }}",
                 icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
+        });
+    </script>
+    @endif
+
+    @if(session('error_sweet'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: "{{ session('error_sweet')['title'] }}",
+                text: "{{ session('error_sweet')['message'] }}",
+                icon: "{{ session('error_sweet')['icon'] }}",
                 confirmButtonText: 'Oke',
                 confirmButtonColor: '#667eea'
             });
