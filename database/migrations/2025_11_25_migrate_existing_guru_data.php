@@ -16,19 +16,22 @@ return new class extends Migration
         // 2. Jika sudah punya email di user, gunakan itu
         // 3. Isi jenis_kelamin, agama dari user lama jika ada
         
-        $gurus = DB::table('guru')->whereNull('jenis_kelamin')->get();
-        
-        foreach ($gurus as $guru) {
-            $user = DB::table('users')->where('id_user', $guru->id_user)->first();
+        // Check kolom dulu sebelum query untuk mencegah error jika kolom belum ada
+        if (Schema::hasColumn('guru', 'jenis_kelamin')) {
+            $gurus = DB::table('guru')->whereNull('jenis_kelamin')->get();
             
-            if ($user) {
-                // Update guru dengan data dari user jika ada
-                DB::table('guru')
-                    ->where('id_guru', $guru->id_guru)
-                    ->update([
-                        'no_hp' => $user->no_hp ?? $guru->no_hp,
-                        // jenis_kelamin dan agama tetap null jika user lama tidak punya
-                    ]);
+            foreach ($gurus as $guru) {
+                $user = DB::table('users')->where('id_user', $guru->id_user)->first();
+                
+                if ($user) {
+                    // Update guru dengan data dari user jika ada
+                    DB::table('guru')
+                        ->where('id_guru', $guru->id_guru)
+                        ->update([
+                            'no_hp' => $user->no_hp ?? $guru->no_hp,
+                            // jenis_kelamin dan agama tetap null jika user lama tidak punya
+                        ]);
+                }
             }
         }
     }

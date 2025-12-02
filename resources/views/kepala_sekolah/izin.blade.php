@@ -221,6 +221,7 @@
                     <th>No</th>
                     <th>Nama</th>
                     <th>Kelas</th>
+                    <th>Diajukan Ke</th>
                     <th>Jenis Izin</th>
                     <th>Alasan / Keterangan</th>
                     <th>Tanggal</th>
@@ -249,6 +250,13 @@
                         <td>
                             <span class="user-role">
                                 {{ $izin->user->siswa && $izin->user->siswa->kelas ? ($izin->user->siswa->kelas->nama_kelas ?? '-') : '-' }}
+                            </span>
+                        </td>
+
+                        <!-- Diajukan Ke (Guru) -->
+                        <td>
+                            <span class="user-role">
+                                {{ $izin->guru && $izin->guru->user ? $izin->guru->user->nama : '-' }}
                             </span>
                         </td>
 

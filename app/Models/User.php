@@ -43,6 +43,7 @@ class User extends Authenticatable
         'role',
         'no_hp',
         'status_aktif',
+        'status_approval',
     ];
 
     /**

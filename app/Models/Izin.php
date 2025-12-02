@@ -12,13 +12,11 @@ class Izin extends Model
 
     protected $fillable = [
         'id_user',
+        'id_guru',
+        'id_jadwal',
         'tanggal',
         'alasan',
         'bukti_file',
-        'status_approval',
-        'disetujui_oleh',
-        'catatan_approval',
-        'approved_at',
     ];
 
     protected $casts = [
@@ -31,6 +29,16 @@ class Izin extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
+
+    public function guru()
+    {
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
+    }
+
+    public function jadwal()
+    {
+        return $this->belongsTo(Jadwal::class, 'id_jadwal', 'id_jadwal');
     }
 
     // (Relasi dan scope status dihapus karena sudah tidak dipakai)

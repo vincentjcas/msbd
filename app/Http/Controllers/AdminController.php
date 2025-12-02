@@ -27,12 +27,13 @@ class AdminController extends Controller
     public function dashboard()
     {
         $totalUsers = User::count();
-        $totalGuru = User::where('role', 'guru')->where('status_aktif', 1)->count();
+        $totalGuru = User::where('role', 'guru')->where('status_approval', 'approved')->count();
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalKelas = Kelas::count();
         $pendingSiswa = User::where('role', 'siswa')->where('status_aktif', 0)->count();
+        $pendingGuru = User::where('role', 'guru')->where('status_approval', 'pending')->count();
         
-        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingSiswa'));
+        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingSiswa', 'pendingGuru'));
     }
 
     public function users()
@@ -333,29 +334,29 @@ class AdminController extends Controller
     ========================================
     */
 
-    /*
-    // DISABLED: Tampilkan halaman verifikasi guru yang pending
+    // Tampilkan halaman verifikasi guru yang pending
     public function verifikasiGuru()
     {
         $pendingGuru = User::where('role', 'guru')
-            ->where('status_aktif', 0)
+            ->where('status_approval', 'pending')
+            ->with('guru')
             ->orderBy('created_at', 'desc')
             ->get();
         
         return view('admin.verifikasi-guru', compact('pendingGuru'));
     }
 
-    // DISABLED: Approve pendaftaran guru
+    // Approve pendaftaran guru
     public function approveGuru($id)
     {
         DB::beginTransaction();
         try {
             $user = User::where('id_user', $id)
                 ->where('role', 'guru')
-                ->where('status_aktif', 0)
+                ->where('status_approval', 'pending')
                 ->firstOrFail();
             
-            $user->update(['status_aktif' => 1]);
+            $user->update(['status_approval' => 'approved']);
             
             $this->logActivity->log('approve_guru', auth()->user()->id_user, "Approve pendaftaran guru: {$user->nama_lengkap} (ID: {$user->id_user})");
             
@@ -367,37 +368,31 @@ class AdminController extends Controller
         }
     }
 
-    // DISABLED: Reject pendaftaran guru dan hapus akun
+    // Reject pendaftaran guru
     public function rejectGuru(Request $request, $id)
     {
         DB::beginTransaction();
         try {
             $user = User::where('id_user', $id)
                 ->where('role', 'guru')
-                ->where('status_aktif', 0)
+                ->where('status_approval', 'pending')
                 ->firstOrFail();
             
             $namaGuru = $user->nama_lengkap;
             $alasan = $request->input('alasan', 'Tidak ada alasan');
             
-            // Hapus data guru terlebih dahulu (karena foreign key constraint)
-            if ($user->guru) {
-                $user->guru->delete();
-            }
-            
-            // Hapus user
-            $user->delete();
+            // Update status menjadi rejected (tidak dihapus)
+            $user->update(['status_approval' => 'rejected']);
             
             $this->logActivity->log('reject_guru', auth()->user()->id_user, "Reject pendaftaran guru: {$namaGuru} (ID: {$id}). Alasan: {$alasan}");
             
             DB::commit();
-            return redirect()->route('admin.verifikasi-guru')->with('success', "Pendaftaran guru {$namaGuru} berhasil ditolak dan dihapus.");
+            return redirect()->route('admin.verifikasi-guru')->with('success', "Pendaftaran guru {$namaGuru} berhasil ditolak.");
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menolak pendaftaran: ' . $e->getMessage());
         }
     }
-    */
 
     /*
     ========================================
