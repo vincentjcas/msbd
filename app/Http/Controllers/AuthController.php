@@ -31,7 +31,7 @@ class AuthController extends Controller
             'identifier' => 'required|string',
             'password' => 'required',
         ], [
-            'identifier.required' => 'Email/NIS/NIP wajib diisi.',
+            'identifier.required' => 'Email/NIS wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
@@ -48,18 +48,8 @@ class AuthController extends Controller
                        ->first();
         }
 
-        // Kalau tidak ketemu, coba cari di tabel guru (berdasarkan NIP)
-        if (!$user) {
-            $guru = Guru::where('nip', $identifier)->first();
-            if ($guru) {
-                $user = User::where('id_user', $guru->id_user)
-                           ->where('role', 'guru')
-                           ->first();
-            }
-        }
-
-        // Kalau masih tidak ketemu, coba cari di tabel users langsung (berdasarkan email atau username)
-        // Ini untuk cover siswa/guru yang login pakai email, atau admin/kepsek/pembina
+        // Kalau tidak ketemu, coba cari di tabel users langsung (berdasarkan email atau username)
+        // Ini untuk cover guru, admin, kepsek, pembina yang login pakai email
         if (!$user) {
             $user = User::where(function($query) use ($identifier) {
                 $query->where('email', $identifier)
@@ -70,7 +60,7 @@ class AuthController extends Controller
         // Cek apakah user ditemukan dan password cocok
         if (!$user || !Hash::check($password, $user->password)) {
             return back()->withErrors([
-                'identifier' => 'Email/NIS/NIP atau password salah.',
+                'identifier' => 'Email/NIS atau password salah.',
             ])->withInput();
         }
 
@@ -223,7 +213,7 @@ class AuthController extends Controller
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'id_kelas' => 'required|exists:kelas,id_kelas',
-            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,X Semester Genap 2025/2026,XI Semester Ganjil 2025/2026,XI Semester Genap 2025/2026,XII Semester Ganjil 2025/2026,XII Semester Genap 2025/2026',
+            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,XI Semester Ganjil 2025/2026,XII Semester Ganjil 2025/2026',
             'sekolah_asal' => 'required|string|max:200',
             'alamat' => 'required|string|max:500',
             'password' => 'required|confirmed|min:6',
@@ -252,7 +242,7 @@ class AuthController extends Controller
             'id_kelas.required' => 'Kelas wajib dipilih.',
             'id_kelas.exists' => 'Kelas tidak valid.',
             'semester.required' => 'Semester wajib dipilih.',
-            'semester.in' => 'Semester tidak valid.',
+            'semester.in' => 'Semester tidak valid. Hanya semester Ganjil 2025/2026 yang tersedia.',
             'sekolah_asal.required' => 'Sekolah asal wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'alamat.max' => 'Alamat maksimal 500 karakter.',
