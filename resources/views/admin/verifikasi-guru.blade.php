@@ -140,7 +140,7 @@ function approveGuru(userId, namaGuru) {
 function rejectGuru(userId, namaGuru) {
     Swal.fire({
         title: 'Reject Pendaftaran?',
-        html: `Anda akan menolak pendaftaran guru:<br><strong>${namaGuru}</strong><br><br>Akun akan dihapus secara permanen.`,
+        html: `Anda akan menolak pendaftaran guru:<br><strong>${namaGuru}</strong><br><br>Status akun akan diubah menjadi 'Ditolak'.`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: '<i class="fas fa-times"></i> Ya, Reject',

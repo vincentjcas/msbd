@@ -74,6 +74,23 @@ class AuthController extends Controller
             ])->withInput();
         }
 
+        // ✅ Cek status approval untuk guru (pending/rejected)
+        if ($user->role === 'guru' && $user->status_approval === 'pending') {
+            return back()->with('error_sweet', [
+                'title' => 'Akun Menunggu Persetujuan',
+                'message' => 'Pembuatan akun ini masih menunggu persetujuan dari admin.',
+                'icon' => 'warning'
+            ])->withInput();
+        }
+        
+        if ($user->role === 'guru' && $user->status_approval === 'rejected') {
+            return back()->with('error_sweet', [
+                'title' => 'Akun Ditolak',
+                'message' => 'Akun Anda telah ditolak oleh admin. Silakan hubungi admin untuk informasi lebih lanjut.',
+                'icon' => 'error'
+            ])->withInput();
+        }
+
         // ✅ Cek apakah user sudah diaktifkan
         if (!$user->status_aktif) {
             return back()->withErrors([
@@ -142,10 +159,26 @@ class AuthController extends Controller
      */
     public function registerGuru(Request $request)
     {
+        // Validasi dengan custom rule untuk no_hp yang cek relasi dengan user
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:guru,no_hp|max:20',
+            'no_hp' => [
+                'required',
+                'string',
+                'regex:/^[0-9]{10,15}$/',
+                'max:20',
+                function ($attribute, $value, $fail) {
+                    // Cek apakah no_hp sudah digunakan oleh guru yang masih punya user aktif
+                    $exists = Guru::where('no_hp', $value)
+                        ->whereHas('user')
+                        ->exists();
+                    
+                    if ($exists) {
+                        $fail('Nomor HP sudah terdaftar.');
+                    }
+                }
+            ],
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'password' => 'required|confirmed|min:6',
@@ -157,7 +190,6 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.regex' => 'Nomor HP harus berisi 10-15 digit angka.',
-            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'agama.required' => 'Agama wajib dipilih.',
             'password.required' => 'Password wajib diisi.',
@@ -178,7 +210,7 @@ class AuthController extends Controller
                 $counter++;
             }
 
-            // Buat user - GURU LANGSUNG AKTIF (status_aktif = 1)
+            // Buat user - GURU MENUNGGU APPROVAL (status_approval = pending)
             $user = User::create([
                 'username' => $username,
                 'nama_lengkap' => $request->name,
@@ -186,7 +218,8 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => 'guru',
                 'no_hp' => $request->no_hp,
-                'status_aktif' => 1, // ✅ Langsung aktif tanpa approval
+                'status_aktif' => 1,
+                'status_approval' => 'pending', // ✅ Menunggu approval admin
             ]);
 
             // Buat data guru
@@ -199,7 +232,11 @@ class AuthController extends Controller
 
             DB::commit();
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan email dan password Anda.');
+            return redirect()->route('login')->with('success_sweet', [
+                'title' => 'Registrasi Berhasil!',
+                'message' => 'Akun Anda telah dibuat dan menunggu persetujuan dari admin. Anda akan dapat login setelah admin menyetujui akun Anda.',
+                'icon' => 'success'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

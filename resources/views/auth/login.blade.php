@@ -295,6 +295,20 @@
     </script>
     @endif
 
+    @if(session('success_sweet'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: "{{ session('success_sweet')['title'] }}",
+                text: "{{ session('success_sweet')['message'] }}",
+                icon: "{{ session('success_sweet')['icon'] }}",
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
+        });
+    </script>
+    @endif
+
     @if(session('error'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -302,6 +316,20 @@
                 title: 'Gagal Login!',
                 text: "{{ session('error') }}",
                 icon: 'error',
+                confirmButtonText: 'Oke',
+                confirmButtonColor: '#667eea'
+            });
+        });
+    </script>
+    @endif
+
+    @if(session('error_sweet'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: "{{ session('error_sweet')['title'] }}",
+                text: "{{ session('error_sweet')['message'] }}",
+                icon: "{{ session('error_sweet')['icon'] }}",
                 confirmButtonText: 'Oke',
                 confirmButtonColor: '#667eea'
             });
