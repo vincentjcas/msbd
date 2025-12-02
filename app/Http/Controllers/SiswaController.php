@@ -40,15 +40,11 @@ class SiswaController extends Controller
         ->with(['guru.user'])
         ->get();
 
-    $bulan = date('m');
-    $tahun = date('Y');
-    $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
-
     $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
     $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
     $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
 
-    return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
+    return view('siswa.dashboard', compact('jadwalHariIni', 'totalMateri', 'totalTugas', 'tugasSelesai'));
 }
 
 
@@ -73,11 +69,7 @@ class SiswaController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(20);
 
-        $bulan = date('m');
-        $tahun = date('Y');
-        $persentase = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
-
-        return view('siswa.presensi', compact('presensi', 'persentase'));
+        return view('siswa.presensi', compact('presensi'));
     }
 
     public function materi()
@@ -229,16 +221,6 @@ class SiswaController extends Controller
         $this->logActivity->log('submit_izin', auth()->user()->id_user, 'Mengajukan izin untuk tanggal: ' . $request->tanggal);
 
         return redirect()->route('siswa.izin')->with('success', 'Izin berhasil dikirim.');
-    }
-
-    public function persentaseKehadiran()
-    {
-        $bulan = request()->input('bulan', date('m'));
-        $tahun = request()->input('tahun', date('Y'));
-
-        $persentase = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
-
-        return view('siswa.persentase-kehadiran', compact('persentase', 'bulan', 'tahun'));
     }
 
     /**
@@ -490,8 +472,8 @@ class SiswaController extends Controller
                 'id_guru' => $jadwal->id_guru,
                 'id_jadwal' => $request->id_jadwal,
                 'tanggal' => $request->tanggal,
-                'alasan' => $request->tipe === 'sakit' 
-                    ? 'Sakit' 
+                'alasan' => $request->tipe === 'sakit'
+                    ? 'Sakit'
                     : $request->alasan,
                 'bukti_file' => $path,
             ]);

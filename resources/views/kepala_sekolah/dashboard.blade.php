@@ -111,11 +111,6 @@
         <div class="stat-label">Total Pembina</div>
         <div class="stat-number" style="color: #14b8a6;">{{ $totalPembina }}</div>
     </div>
-
-    <div class="stat-card">
-        <div class="stat-label">Izin Menunggu</div>
-        <div class="stat-number" style="color: #ea580c;">{{ $izinPending }}</div>
-    </div>
 </div>
 
 <!-- Quick Links -->

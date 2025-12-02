@@ -8,7 +8,7 @@
     <p>Halo <strong>{{ auth()->user()->nama_lengkap }}</strong>, selamat datang di dashboard Siswa.</p>
     @if(auth()->user()->siswa && auth()->user()->siswa->kelas)
     <p style="margin-top: 0.5rem;">
-        <strong>Kelas:</strong> 
+        <strong>Kelas:</strong>
         <span style="background: linear-gradient(135deg, #0369a1 0%, #06b6d4 0%, #14b8a6 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 15px; font-size: 0.9rem;">
             {{ auth()->user()->siswa->kelas->nama_kelas }} - {{ auth()->user()->siswa->kelas->jurusan }}
         </span>
@@ -18,13 +18,6 @@
 </div>
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-calendar-check"></i>
-        </div>
-        <div class="stat-value">--%</div>
-        <div class="stat-label">Kehadiran Bulan Ini</div>
-    </div>
     <div class="stat-card">
         <div class="stat-icon">
             <i class="fas fa-book"></i>
@@ -50,7 +43,7 @@
 
 <div class="content-section">
     <h3 class="section-title"><i class="fas fa-tasks"></i> Fitur Siswa</h3>
-    
+
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
         <!-- 1. Isi Absen Harian -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
@@ -71,11 +64,11 @@
                 <i class="fas fa-calendar"></i> Roster
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Melihat roster
+                Menampilkan roster sesuai dengan kelas dan tahun ajaran siswa
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur jadwal akan tersedia')">
+            <a href="#" onclick="alert('Fitur jadwal akan tersedia'); return false;" class="btn btn-primary btn-sm">
                 <i class="fas fa-eye"></i> Lihat Jadwal
-            </button>
+            </a>
         </div>
 
         <!-- 3. Ajukan Izin -->
@@ -116,20 +109,6 @@
                 <i class="fas fa-tasks"></i> Lihat Tugas
             </a>
         </div>
-
-        <!-- 6. Kehadiran Bulanan -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-chart-pie"></i> Persentase Kehadiran
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Melihat persentase kehadiran per bulan
-            </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur kehadiran akan tersedia')">
-                <i class="fas fa-chart-bar"></i> Lihat Data
-            </button>
-        </div>
-
 
     </div>
 </div>
@@ -207,13 +186,13 @@ function isiAbsen() {
 
         // Form untuk submit absen
         const now = new Date();
-        const tanggal = now.toLocaleDateString('id-ID', { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
+        const tanggal = now.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
         });
-        
+
         Swal.fire({
             title: 'Konfirmasi Kehadiran',
             html: `
@@ -236,12 +215,12 @@ function isiAbsen() {
             preConfirm: () => {
                 const status = document.getElementById('statusAbsen').value;
                 const keterangan = document.getElementById('keteranganAbsen').value;
-                
+
                 if (!status) {
                     Swal.showValidationMessage('Pilih status kehadiran terlebih dahulu');
                     return false;
                 }
-                
+
                 return { status, keterangan };
             }
         }).then((result) => {
