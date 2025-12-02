@@ -53,7 +53,7 @@ class SiswaController extends Controller
 
 
 
-    public function jadwal()
+    public function viewJadwal()
     {
         $siswa = auth()->user()->siswa;
         $jadwal = Jadwal::where('id_kelas', $siswa->id_kelas)
@@ -477,7 +477,7 @@ class SiswaController extends Controller
             }
 
             // Get jadwal to extract id_guru
-            $jadwal = \App\Models\Jadwal::findOrFail($request->id_jadwal);
+            $jadwal = Jadwal::findOrFail($request->id_jadwal);
 
             // Upload file bukti
             $file = $request->file('bukti_file');
@@ -520,7 +520,7 @@ class SiswaController extends Controller
                 'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             ]);
 
-            $jadwal = \App\Models\Jadwal::where('id_kelas', $request->id_kelas)
+            $jadwal = Jadwal::where('id_kelas', $request->id_kelas)
                 ->where('hari', $request->hari)
                 ->with('guru.user')
                 ->orderBy('jam_mulai')

@@ -335,7 +335,7 @@ class GuruController extends Controller
 
         // Jika guru belum punya jadwal, fallback ke semua kelas aktif
         if ($kelas->isEmpty()) {
-            $kelas = \App\Models\Kelas::all();
+            $kelas = Kelas::all();
         }
 
         return view('guru.tugas.create', compact('kelas'));
