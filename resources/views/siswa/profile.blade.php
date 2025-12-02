@@ -158,21 +158,21 @@ function editSemester() {
     
     // Tentukan opsi semester berdasarkan kelas
     // Check XII, XI terlebih dahulu sebelum X (karena XI.charAt(0) === 'X')
-    // Hanya Semester Ganjil 2025/2026 yang boleh dipilih (Genap belum tersedia)
+    // Tampilkan semua semester (Ganjil dan Genap) tapi Genap akan trigger warning
     if (siswaKelas.includes('XII')) {
         options += `
             <option value="XII Semester Ganjil 2025/2026" ${currentSemester === 'XII Semester Ganjil 2025/2026' ? 'selected' : ''}>XII Semester Ganjil 2025/2026</option>
-            <option value="XII Semester Genap 2025/2026" disabled>XII Semester Genap 2025/2026 (Belum Menjalani Tahun Ajaran)</option>
+            <option value="XII Semester Genap 2025/2026" ${currentSemester === 'XII Semester Genap 2025/2026' ? 'selected' : ''}>XII Semester Genap 2025/2026</option>
         `;
     } else if (siswaKelas.includes('XI')) {
         options += `
             <option value="XI Semester Ganjil 2025/2026" ${currentSemester === 'XI Semester Ganjil 2025/2026' ? 'selected' : ''}>XI Semester Ganjil 2025/2026</option>
-            <option value="XI Semester Genap 2025/2026" disabled>XI Semester Genap 2025/2026 (Belum Menjalani Tahun Ajaran)</option>
+            <option value="XI Semester Genap 2025/2026" ${currentSemester === 'XI Semester Genap 2025/2026' ? 'selected' : ''}>XI Semester Genap 2025/2026</option>
         `;
     } else if (siswaKelas.includes('X')) {
         options += `
             <option value="X Semester Ganjil 2025/2026" ${currentSemester === 'X Semester Ganjil 2025/2026' ? 'selected' : ''}>X Semester Ganjil 2025/2026</option>
-            <option value="X Semester Genap 2025/2026" disabled>X Semester Genap 2025/2026 (Belum Menjalani Tahun Ajaran)</option>
+            <option value="X Semester Genap 2025/2026" ${currentSemester === 'X Semester Genap 2025/2026' ? 'selected' : ''}>X Semester Genap 2025/2026</option>
         `;
     }
     
@@ -200,6 +200,19 @@ function editSemester() {
                 Swal.showValidationMessage('Pilih semester terlebih dahulu');
                 return false;
             }
+            
+            // Check apakah semester yang dipilih adalah Genap
+            if (semester.includes('Genap')) {
+                Swal.fire({
+                    title: 'Belum Menjalani Tahun Ajaran',
+                    text: 'Semester Genap 2025/2026 belum dimulai. Silakan pilih Semester Ganjil 2025/2026.',
+                    icon: 'warning',
+                    confirmButtonText: 'Kembali',
+                    confirmButtonColor: '#f59e0b'
+                });
+                return false;
+            }
+            
             return semester;
         }
     }).then((result) => {
