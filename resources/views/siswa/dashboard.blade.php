@@ -14,7 +14,13 @@
         </span>
     </p>
     @endif
-    <p style="margin-top: 0.5rem; color: #ffffff;">Anda dapat mengisi kehadiran, mengajukan izin, dan mengakses materi pembelajaran.</p>
+    <p style="margin-top: 1rem;">
+        <span style="background: linear-gradient(135deg, #0369a1 0%, #06b6d4 0%, #14b8a6 100%); color: white; padding: 0.35rem 0.85rem; border-radius: 20px; display: inline-flex; align-items: center; gap: 0.5rem;">
+            <a href="{{ route('siswa.profile') }}" style="color: white; text-decoration: none; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-user-circle"></i> Lihat Profile Saya
+            </a>
+        </span>
+    </p>
 </div>
 
 <div class="stats-grid">

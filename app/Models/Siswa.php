@@ -18,6 +18,7 @@ class Siswa extends Model
         'tempat_lahir',
         'tanggal_lahir',
         'id_kelas',
+        'semester',
         'nama_orangtua',
         'no_hp_orangtua',
         'sekolah_asal',

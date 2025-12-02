@@ -358,6 +358,22 @@
                 @error('id_kelas')<p class="error-text">{{ $message }}</p>@enderror
             </div>
 
+            <!-- Semester -->
+            <div class="form-group">
+                <label for="semester">Semester</label>
+                <select id="semester" name="semester" required>
+                    <option value="">Pilih Semester</option>
+                    <option value="X Semester Ganjil 2023/2024" {{ old('semester') == 'X Semester Ganjil 2023/2024' ? 'selected' : '' }}>X Semester Ganjil 2023/2024</option>
+                    <option value="X Semester Genap 2023/2024" {{ old('semester') == 'X Semester Genap 2023/2024' ? 'selected' : '' }}>X Semester Genap 2023/2024</option>
+                    <option value="XI Semester Ganjil 2024/2025" {{ old('semester') == 'XI Semester Ganjil 2024/2025' ? 'selected' : '' }}>XI Semester Ganjil 2024/2025</option>
+                    <option value="XI Semester Genap 2024/2025" {{ old('semester') == 'XI Semester Genap 2024/2025' ? 'selected' : '' }}>XI Semester Genap 2024/2025</option>
+                    <option value="XII Semester Ganjil 2025/2026" {{ old('semester') == 'XII Semester Ganjil 2025/2026' ? 'selected' : '' }}>XII Semester Ganjil 2025/2026</option>
+                    <option value="XII Semester Genap 2025/2026" {{ old('semester') == 'XII Semester Genap 2025/2026' ? 'selected' : '' }}>XII Semester Genap 2025/2026</option>
+                </select>
+                <p class="hint-text">Pilih tingkat dan semester yang sedang Anda jalani</p>
+                @error('semester')<p class="error-text">{{ $message }}</p>@enderror
+            </div>
+
             <!-- Sekolah Asal -->
             <div class="form-group">
                 <label for="sekolah_asal">Sekolah Asal</label>

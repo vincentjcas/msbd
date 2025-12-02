@@ -100,6 +100,11 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
+    
+    // Siswa Profile
+    Route::get('/siswa/profile', [SiswaController::class, 'profile'])->name('siswa.profile')->middleware('role:siswa');
+    Route::post('/siswa/profile/update-semester', [SiswaController::class, 'updateSemester'])->name('siswa.profile.update-semester')->middleware('role:siswa');
+    
     // Materi Pembelajaran - daftar materi dan download
     Route::get('/siswa/materi', [SiswaController::class, 'materi'])->name('siswa.materi')->middleware('role:siswa');
     Route::get('/siswa/materi/{id}/download', [SiswaController::class, 'downloadMateri'])->name('siswa.materi.download')->middleware('role:siswa');

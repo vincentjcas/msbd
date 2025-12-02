@@ -26,32 +26,82 @@ class SiswaController extends Controller
     }
 
     public function dashboard()
-{
-    $user = auth()->user();
-    $siswa = $user->siswa;
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
 
-    if (!$siswa) {
-        return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan atau belum dikaitkan dengan akun ini.');
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan atau belum dikaitkan dengan akun ini.');
 
+        }
+
+        $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
+            ->where('hari', now()->locale('id')->dayName)
+            ->with(['guru.user'])
+            ->get();
+
+        $bulan = date('m');
+        $tahun = date('Y');
+        $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
+
+        $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
+        $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
+        $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
+
+        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
     }
 
-    $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
-        ->where('hari', now()->locale('id')->dayName)
-        ->with(['guru.user'])
-        ->get();
+    public function profile()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
 
-    $bulan = date('m');
-    $tahun = date('Y');
-    $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
 
-    $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
-    $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
-    $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
+        return view('siswa.profile', compact('siswa'));
+    }
 
-    return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
-}
+    public function updateSemester(Request $request)
+    {
+        $request->validate([
+            'semester' => 'required|string|in:X Semester Ganjil 2023/2024,X Semester Genap 2023/2024,XI Semester Ganjil 2024/2025,XI Semester Genap 2024/2025,XII Semester Ganjil 2025/2026,XII Semester Genap 2025/2026'
+        ]);
 
+        try {
+            $user = auth()->user();
+            $siswa = $user->siswa;
 
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data siswa tidak ditemukan.'
+                ], 404);
+            }
+
+            $siswa->update([
+                'semester' => $request->semester
+            ]);
+
+            // Log activity
+            $this->logActivity->log(
+                'ubah_semester',
+                $user->id_user,
+                "Mengubah semester menjadi {$request->semester}"
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Semester berhasil diubah. Halaman akan dimuat ulang.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function jadwal()
     {
