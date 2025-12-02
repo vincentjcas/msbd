@@ -217,10 +217,10 @@
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            
+
             <div class="form-group">
-                <label for="identifier">NIS / NIP / Email</label>
-                <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="Masukkan NIS, NIP, atau Email" required>
+                <label for="identifier">NIS / Username / Email</label>
+                <input type="text" id="identifier" name="identifier" value="{{ old('identifier') }}" placeholder="Masukkan NIS, Username, atau Email" required>
                 <small style="color: #666; font-size: 0.85rem; display: block; margin-top: 0.25rem;">
                 </small>
             </div>
@@ -267,7 +267,7 @@
             @foreach ($errors->all() as $error)
                 errorMessages += '{{ $error }}<br>';
             @endforeach
-            
+
             Swal.fire({
                 title: 'Terjadi Kesalahan!',
                 html: errorMessages,
