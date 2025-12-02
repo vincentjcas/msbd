@@ -673,11 +673,12 @@
             let semesterValue = '';
             
             // Deteksi tingkat dari teks kelas
+            // Semua siswa yang registrasi di 2025/2026 mengikuti periode 2025/2026
             if (selectedText.includes('XII')) {
-                semesterValue = 'XII Semester Ganjil 2027/2028';
+                semesterValue = 'XII Semester Ganjil 2025/2026';
                 semesterDisplay.textContent = semesterValue;
             } else if (selectedText.includes('XI')) {
-                semesterValue = 'XI Semester Ganjil 2026/2027';
+                semesterValue = 'XI Semester Ganjil 2025/2026';
                 semesterDisplay.textContent = semesterValue;
             } else if (selectedText.includes('X')) {
                 semesterValue = 'X Semester Ganjil 2025/2026';

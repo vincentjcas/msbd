@@ -223,7 +223,7 @@ class AuthController extends Controller
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'id_kelas' => 'required|exists:kelas,id_kelas',
-            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,X Semester Genap 2025/2026,XI Semester Ganjil 2026/2027,XI Semester Genap 2026/2027,XII Semester Ganjil 2027/2028,XII Semester Genap 2027/2028',
+            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,X Semester Genap 2025/2026,XI Semester Ganjil 2025/2026,XI Semester Genap 2025/2026,XII Semester Ganjil 2025/2026,XII Semester Genap 2025/2026',
             'sekolah_asal' => 'required|string|max:200',
             'alamat' => 'required|string|max:500',
             'password' => 'required|confirmed|min:6',

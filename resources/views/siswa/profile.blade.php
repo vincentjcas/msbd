@@ -158,6 +158,7 @@ function editSemester() {
     let options = '<option value="">-- Pilih Semester --</option>';
     
     // Tentukan opsi semester berdasarkan tingkat kelas
+    // Semua siswa mengikuti periode 2025/2026
     if (tingkat === 'X') {
         options += `
             <option value="X Semester Ganjil 2025/2026" ${currentSemester === 'X Semester Ganjil 2025/2026' ? 'selected' : ''}>X Semester Ganjil 2025/2026</option>
@@ -165,13 +166,13 @@ function editSemester() {
         `;
     } else if (siswaKelas.includes('XI')) {
         options += `
-            <option value="XI Semester Ganjil 2026/2027" ${currentSemester === 'XI Semester Ganjil 2026/2027' ? 'selected' : ''}>XI Semester Ganjil 2026/2027</option>
-            <option value="XI Semester Genap 2026/2027" ${currentSemester === 'XI Semester Genap 2026/2027' ? 'selected' : ''}>XI Semester Genap 2026/2027</option>
+            <option value="XI Semester Ganjil 2025/2026" ${currentSemester === 'XI Semester Ganjil 2025/2026' ? 'selected' : ''}>XI Semester Ganjil 2025/2026</option>
+            <option value="XI Semester Genap 2025/2026" ${currentSemester === 'XI Semester Genap 2025/2026' ? 'selected' : ''}>XI Semester Genap 2025/2026</option>
         `;
     } else if (siswaKelas.includes('XII')) {
         options += `
-            <option value="XII Semester Ganjil 2027/2028" ${currentSemester === 'XII Semester Ganjil 2027/2028' ? 'selected' : ''}>XII Semester Ganjil 2027/2028</option>
-            <option value="XII Semester Genap 2027/2028" ${currentSemester === 'XII Semester Genap 2027/2028' ? 'selected' : ''}>XII Semester Genap 2027/2028</option>
+            <option value="XII Semester Ganjil 2025/2026" ${currentSemester === 'XII Semester Ganjil 2025/2026' ? 'selected' : ''}>XII Semester Ganjil 2025/2026</option>
+            <option value="XII Semester Genap 2025/2026" ${currentSemester === 'XII Semester Genap 2025/2026' ? 'selected' : ''}>XII Semester Genap 2025/2026</option>
         `;
     }
     

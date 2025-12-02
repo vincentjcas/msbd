@@ -66,7 +66,7 @@ class SiswaController extends Controller
     public function updateSemester(Request $request)
     {
         $request->validate([
-            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,X Semester Genap 2025/2026,XI Semester Ganjil 2026/2027,XI Semester Genap 2026/2027,XII Semester Ganjil 2027/2028,XII Semester Genap 2027/2028'
+            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,X Semester Genap 2025/2026,XI Semester Ganjil 2025/2026,XI Semester Genap 2025/2026,XII Semester Ganjil 2025/2026,XII Semester Genap 2025/2026'
         ]);
 
         try {
