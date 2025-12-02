@@ -415,11 +415,10 @@ class GuruController extends Controller
     public function izin()
     {
         $guru = auth()->user()->guru;
-        $kelasIds = Jadwal::where('id_guru', $guru->id_guru)->pluck('id_kelas');
-        $siswaIds = Siswa::whereIn('id_kelas', $kelasIds)->pluck('id_user');
 
-        $izinList = Izin::whereIn('id_user', $siswaIds)
-            ->with(['user.siswa.kelas'])
+        // Filter izin yang diajukan ke guru ini
+        $izinList = Izin::where('id_guru', $guru->id_guru)
+            ->with(['user.siswa.kelas', 'jadwal'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

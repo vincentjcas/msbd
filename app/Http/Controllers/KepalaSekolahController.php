@@ -72,7 +72,7 @@ class KepalaSekolahController extends Controller
 
     public function izin()
     {
-        $izinList = Izin::with(['user.siswa.kelas'])
+        $izinList = Izin::with(['user.siswa.kelas', 'guru.user', 'jadwal'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

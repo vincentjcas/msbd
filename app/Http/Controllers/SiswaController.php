@@ -452,6 +452,8 @@ class SiswaController extends Controller
             $request->validate([
                 'tipe' => 'required|in:sakit,izin',
                 'tanggal' => 'required|date|after_or_equal:today',
+                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+                'id_jadwal' => 'required|exists:jadwal_pelajaran,id_jadwal',
                 'alasan' => $request->tipe === 'izin' ? 'required|string|min:10|max:500' : 'nullable|string',
                 'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             ], [
@@ -460,6 +462,9 @@ class SiswaController extends Controller
                 'bukti_file.max' => 'Ukuran file maksimal 5 MB',
                 'tanggal.required' => 'Tanggal izin wajib diisi',
                 'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
+                'hari.required' => 'Hari pelajaran wajib dipilih',
+                'id_jadwal.required' => 'Jam pelajaran wajib dipilih',
+                'id_jadwal.exists' => 'Jadwal tidak valid',
                 'alasan.required' => 'Alasan izin wajib diisi ketika tipe "Izin"',
                 'alasan.min' => 'Alasan izin minimal 10 karakter',
             ]);
@@ -471,35 +476,69 @@ class SiswaController extends Controller
                 return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
             }
 
+            // Get jadwal to extract id_guru
+            $jadwal = \App\Models\Jadwal::findOrFail($request->id_jadwal);
+
             // Upload file bukti
             $file = $request->file('bukti_file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('izin', $filename, 'public');
 
-            // Buat record izin
+            // Buat record izin dengan id_guru dari jadwal
             $izin = Izin::create([
                 'id_user' => $user->id_user,
+                'id_guru' => $jadwal->id_guru,
+                'id_jadwal' => $request->id_jadwal,
                 'tanggal' => $request->tanggal,
                 'alasan' => $request->tipe === 'sakit' 
                     ? 'Sakit' 
                     : $request->alasan,
                 'bukti_file' => $path,
-                'status_approval' => 'pending',
             ]);
 
             // Log activity
             $this->logActivity->log(
                 'ajukan_izin',
                 $user->id_user,
-                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal}"
+                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal} ke guru {$jadwal->guru->user->nama}"
             );
 
-            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil dikirim.');
+            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil dikirim ke guru yang bersangkutan.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function getJadwal(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            ]);
+
+            $jadwal = \App\Models\Jadwal::where('id_kelas', $request->id_kelas)
+                ->where('hari', $request->hari)
+                ->with('guru.user')
+                ->orderBy('jam_mulai')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id_jadwal' => $item->id_jadwal,
+                        'mata_pelajaran' => $item->mata_pelajaran,
+                        'jam_mulai' => substr($item->jam_mulai, 0, 5), // HH:MM
+                        'jam_selesai' => substr($item->jam_selesai, 0, 5), // HH:MM
+                        'guru_nama' => $item->guru->user->nama ?? 'Unknown',
+                    ];
+                });
+
+            return response()->json($jadwal);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }
