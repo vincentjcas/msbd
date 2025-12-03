@@ -166,11 +166,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/pembina/materi', [PembinaController::class, 'materiPembelajaran'])->name('pembina.materi')->middleware('role:pembina');
     Route::get('/pembina/materi/{id}/download', [PembinaController::class, 'downloadMateri'])->name('pembina.materi.download')->middleware('role:pembina');
     
-    // Pembina - Manajemen File Materi
-    Route::get('/pembina/file-materi', [PembinaController::class, 'fileMateri'])->name('pembina.file-materi')->middleware('role:pembina');
-    Route::post('/pembina/file-materi/upload', [PembinaController::class, 'uploadFileMateri'])->name('pembina.file-materi.upload')->middleware('role:pembina');
-    Route::delete('/pembina/file-materi/{id}', [PembinaController::class, 'deleteFileMateri'])->name('pembina.file-materi.delete')->middleware('role:pembina');
-    
     // Pembina - Catatan & Rekomendasi
     Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');
     Route::post('/pembina/catatan', [PembinaController::class, 'saveCatatan'])->name('pembina.catatan.save')->middleware('role:pembina');
