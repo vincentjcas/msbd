@@ -63,6 +63,26 @@ class SiswaController extends Controller
         return view('siswa.profile', compact('siswa'));
     }
 
+    public function roster()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
+
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        // Get all jadwal for this student's class, grouped by day
+        $jadwalPerHari = Jadwal::where('id_kelas', $siswa->id_kelas)
+            ->with(['guru.user', 'kelas'])
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+            ->orderBy('jam_mulai')
+            ->get()
+            ->groupBy('hari');
+
+        return view('siswa.roster', compact('jadwalPerHari', 'siswa'));
+    }
+
     public function updateSemester(Request $request)
     {
         $request->validate([

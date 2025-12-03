@@ -106,6 +106,9 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Profile
     Route::get('/siswa/profile', [SiswaController::class, 'profile'])->name('siswa.profile')->middleware('role:siswa');
+    
+    // Siswa Roster/Jadwal
+    Route::get('/siswa/roster', [SiswaController::class, 'roster'])->name('siswa.roster')->middleware('role:siswa');
     Route::post('/siswa/profile/update-semester', [SiswaController::class, 'updateSemester'])->name('siswa.profile.update-semester')->middleware('role:siswa');
     
     // Materi Pembelajaran - daftar materi dan download
