@@ -78,7 +78,7 @@
 
 <div style="margin-top: 2rem;">
     <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary">
-        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+        <i class="fas fa-arrow-left"></i> Kembali
     </a>
 </div>
 

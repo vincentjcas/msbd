@@ -112,7 +112,7 @@
             <!-- Tombol Aksi -->
             <div style="padding: 1.5rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-start;">
                 <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                    <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+                    <i class="fas fa-arrow-left"></i> Kembali
                 </a>
             </div>
         </div>
