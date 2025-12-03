@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // Admin - File Materi
     Route::get('/admin/file-materi', [AdminController::class, 'fileMateri'])->name('admin.file-materi')->middleware('role:admin');
     Route::delete('/admin/file-materi/{id}', [AdminController::class, 'deleteMateri'])->name('admin.file-materi.delete')->middleware('role:admin');
+    Route::delete('/admin/file-materi-bulk', [AdminController::class, 'bulkDeleteMateri'])->name('admin.file-materi.bulk-delete')->middleware('role:admin');
     
     // Admin - Kegiatan Sekolah
     Route::get('/admin/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan')->middleware('role:admin');
