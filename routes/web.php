@@ -82,6 +82,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/admin/pengajuan-izin/{id}/approve', [AdminController::class, 'approveIzin'])->name('admin.pengajuan-izin.approve')->middleware('role:admin');
     Route::post('/admin/pengajuan-izin/{id}/reject', [AdminController::class, 'rejectIzin'])->name('admin.pengajuan-izin.reject')->middleware('role:admin');
     
+    // Admin - Jadwal Pelajaran
+    Route::get('/admin/jadwal', [AdminController::class, 'jadwal'])->name('admin.jadwal')->middleware('role:admin');
+    Route::get('/admin/jadwal/create', [AdminController::class, 'createJadwal'])->name('admin.jadwal.create')->middleware('role:admin');
+    Route::post('/admin/jadwal', [AdminController::class, 'storeJadwal'])->name('admin.jadwal.store')->middleware('role:admin');
+    Route::put('/admin/jadwal/{id}', [AdminController::class, 'updateJadwal'])->name('admin.jadwal.update')->middleware('role:admin');
+    Route::delete('/admin/jadwal/{id}', [AdminController::class, 'deleteJadwal'])->name('admin.jadwal.delete')->middleware('role:admin');
+    
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
     Route::get('/guru/server-time', [GuruController::class, 'getServerTime'])->name('guru.server-time')->middleware('role:guru');
