@@ -74,6 +74,10 @@
         align-items: center;
         justify-content: center;
         font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+    .link-icon i {
+        font-size: 1.5rem;
     }
     .link-title {
         font-weight: 600;
@@ -93,28 +97,19 @@
 
 <!-- Stats Grid -->
 <div class="stats-grid">
-    <!-- Total Guru -->
     <div class="stat-card">
         <div class="stat-label">Total Guru</div>
         <div class="stat-number" style="color: #2563eb;">{{ $totalGuru }}</div>
     </div>
 
-    <!-- Total Siswa -->
     <div class="stat-card">
         <div class="stat-label">Total Siswa</div>
         <div class="stat-number" style="color: #0891b2;">{{ $totalSiswa }}</div>
     </div>
 
-    <!-- Total Pembina -->
     <div class="stat-card">
         <div class="stat-label">Total Pembina</div>
         <div class="stat-number" style="color: #14b8a6;">{{ $totalPembina }}</div>
-    </div>
-
-    <!-- Izin Pending -->
-    <div class="stat-card">
-        <div class="stat-label">Izin Menunggu</div>
-        <div class="stat-number" style="color: #ea580c;">{{ $izinPending }}</div>
     </div>
 </div>
 
@@ -122,7 +117,7 @@
 <div style="margin-top: 2rem;">
     <h2 style="font-size: 1.5rem; font-weight: 700; color: #2d3748; margin-bottom: 1.5rem;">Menu Utama</h2>
     <div class="quick-links">
-        <!-- Grafik Kehadiran -->
+
         <a href="{{ route('kepala_sekolah.grafik-kehadiran') }}" class="link-card">
             <div class="link-icon" style="background: #dbeafe; color: #2563eb;">
                 <i class="fas fa-chart-line"></i>
@@ -133,7 +128,6 @@
             </div>
         </a>
 
-        <!-- Rekap Presensi -->
         <a href="{{ route('kepala_sekolah.rekap-presensi') }}" class="link-card">
             <div class="link-icon" style="background: #cffafe; color: #0891b2;">
                 <i class="fas fa-table"></i>
@@ -144,18 +138,17 @@
             </div>
         </a>
 
-        <!-- Manajemen Izin -->
+        <!-- Diperbaiki: icon fas fa-eye -->
         <a href="{{ route('kepala_sekolah.izin') }}" class="link-card">
             <div class="link-icon" style="background: #ccfbf1; color: #14b8a6;">
-                <i class="fas fa-file-alt"></i>
+                <i class="fas fa-eye"></i>
             </div>
             <div>
-                <div class="link-title">Manajemen Izin</div>
-                <div class="link-desc">Approve/Reject izin</div>
+                <div class="link-title">Lihat Pengajuan Izin</div>
+                <div class="link-desc">Pantau izin siswa</div>
             </div>
         </a>
 
-        <!-- Laporan Aktivitas -->
         <a href="{{ route('kepala_sekolah.laporan') }}" class="link-card">
             <div class="link-icon" style="background: #fed7aa; color: #ea580c;">
                 <i class="fas fa-book"></i>
@@ -166,7 +159,6 @@
             </div>
         </a>
 
-        <!-- Download Rekap -->
         <a href="{{ route('kepala_sekolah.download-rekap') }}" class="link-card">
             <div class="link-icon" style="background: #e0e7ff; color: #6366f1;">
                 <i class="fas fa-download"></i>

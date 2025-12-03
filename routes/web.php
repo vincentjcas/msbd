@@ -39,6 +39,9 @@ Route::post('/register/siswa', [AuthController::class, 'registerSiswa'])->name('
 // API Route untuk cek NIS siswa
 Route::get('/api/check-nis/{nis}', [AuthController::class, 'checkNis'])->name('api.check-nis');
 
+// API Route untuk get jadwal by kelas dan hari
+Route::get('/api/jadwal', [SiswaController::class, 'getJadwal'])->middleware('auth')->name('api.jadwal');
+
 // Legacy register route (redirect ke pilihan)
 Route::get('/register', function() {
     return redirect()->route('register.siswa');
@@ -51,10 +54,10 @@ Route::middleware('auth')->group(function () {
     // Admin Routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware('role:admin');
     
-    // Admin - Verifikasi Guru (DISABLED - Guru langsung aktif tanpa approval)
-    // Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
-    // Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
-    // Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
+    // Admin - Verifikasi Guru
+    Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');
+    Route::post('/admin/verifikasi-guru/{id}/reject', [AdminController::class, 'rejectGuru'])->name('admin.reject-guru')->middleware('role:admin');
     
     // Admin - Verifikasi Siswa Baru (untuk siswa dengan NIS tidak terdaftar di data master)
     Route::get('/admin/verifikasi-siswa', [AdminController::class, 'verifikasiSiswa'])->name('admin.verifikasi-siswa')->middleware('role:admin');
@@ -100,6 +103,11 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
+    
+    // Siswa Profile
+    Route::get('/siswa/profile', [SiswaController::class, 'profile'])->name('siswa.profile')->middleware('role:siswa');
+    Route::post('/siswa/profile/update-semester', [SiswaController::class, 'updateSemester'])->name('siswa.profile.update-semester')->middleware('role:siswa');
+    
     // Materi Pembelajaran - daftar materi dan download
     Route::get('/siswa/materi', [SiswaController::class, 'materi'])->name('siswa.materi')->middleware('role:siswa');
     Route::get('/siswa/materi/{id}/download', [SiswaController::class, 'downloadMateri'])->name('siswa.materi.download')->middleware('role:siswa');
@@ -126,9 +134,11 @@ Route::middleware('auth')->group(function () {
     // Kepala Sekolah - Rekap Presensi
     Route::get('/kepala-sekolah/rekap-presensi', [KepalaSekolahController::class, 'rekapPresensi'])->name('kepala_sekolah.rekap-presensi')->middleware('role:kepala_sekolah');
     
-    // Kepala Sekolah - Manajemen Izin
+    // Kepala Sekolah - Lihat Pengajuan Izin (Read-only)
     Route::get('/kepala-sekolah/izin', [KepalaSekolahController::class, 'izin'])->name('kepala_sekolah.izin')->middleware('role:kepala_sekolah');
-    Route::post('/kepala-sekolah/izin/{id}/approve', [KepalaSekolahController::class, 'approveIzin'])->name('kepala_sekolah.izin.approve')->middleware('role:kepala_sekolah');
+    
+    // Guru - Lihat Pengajuan Izin (hanya siswa di kelas yang diampu)
+    Route::get('/guru/izin', [GuruController::class, 'izin'])->name('guru.izin')->middleware('role:guru');
     
     // Kepala Sekolah - Laporan Aktivitas
     Route::get('/kepala-sekolah/laporan', [KepalaSekolahController::class, 'laporan'])->name('kepala_sekolah.laporan')->middleware('role:kepala_sekolah');
@@ -155,11 +165,6 @@ Route::middleware('auth')->group(function () {
     // Pembina - Materi Pembelajaran
     Route::get('/pembina/materi', [PembinaController::class, 'materiPembelajaran'])->name('pembina.materi')->middleware('role:pembina');
     Route::get('/pembina/materi/{id}/download', [PembinaController::class, 'downloadMateri'])->name('pembina.materi.download')->middleware('role:pembina');
-    
-    // Pembina - Manajemen File Materi
-    Route::get('/pembina/file-materi', [PembinaController::class, 'fileMateri'])->name('pembina.file-materi')->middleware('role:pembina');
-    Route::post('/pembina/file-materi/upload', [PembinaController::class, 'uploadFileMateri'])->name('pembina.file-materi.upload')->middleware('role:pembina');
-    Route::delete('/pembina/file-materi/{id}', [PembinaController::class, 'deleteFileMateri'])->name('pembina.file-materi.delete')->middleware('role:pembina');
     
     // Pembina - Catatan & Rekomendasi
     Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');

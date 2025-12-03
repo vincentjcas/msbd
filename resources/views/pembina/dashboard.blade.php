@@ -96,20 +96,7 @@
             </button>
         </div>
 
-        <!-- 5. File Materi Pembinaan -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-folder-upload"></i> File Materi
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Kelola file materi untuk pembinaan guru dan siswa
-            </p>
-            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.file-materi') }}'">
-                <i class="fas fa-upload"></i> Manajemen File
-            </button>
-        </div>
-
-        <!-- 6. Laporan Aktivitas -->
+        <!-- 5. Laporan Aktivitas -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-contract"></i> Laporan Aktivitas

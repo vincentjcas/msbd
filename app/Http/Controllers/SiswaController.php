@@ -26,34 +26,86 @@ class SiswaController extends Controller
     }
 
     public function dashboard()
-{
-    $user = auth()->user();
-    $siswa = $user->siswa;
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
 
-    if (!$siswa) {
-        return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan atau belum dikaitkan dengan akun ini.');
+        if (!$siswa) {
+            return redirect()->route('login')->with('error', 'Data siswa tidak ditemukan atau belum dikaitkan dengan akun ini.');
 
+        }
+
+        $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
+            ->where('hari', now()->locale('id')->dayName)
+            ->with(['guru.user'])
+            ->get();
+
+        $bulan = date('m');
+        $tahun = date('Y');
+        $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
+
+        $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
+        $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
+        $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
+
+        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
     }
 
-    $jadwalHariIni = Jadwal::where('id_kelas', $siswa->id_kelas)
-        ->where('hari', now()->locale('id')->dayName)
-        ->with(['guru.user'])
-        ->get();
+    public function profile()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
 
-    $bulan = date('m');
-    $tahun = date('Y');
-    $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
 
-    $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
-    $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
-    $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
+        return view('siswa.profile', compact('siswa'));
+    }
 
-    return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
-}
+    public function updateSemester(Request $request)
+    {
+        $request->validate([
+            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,XI Semester Ganjil 2025/2026,XII Semester Ganjil 2025/2026'
+        ], [
+            'semester.in' => 'Semester yang dipilih tidak valid. Hanya semester Ganjil 2025/2026 yang tersedia.'
+        ]);
 
+        try {
+            $user = auth()->user();
+            $siswa = $user->siswa;
 
+            if (!$siswa) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data siswa tidak ditemukan.'
+                ], 404);
+            }
 
-    public function jadwal()
+            $siswa->update([
+                'semester' => $request->semester
+            ]);
+
+            // Log activity
+            $this->logActivity->log(
+                'ubah_semester',
+                $user->id_user,
+                "Mengubah semester menjadi {$request->semester}"
+            );
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Semester berhasil diubah. Halaman akan dimuat ulang.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function viewJadwal()
     {
         $siswa = auth()->user()->siswa;
         $jadwal = Jadwal::where('id_kelas', $siswa->id_kelas)
@@ -73,11 +125,7 @@ class SiswaController extends Controller
             ->orderBy('tanggal', 'desc')
             ->paginate(20);
 
-        $bulan = date('m');
-        $tahun = date('Y');
-        $persentase = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
-
-        return view('siswa.presensi', compact('presensi', 'persentase'));
+        return view('siswa.presensi', compact('presensi'));
     }
 
     public function materi()
@@ -228,17 +276,7 @@ class SiswaController extends Controller
         $izin = Izin::create($data);
         $this->logActivity->log('submit_izin', auth()->user()->id_user, 'Mengajukan izin untuk tanggal: ' . $request->tanggal);
 
-        return redirect()->route('siswa.izin')->with('success', 'Izin berhasil diajukan');
-    }
-
-    public function persentaseKehadiran()
-    {
-        $bulan = request()->input('bulan', date('m'));
-        $tahun = request()->input('tahun', date('Y'));
-
-        $persentase = $this->dbFunction->hitungPersentaseKehadiran(auth()->user()->id_user, $bulan, $tahun);
-
-        return view('siswa.persentase-kehadiran', compact('persentase', 'bulan', 'tahun'));
+        return redirect()->route('siswa.izin')->with('success', 'Izin berhasil dikirim.');
     }
 
     /**
@@ -452,7 +490,9 @@ class SiswaController extends Controller
             $request->validate([
                 'tipe' => 'required|in:sakit,izin',
                 'tanggal' => 'required|date|after_or_equal:today',
-                'alasan' => 'required_if:tipe,izin|string|min:10|max:500',
+                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+                'id_jadwal' => 'required|exists:jadwal_pelajaran,id_jadwal',
+                'alasan' => $request->tipe === 'izin' ? 'required|string|min:10|max:500' : 'nullable|string',
                 'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
             ], [
                 'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
@@ -460,7 +500,10 @@ class SiswaController extends Controller
                 'bukti_file.max' => 'Ukuran file maksimal 5 MB',
                 'tanggal.required' => 'Tanggal izin wajib diisi',
                 'tanggal.after_or_equal' => 'Tanggal izin tidak boleh tanggal yang sudah lewat',
-                'alasan.required_if' => 'Alasan izin wajib diisi ketika tipe "Izin"',
+                'hari.required' => 'Hari pelajaran wajib dipilih',
+                'id_jadwal.required' => 'Jam pelajaran wajib dipilih',
+                'id_jadwal.exists' => 'Jadwal tidak valid',
+                'alasan.required' => 'Alasan izin wajib diisi ketika tipe "Izin"',
                 'alasan.min' => 'Alasan izin minimal 10 karakter',
             ]);
 
@@ -471,35 +514,69 @@ class SiswaController extends Controller
                 return redirect()->back()->with('error', 'Data siswa tidak ditemukan.');
             }
 
+            // Get jadwal to extract id_guru
+            $jadwal = Jadwal::findOrFail($request->id_jadwal);
+
             // Upload file bukti
             $file = $request->file('bukti_file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('izin', $filename, 'public');
 
-            // Buat record izin
+            // Buat record izin dengan id_guru dari jadwal
             $izin = Izin::create([
                 'id_user' => $user->id_user,
+                'id_guru' => $jadwal->id_guru,
+                'id_jadwal' => $request->id_jadwal,
                 'tanggal' => $request->tanggal,
-                'alasan' => $request->tipe === 'sakit' 
-                    ? 'Sakit' 
+                'alasan' => $request->tipe === 'sakit'
+                    ? 'Sakit'
                     : $request->alasan,
                 'bukti_file' => $path,
-                'status_approval' => 'pending',
             ]);
 
             // Log activity
             $this->logActivity->log(
                 'ajukan_izin',
                 $user->id_user,
-                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal}"
+                "Mengajukan izin ({$request->tipe}) untuk tanggal {$request->tanggal} ke guru {$jadwal->guru->user->nama}"
             );
 
-            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil diajukan! Status: PENDING - Menunggu approval dari guru.');
+            return redirect()->route('siswa.dashboard')->with('success', 'Izin berhasil dikirim ke guru yang bersangkutan.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function getJadwal(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_kelas' => 'required|exists:kelas,id_kelas',
+                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            ]);
+
+            $jadwal = Jadwal::where('id_kelas', $request->id_kelas)
+                ->where('hari', $request->hari)
+                ->with('guru.user')
+                ->orderBy('jam_mulai')
+                ->get()
+                ->map(function($item) {
+                    return [
+                        'id_jadwal' => $item->id_jadwal,
+                        'mata_pelajaran' => $item->mata_pelajaran,
+                        'jam_mulai' => substr($item->jam_mulai, 0, 5), // HH:MM
+                        'jam_selesai' => substr($item->jam_selesai, 0, 5), // HH:MM
+                        'guru_nama' => $item->guru->user->nama ?? 'Unknown',
+                    ];
+                });
+
+            return response()->json($jadwal);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('guru', function (Blueprint $table) {
-            $table->dropColumn('mata_pelajaran');
+        Schema::table('siswa', function (Blueprint $table) {
+            $table->string('semester', 100)->nullable()->after('id_kelas');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('guru', function (Blueprint $table) {
-            $table->string('mata_pelajaran', 100)->nullable();
+        Schema::table('siswa', function (Blueprint $table) {
+            $table->dropColumn('semester');
         });
     }
 };

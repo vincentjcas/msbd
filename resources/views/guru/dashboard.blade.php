@@ -60,7 +60,6 @@
                 @elseif($statusAbsen['sudah_masuk'] && !$statusAbsen['sudah_keluar'])
                     <span class="badge bg-warning text-dark">Masuk: {{ $statusAbsen['jam_masuk'] }} | Silakan absen keluar</span>
                 @else
-                    <span class="badge bg-info">Silakan absen masuk</span>
                 @endif
             </div>
             
@@ -98,55 +97,29 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mencatat kehadiran siswa sesuai kelas yang diampu
             </p>
-            <div style="margin-top: 42px;">
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
                 <button class="btn btn-primary btn-sm" onclick="alert('Fitur absen siswa akan tersedia')">
                     <i class="fas fa-check-square"></i> Isi Absen
                 </button>
             </div>
         </div>
 
-        <!-- 3. Konfirmasi Rapat Otomatis -->
+        <!-- 3. Lihat Pengajuan Izin -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-users"></i> Konfirmasi Rapat
+                <i class="fas fa-file-alt"></i> Lihat Pengajuan Izin
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Otomatis mengkonfirmasi kehadiran berdasarkan jadwal yang aktif
+                Pantau pengajuan izin siswa untuk kelas yang Anda ampu
             </p>
-            <div style="margin-top: 42px;">
-                <span class="badge badge-success">Otomatis Terkonfirmasi</span>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                <a href="{{ route('guru.izin') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> Lihat Pengajuan
+                </a>
             </div>
         </div>
 
-        <!-- 4. Tolak Pengajuan Izin -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-times-circle"></i> Tolak Izin Siswa
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Menolak pengajuan izin siswa dengan notifikasi otomatis
-            </p>
-            <div style="margin-top: 42px;">
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur tolak izin akan tersedia')">
-                    <i class="fas fa-list"></i> Lihat Pengajuan
-                </button>
-            </div>
-        </div>
-
-        <!-- 5. Upload Materi -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-cloud-upload-alt"></i> Upload Materi
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Mengunggah materi pelajaran (PDF, PPT, DOCX, dll) sesuai mata pelajaran
-            </p>
-            <a href="{{ route('guru.materi.create') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-upload"></i> Upload File
-            </a>
-        </div>
-
-        <!-- 6. Kelola Tugas -->
+        <!-- 4. Kelola Tugas -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-tasks"></i> Kelola Tugas
@@ -154,15 +127,14 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Membuat tugas, melihat pengumpulan, dan memberikan nilai
             </p>
-            <a href="{{ route('guru.tugas') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-list"></i> Lihat Tugas
-            </a>
-            <a href="{{ route('guru.tugas.create') }}" class="btn btn-success btn-sm" style="margin-left: 0.5rem;">
-                <i class="fas fa-plus"></i> Buat Tugas
-            </a>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                <a href="{{ route('guru.tugas') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-list"></i> Lihat Tugas
+                </a>
+            </div>
         </div>
 
-        <!-- 7. Lihat Data Kehadiran -->
+        <!-- 5. Lihat Data Kehadiran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-bar"></i> Data Kehadiran
@@ -170,12 +142,14 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Melihat data kehadiran per kelas atau per bulan
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur data kehadiran akan tersedia')">
-                <i class="fas fa-eye"></i> Lihat Data
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary btn-sm" onclick="alert('Fitur data kehadiran akan tersedia')">
+                    <i class="fas fa-eye"></i> Lihat Data
+                </button>
+            </div>
         </div>
 
-        <!-- 8. Update/Hapus Materi -->
+        <!-- 6. Kelola Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-edit"></i> Kelola Materi
@@ -183,12 +157,14 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Memperbarui atau menghapus file materi pembelajaran
             </p>
-            <a href="{{ route('guru.materi') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-cog"></i> Kelola
-            </a>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ route('guru.materi') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-cog"></i> Kelola
+                </a>
+            </div>
         </div>
 
-        <!-- 9. Laporan Bulanan -->
+        <!-- 7. Laporan Bulanan -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-alt"></i> Laporan Bulanan
@@ -196,9 +172,11 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Melihat rekap kehadiran per bulan untuk evaluasi
             </p>
-            <button class="btn btn-primary btn-sm" onclick="alert('Fitur laporan akan tersedia')">
-                <i class="fas fa-download"></i> Download Laporan
-            </button>
+            <div style="display: flex; gap: 0.5rem;">
+                <button class="btn btn-primary btn-sm" onclick="alert('Fitur laporan akan tersedia')">
+                    <i class="fas fa-download"></i> Download Laporan
+                </button>
+            </div>
         </div>
     </div>
 </div>

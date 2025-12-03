@@ -30,9 +30,8 @@ class KepalaSekolahController extends Controller
         $totalGuru = User::where('role', 'guru')->count();
         $totalSiswa = User::where('role', 'siswa')->count();
         $totalPembina = User::where('role', 'pembina')->count();
-        $izinPending = Izin::where('status_approval', 'pending')->count();
 
-        return view('kepala_sekolah.dashboard', compact('totalGuru', 'totalSiswa', 'totalPembina', 'izinPending'));
+        return view('kepala_sekolah.dashboard', compact('totalGuru', 'totalSiswa', 'totalPembina'));
     }
 
     public function grafikKehadiran(Request $request)
@@ -72,7 +71,7 @@ class KepalaSekolahController extends Controller
 
     public function izin()
     {
-        $izinList = Izin::with(['user', 'approver'])
+        $izinList = Izin::with(['user.siswa.kelas', 'guru.user', 'jadwal'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 

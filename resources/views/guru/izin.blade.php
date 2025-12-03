@@ -211,7 +211,7 @@
 <div class="izin-wrapper">
 
     <h2 class="section-title">Lihat Pengajuan Izin</h2>
-    <p class="section-desc">Pantau semua pengajuan izin siswa dan guru</p>
+    <p class="section-desc">Pantau pengajuan izin siswa di kelas yang Anda ampu</p>
 
     @if($izinList->count() > 0)
     <div class="izin-table-wrapper">
@@ -221,7 +221,6 @@
                     <th>No</th>
                     <th>Nama</th>
                     <th>Kelas</th>
-                    <th>Diajukan Ke</th>
                     <th>Jenis Izin</th>
                     <th>Alasan / Keterangan</th>
                     <th>Tanggal</th>
@@ -230,68 +229,46 @@
             </thead>
             <tbody>
                 @foreach($izinList as $index => $izin)
-                    <tr>
-                        <!-- No -->
-                        <td class="cell-no">{{ $index + 1 }}</td>
-
-                        <!-- Nama & Role -->
-                        <td>
-                            <div class="cell-user">
-                                <div class="avatar-box">
-                                    {{ strtoupper(substr($izin->user->nama_lengkap ?? $izin->user->name, 0, 1)) }}
-                                </div>
-                                <div class="user-info">
-                                    <span class="user-name">{{ $izin->user->nama_lengkap ?? $izin->user->name }}</span>
-                                </div>
+                <tr>
+                    <td class="cell-no">{{ $index + 1 }}</td>
+                    <td>
+                        <div class="cell-user">
+                            <div class="avatar-box">
+                                {{ strtoupper(substr($izin->user->nama_lengkap ?? $izin->user->name, 0, 1)) }}
                             </div>
-                        </td>
-
-                        <!-- Kelas -->
-                        <td>
-                            <span class="user-role">
-                                {{ $izin->user->siswa && $izin->user->siswa->kelas ? ($izin->user->siswa->kelas->nama_kelas ?? '-') : '-' }}
-                            </span>
-                        </td>
-
-                        <!-- Diajukan Ke (Guru) -->
-                        <td>
-                            <span class="user-role">
-                                {{ $izin->guru && $izin->guru->user ? $izin->guru->user->nama : '-' }}
-                            </span>
-                        </td>
-
-                        <!-- Jenis Izin -->
-                        <td>
-                            @if($izin->alasan === 'Sakit')
-                                <span class="badge-izin badge-sakit">Sakit</span>
-                            @else
-                                <span class="badge-izin badge-umum">Izin</span>
-                            @endif
-                        </td>
-
-                        <!-- Alasan / Keterangan -->
-                        <td class="cell-alasan">
-                            @if($izin->alasan === 'Sakit')
-                                -
-                            @else
-                                {{ $izin->alasan }}
-                            @endif
-                        </td>
-
-                        <!-- Tanggal -->
-                        <td class="cell-tanggal">
-                            {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y, H:i') : '-' }}
-                        </td>
-
-                        <!-- Bukti File -->
-                        <td class="cell-aksi">
-                            @if($izin->bukti_file)
-                                <a class="btn-lihat-bukti" href="{{ asset('storage/' . $izin->bukti_file) }}" target="_blank">Lihat Bukti</a>
-                            @else
-                                <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
-                            @endif
-                        </td>
-                    </tr>
+                            <div class="user-info">
+                                <span class="user-name">{{ $izin->user->nama_lengkap ?? $izin->user->name }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="user-role">{{ $izin->user->siswa && $izin->user->siswa->kelas ? ($izin->user->siswa->kelas->nama_kelas ?? '-') : '-' }}</span>
+                    </td>
+                    <td>
+                        @if($izin->alasan === 'Sakit')
+                            <span class="badge-izin badge-sakit">Sakit</span>
+                        @else
+                            <span class="badge-izin badge-umum">Izin</span>
+                        @endif
+                    </td>
+                    <td class="cell-alasan">
+                        @if($izin->alasan === 'Sakit')
+                            -
+                        @else
+                            {{ $izin->alasan }}
+                        @endif
+                    </td>
+                    <td class="cell-tanggal">
+                        {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y, H:i') : '-' }}
+                    </td>
+                    <td class="cell-aksi">
+                        @if($izin->bukti_file)
+                            <a class="btn-lihat-bukti" href="{{ asset('storage/' . $izin->bukti_file) }}" target="_blank">Lihat Bukti</a>
+                        @else
+                            <span style="color: #94a3b8; font-size: 0.85rem;">-</span>
+                        @endif
+                    </td>
+                </tr>
                 @endforeach
             </tbody>
         </table>

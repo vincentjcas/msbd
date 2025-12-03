@@ -29,15 +29,15 @@ class AuthController extends Controller
     {
         $request->validate([
             'identifier' => 'required|string',
-            'password' => 'required',
+            'password' => 'required|string',
         ], [
-            'identifier.required' => 'Email/NIS/NIP wajib diisi.',
+            'identifier.required' => 'Email/NIS wajib diisi.',
             'password.required' => 'Password wajib diisi.',
         ]);
 
         $identifier = $request->identifier;
         $password = $request->password;
-        
+
         $user = null;
 
         // Auto-detect: Coba cari di tabel siswa dulu (berdasarkan NIS)
@@ -48,18 +48,8 @@ class AuthController extends Controller
                        ->first();
         }
 
-        // Kalau tidak ketemu, coba cari di tabel guru (berdasarkan NIP)
-        if (!$user) {
-            $guru = Guru::where('nip', $identifier)->first();
-            if ($guru) {
-                $user = User::where('id_user', $guru->id_user)
-                           ->where('role', 'guru')
-                           ->first();
-            }
-        }
-
-        // Kalau masih tidak ketemu, coba cari di tabel users langsung (berdasarkan email atau username)
-        // Ini untuk cover siswa/guru yang login pakai email, atau admin/kepsek/pembina
+        // Kalau tidak ketemu, coba cari di tabel users langsung (berdasarkan email atau username)
+        // Ini untuk cover guru, admin, kepsek, pembina yang login pakai email
         if (!$user) {
             $user = User::where(function($query) use ($identifier) {
                 $query->where('email', $identifier)
@@ -70,7 +60,7 @@ class AuthController extends Controller
         // Cek apakah user ditemukan dan password cocok
         if (!$user || !Hash::check($password, $user->password)) {
             return back()->withErrors([
-                'identifier' => 'Email/NIS/NIP atau password salah.',
+                'identifier' => 'Email/NIS atau password salah.',
             ])->withInput();
         }
 
@@ -113,10 +103,10 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
-        
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        
+
         return redirect()->route('login');
     }
 
@@ -142,10 +132,11 @@ class AuthController extends Controller
      */
     public function registerGuru(Request $request)
     {
+        // Validasi dengan custom rule untuk no_hp yang cek relasi dengan user
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email',
-            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:guru,no_hp|max:20',
+            'no_hp' => 'required|string|regex:/^[0-9]{10,15}$/|unique:users,no_hp|max:20',
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'password' => 'required|confirmed|min:6',
@@ -157,7 +148,6 @@ class AuthController extends Controller
             'email.unique' => 'Email sudah terdaftar.',
             'no_hp.required' => 'Nomor HP wajib diisi.',
             'no_hp.regex' => 'Nomor HP harus berisi 10-15 digit angka.',
-            'no_hp.unique' => 'Nomor HP sudah terdaftar.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'agama.required' => 'Agama wajib dipilih.',
             'password.required' => 'Password wajib diisi.',
@@ -171,14 +161,14 @@ class AuthController extends Controller
             $baseUsername = strtolower(explode('@', $request->email)[0]);
             $username = $baseUsername;
             $counter = 1;
-            
+
             // Jika username sudah ada, tambahkan angka
             while (User::where('username', $username)->exists()) {
                 $username = $baseUsername . $counter;
                 $counter++;
             }
 
-            // Buat user - GURU LANGSUNG AKTIF (status_aktif = 1)
+            // Buat user - GURU MENUNGGU APPROVAL (status_approval = pending)
             $user = User::create([
                 'username' => $username,
                 'nama_lengkap' => $request->name,
@@ -186,7 +176,8 @@ class AuthController extends Controller
                 'password' => Hash::make($request->password),
                 'role' => 'guru',
                 'no_hp' => $request->no_hp,
-                'status_aktif' => 1, // ✅ Langsung aktif tanpa approval
+                'status_aktif' => 1,
+                'status_approval' => 'pending', // ✅ Menunggu approval admin
             ]);
 
             // Buat data guru
@@ -194,12 +185,15 @@ class AuthController extends Controller
                 'id_user' => $user->id_user,
                 'jenis_kelamin' => $request->jenis_kelamin,
                 'agama' => $request->agama,
-                'no_hp' => $request->no_hp,
             ]);
 
             DB::commit();
 
-            return redirect()->route('login')->with('success', 'Registrasi berhasil! Silakan login dengan email dan password Anda.');
+            return redirect()->route('login')->with('success_sweet', [
+                'title' => 'Registrasi Berhasil!',
+                'message' => 'Akun Anda telah dibuat dan menunggu persetujuan dari admin. Anda akan dapat login setelah admin menyetujui akun Anda.',
+                'icon' => 'success'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -213,7 +207,7 @@ class AuthController extends Controller
     {
         // Cek apakah NIS ada di data master untuk conditional validation
         $siswaMasterExists = DataSiswaMaster::where('nis', $request->nis)->exists();
-        
+
         $rules = [
             'nis' => 'required|string|unique:siswa,nis|max:20',
             'email' => 'required|email|unique:users,email',
@@ -223,16 +217,17 @@ class AuthController extends Controller
             'jenis_kelamin' => 'required|in:L,P',
             'agama' => 'required|string|max:50',
             'id_kelas' => 'required|exists:kelas,id_kelas',
+            'semester' => 'required|string|in:X Semester Ganjil 2025/2026,XI Semester Ganjil 2025/2026,XII Semester Ganjil 2025/2026',
             'sekolah_asal' => 'required|string|max:200',
             'alamat' => 'required|string|max:500',
             'password' => 'required|confirmed|min:6',
         ];
-        
+
         // Jika NIS TIDAK ada di data master, maka name WAJIB diisi
         if (!$siswaMasterExists) {
             $rules['name'] = 'required|string|max:255';
         }
-        
+
         $request->validate($rules, [
             'nis.required' => 'NIS wajib diisi.',
             'nis.unique' => 'NIS sudah terdaftar.',
@@ -250,6 +245,8 @@ class AuthController extends Controller
             'agama.required' => 'Agama wajib dipilih.',
             'id_kelas.required' => 'Kelas wajib dipilih.',
             'id_kelas.exists' => 'Kelas tidak valid.',
+            'semester.required' => 'Semester wajib dipilih.',
+            'semester.in' => 'Semester tidak valid. Hanya semester Ganjil 2025/2026 yang tersedia.',
             'sekolah_asal.required' => 'Sekolah asal wajib diisi.',
             'alamat.required' => 'Alamat wajib diisi.',
             'alamat.max' => 'Alamat maksimal 500 karakter.',
@@ -262,11 +259,11 @@ class AuthController extends Controller
         try {
             // Cek apakah NIS ada di data master
             $siswaMaster = DataSiswaMaster::where('nis', $request->nis)->first();
-            
+
             // Tentukan status aktif berdasarkan apakah NIS terdaftar di data master
             // NIS terdaftar = langsung aktif, NIS tidak terdaftar = pending approval
             $statusAktif = $siswaMaster ? 1 : 0;
-            
+
             // Generate nama_lengkap dari data master atau dari input form
             $namaLengkap = $siswaMaster ? $siswaMaster->nama_siswa : $request->name;
 
@@ -292,6 +289,7 @@ class AuthController extends Controller
                 'tempat_lahir' => $request->tempat_lahir,
                 'tanggal_lahir' => $request->tanggal_lahir,
                 'id_kelas' => $request->id_kelas,
+                'semester' => $request->semester,
                 'sekolah_asal' => $request->sekolah_asal,
                 'alamat' => $request->alamat,
                 'no_hp' => $request->no_hp,

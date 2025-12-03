@@ -12,19 +12,16 @@ class Izin extends Model
 
     protected $fillable = [
         'id_user',
+        'id_guru',
+        'id_jadwal',
         'tanggal',
         'alasan',
         'bukti_file',
-        'status_approval',
-        'disetujui_oleh',
-        'catatan_approval',
-        'approved_at',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
         'created_at' => 'datetime',
-        'approved_at' => 'datetime',
     ];
 
     // Relationships
@@ -33,24 +30,15 @@ class Izin extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
-    public function approver()
+    public function guru()
     {
-        return $this->belongsTo(User::class, 'disetujui_oleh', 'id_user');
+        return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
     }
 
-    // Scopes
-    public function scopePending($query)
+    public function jadwal()
     {
-        return $query->where('status_approval', 'pending');
+        return $this->belongsTo(Jadwal::class, 'id_jadwal', 'id_jadwal');
     }
 
-    public function scopeApproved($query)
-    {
-        return $query->where('status_approval', 'approved');
-    }
-
-    public function scopeRejected($query)
-    {
-        return $query->where('status_approval', 'rejected');
-    }
+    // (Relasi dan scope status dihapus karena sudah tidak dipakai)
 }

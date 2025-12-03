@@ -80,7 +80,6 @@ class PembinaController extends Controller
     public function statusJadwal()
     {
         $jadwal = Jadwal::with(['kelas', 'guru.user'])
-            ->where('is_active', true)
             ->orderBy('hari')
             ->orderBy('jam_mulai')
             ->get();
@@ -94,7 +93,7 @@ class PembinaController extends Controller
 
     public function reviewMateri()
     {
-        $materi = Materi::with(['jadwal.kelas', 'jadwal.guru.user'])
+        $materi = Materi::with(['kelas', 'guru.user'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
@@ -226,14 +225,14 @@ class PembinaController extends Controller
     public function materiPembelajaran()
     {
         try {
-            $materi = Materi::with(['guru', 'kelas'])
-                ->orderBy('created_at', 'desc')
+            $materi = Materi::with(['guru.user', 'kelas'])
+                ->orderBy('uploaded_at', 'desc')
                 ->paginate(20);
 
             return view('pembina.materi', compact('materi'));
         } catch (\Exception $e) {
             \Log::error('Error in materiPembelajaran: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengambil data materi');
+            return back()->with('error', 'Gagal mengambil data materi: ' . $e->getMessage());
         }
     }
 
@@ -257,77 +256,6 @@ class PembinaController extends Controller
     }
 
     /**
-     * File Materi - Upload & Manage
-     */
-    public function fileMateri()
-    {
-        try {
-            // Cek jika pembina punya folder materi sendiri
-            $fileMateriBaru = [];
-            $materiFolder = storage_path('app/pembina-materi');
-            
-            if (is_dir($materiFolder)) {
-                $files = scandir($materiFolder);
-                foreach ($files as $file) {
-                    if ($file !== '.' && $file !== '..' && is_file($materiFolder . '/' . $file)) {
-                        $fileMateriBaru[] = [
-                            'name' => $file,
-                            'path' => 'pembina-materi/' . $file,
-                            'size' => filesize($materiFolder . '/' . $file),
-                            'time' => filemtime($materiFolder . '/' . $file)
-                        ];
-                    }
-                }
-            }
-
-            return view('pembina.file-materi', compact('fileMateriBaru'));
-        } catch (\Exception $e) {
-            \Log::error('Error in fileMateri: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengambil data file');
-        }
-    }
-
-    /**
-     * Upload File Materi
-     */
-    public function uploadFileMateri(Request $request)
-    {
-        try {
-            $request->validate([
-                'file' => 'required|file|max:50000|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,jpg,jpeg,png,zip'
-            ]);
-
-            $folder = 'pembina-materi';
-            $path = $request->file('file')->store($folder);
-
-            return back()->with('success', 'File berhasil diupload');
-        } catch (\Exception $e) {
-            \Log::error('Error in uploadFileMateri: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengupload file: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Delete File Materi
-     */
-    public function deleteFileMateri($id)
-    {
-        try {
-            // Decode id yang di-encode
-            $filePath = base64_decode($id);
-            
-            if (Storage::exists($filePath)) {
-                Storage::delete($filePath);
-                return back()->with('success', 'File berhasil dihapus');
-            }
-
-            return back()->with('error', 'File tidak ditemukan');
-        } catch (\Exception $e) {
-            \Log::error('Error in deleteFileMateri: ' . $e->getMessage());
-            return back()->with('error', 'Gagal menghapus file');
-        }
-    }
-
     /**
      * Laporan Aktivitas
      */
