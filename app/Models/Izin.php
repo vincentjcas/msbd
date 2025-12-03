@@ -22,7 +22,6 @@ class Izin extends Model
     protected $casts = [
         'tanggal' => 'date',
         'created_at' => 'datetime',
-        'approved_at' => 'datetime',
     ];
 
     // Relationships
