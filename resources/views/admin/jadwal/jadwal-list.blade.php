@@ -23,11 +23,16 @@
 @endif
 
 <div class="content-section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
         <h3 class="section-title" style="margin: 0;"><i class="fas fa-list"></i> Daftar Jadwal</h3>
-        <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Tambah Jadwal
-        </a>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <a href="{{ route('admin.jadwal.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-plus"></i> Tambah Jadwal
+            </a>
+        </div>
     </div>
 
     @if($jadwal->count() > 0)
@@ -215,13 +220,6 @@
         </a>
     </div>
     @endif
-
-    <!-- Tombol Aksi -->
-    <div style="padding: 1.5rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-start; margin-top: 2rem; border-radius: 0 0 10px 10px;">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-    </div>
 </div>
 
 <!-- Edit Modal -->
