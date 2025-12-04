@@ -191,7 +191,7 @@ class SiswaController extends Controller
             return $t;
         });
 
-        return view('siswa.tugas.index', compact('tugasWithStatus'));
+        return view('siswa.tugas.tugas-siswa-list', compact('tugasWithStatus'));
     }
 
     public function detailTugas($id)

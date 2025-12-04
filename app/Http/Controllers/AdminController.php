@@ -210,7 +210,7 @@ class AdminController extends Controller
     public function jadwal()
     {
         $jadwal = Jadwal::with(['kelas', 'guru.user'])->orderBy('hari')->get();
-        return view('admin.jadwal.index', compact('jadwal'));
+        return view('admin.jadwal.jadwal-list', compact('jadwal'));
     }
 
     public function createJadwal()
@@ -561,7 +561,7 @@ class AdminController extends Controller
     public function kegiatan()
     {
         $kegiatan = \App\Models\Kegiatan::orderBy('tanggal', 'desc')->paginate(20);
-        return view('admin.kegiatan.index', compact('kegiatan'));
+        return view('admin.kegiatan.kegiatan-list', compact('kegiatan'));
     }
 
     /**
