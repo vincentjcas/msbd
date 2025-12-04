@@ -8,7 +8,7 @@ class BackupLog extends Model
 {
     protected $table = 'backup_log';
     protected $primaryKey = 'id_backup';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'nama_file',

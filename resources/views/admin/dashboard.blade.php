@@ -244,9 +244,9 @@
                 Mengelola dan melakukan backup database secara berkala untuk keamanan data
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur backup akan tersedia')">
-                    <i class="fas fa-download"></i> Backup Now
-                </button>
+                <a href="{{ route('admin.backup') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-download"></i> Kelola Backup
+                </a>
             </div>
         </div>
     </div>
@@ -265,7 +265,13 @@
         </div>
         <div style="padding: 1rem; background: #f7fafc; border-radius: 8px;">
             <strong style="color: #4a5568;">Last Backup:</strong>
-            <span style="color: #2d3748; margin-left: 0.5rem;">-</span>
+            <span style="color: #2d3748; margin-left: 0.5rem;">
+                @if($lastBackup)
+                    {{ $lastBackup->created_at->format('d M Y, H:i') }}
+                @else
+                    -
+                @endif
+            </span>
         </div>
         <div style="padding: 1rem; background: #f7fafc; border-radius: 8px;">
             <strong style="color: #4a5568;">Laravel Version:</strong>

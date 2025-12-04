@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('lokasi_file', 500)->nullable();
             $table->unsignedBigInteger('dibuat_oleh');
             $table->text('keterangan')->nullable();
-            $table->timestamp('created_at')->useCurrent();
+            $table->timestamps();
 
             $table->foreign('dibuat_oleh')->references('id_user')->on('users')
                   ->onDelete('cascade')->onUpdate('cascade');

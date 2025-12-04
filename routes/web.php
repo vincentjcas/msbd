@@ -89,6 +89,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/admin/jadwal/{id}', [AdminController::class, 'updateJadwal'])->name('admin.jadwal.update')->middleware('role:admin');
     Route::delete('/admin/jadwal/{id}', [AdminController::class, 'deleteJadwal'])->name('admin.jadwal.delete')->middleware('role:admin');
     
+    // Admin - Backup Database
+    Route::get('/admin/backup', [AdminController::class, 'backup'])->name('admin.backup')->middleware('role:admin');
+    Route::post('/admin/backup/create', [AdminController::class, 'createBackup'])->name('admin.backup.create')->middleware('role:admin');
+    Route::get('/admin/backup/download/{id}', [AdminController::class, 'downloadBackup'])->name('admin.backup.download')->middleware('role:admin');
+    Route::delete('/admin/backup/{id}', [AdminController::class, 'deleteBackup'])->name('admin.backup.delete')->middleware('role:admin');
+    
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
     Route::get('/guru/server-time', [GuruController::class, 'getServerTime'])->name('guru.server-time')->middleware('role:guru');
