@@ -32,8 +32,9 @@ class AdminController extends Controller
         $totalKelas = Kelas::count();
         $pendingSiswa = User::where('role', 'siswa')->where('status_aktif', 0)->count();
         $pendingGuru = User::where('role', 'guru')->where('status_approval', 'pending')->count();
+        $lastBackup = BackupLog::latest()->first();
         
-        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingSiswa', 'pendingGuru'));
+        return view('admin.dashboard', compact('totalUsers', 'totalGuru', 'totalSiswa', 'totalKelas', 'pendingSiswa', 'pendingGuru', 'lastBackup'));
     }
 
     public function users()
@@ -282,36 +283,163 @@ class AdminController extends Controller
                 mkdir(storage_path('app/backups'), 0755, true);
             }
 
-            $command = sprintf(
-                'mysqldump -h %s -u %s -p%s %s > %s',
-                config('database.connections.mysql.host'),
-                config('database.connections.mysql.username'),
-                config('database.connections.mysql.password'),
-                config('database.connections.mysql.database'),
-                $backupPath
-            );
+            // Get database credentials
+            $host = config('database.connections.mysql.host');
+            $username = config('database.connections.mysql.username');
+            $password = config('database.connections.mysql.password');
+            $database = config('database.connections.mysql.database');
+
+            // Build mysqldump command with CUSTOM export options (same as phpMyAdmin custom export)
+            $mysqldumpOptions = [
+                '--host=' . escapeshellarg($host),
+                '--user=' . escapeshellarg($username),
+                '--password=' . escapeshellarg($password),
+                '--single-transaction',           // Enclose export in a transaction
+                '--routines',                      // Include stored procedures and functions
+                '--triggers',                      // Include triggers
+                '--events',                        // Include events
+                '--add-drop-database',            // Add DROP DATABASE statement
+                '--add-drop-table',               // Add DROP TABLE/VIEW statement
+                '--databases ' . escapeshellarg($database), // Include CREATE DATABASE / USE statement
+                '--hex-blob',                     // Dump binary columns in hexadecimal notation
+                '--tz-utc',                       // Dump TIMESTAMP in UTC
+                '--complete-insert',              // Include column names in INSERT statements
+                '--extended-insert',              // Use multiple-row INSERT syntax
+                '--quote-names',                  // Enclose table/column names with backticks
+                '--add-locks',                    // Add LOCK TABLES statements
+                '--create-options',               // Include all table creation options
+                '--disable-keys',                 // Speed up import with /*!40000 ALTER TABLE ... DISABLE KEYS */
+                '--result-file=' . escapeshellarg($backupPath),
+            ];
+
+            $command = 'mysqldump ' . implode(' ', $mysqldumpOptions) . ' 2>&1';
 
             exec($command, $output, $returnVar);
 
-            if ($returnVar === 0 && file_exists($backupPath)) {
+            if ($returnVar === 0 && file_exists($backupPath) && filesize($backupPath) > 0) {
+                
+                // Append Views to backup file (mysqldump doesn't handle views well)
+                $this->appendViewsToBackup($backupPath, $database);
+                
                 $fileSize = filesize($backupPath);
                 
-                BackupLog::create([
+                $backup = BackupLog::create([
                     'nama_file' => $filename,
                     'ukuran_file' => $fileSize,
                     'lokasi_file' => $backupPath,
                     'dibuat_oleh' => auth()->user()->id_user,
-                    'keterangan' => 'Backup database otomatis',
+                    'keterangan' => 'Backup database custom (Procedures, Functions, Triggers, Views)',
                 ]);
 
                 $this->logActivity->log('backup', auth()->user()->id_user, 'Backup database berhasil dibuat: ' . $filename);
 
-                return redirect()->route('admin.backup')->with('success', 'Backup berhasil dibuat');
+                return redirect()->route('admin.backup')->with('success', 'Backup berhasil dibuat! Klik download untuk mengunduh file.');
             } else {
-                return back()->with('error', 'Gagal membuat backup');
+                // Delete failed backup file if exists
+                if (file_exists($backupPath)) {
+                    unlink($backupPath);
+                }
+                
+                $errorMsg = implode("\n", $output);
+                return back()->with('error', 'Gagal membuat backup. ' . $errorMsg);
             }
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal membuat backup: ' . $e->getMessage());
+        }
+    }
+
+    private function appendViewsToBackup($backupPath, $database)
+    {
+        try {
+            // Get all views from database
+            $views = DB::select("SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = ?", [$database]);
+            
+            if (empty($views)) {
+                return; // No views to export
+            }
+
+            $viewsContent = "\n\n-- --------------------------------------------------------\n";
+            $viewsContent .= "-- Views exported as TABLES (for compatibility)\n";
+            $viewsContent .= "-- --------------------------------------------------------\n\n";
+
+            foreach ($views as $view) {
+                $viewName = $view->TABLE_NAME;
+                
+                // Get view structure
+                $createView = DB::select("SHOW CREATE TABLE `{$viewName}`");
+                
+                if (!empty($createView)) {
+                    $viewsContent .= "-- --------------------------------------------------------\n\n";
+                    $viewsContent .= "-- Table structure for table `{$viewName}`\n";
+                    $viewsContent .= "--\n\n";
+                    $viewsContent .= "DROP TABLE IF EXISTS `{$viewName}`;\n";
+                    
+                    // Get columns
+                    $columns = DB::select("DESCRIBE `{$viewName}`");
+                    $viewsContent .= "CREATE TABLE IF NOT EXISTS `{$viewName}` (\n";
+                    
+                    $columnDefs = [];
+                    foreach ($columns as $column) {
+                        $columnDef = "  `{$column->Field}` {$column->Type}";
+                        if ($column->Null === 'NO') {
+                            $columnDef .= " NOT NULL";
+                        }
+                        if ($column->Default !== null) {
+                            $columnDef .= " DEFAULT '{$column->Default}'";
+                        }
+                        $columnDefs[] = $columnDef;
+                    }
+                    
+                    $viewsContent .= implode(",\n", $columnDefs);
+                    $viewsContent .= "\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\n";
+                }
+            }
+
+            // Append to backup file
+            file_put_contents($backupPath, $viewsContent, FILE_APPEND);
+            
+        } catch (\Exception $e) {
+            // If views export fails, continue without them
+            // Log the error but don't fail the whole backup
+            \Log::warning('Failed to export views: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadBackup($id)
+    {
+        try {
+            $backup = BackupLog::findOrFail($id);
+            
+            if (!file_exists($backup->lokasi_file)) {
+                return back()->with('error', 'File backup tidak ditemukan');
+            }
+
+            $this->logActivity->log('download_backup', auth()->user()->id_user, 'Download backup: ' . $backup->nama_file);
+
+            return response()->download($backup->lokasi_file, $backup->nama_file);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal download backup: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteBackup($id)
+    {
+        try {
+            $backup = BackupLog::findOrFail($id);
+            
+            // Delete physical file
+            if (file_exists($backup->lokasi_file)) {
+                unlink($backup->lokasi_file);
+            }
+
+            $this->logActivity->log('delete_backup', auth()->user()->id_user, 'Hapus backup: ' . $backup->nama_file);
+
+            // Delete record
+            $backup->delete();
+
+            return redirect()->route('admin.backup')->with('success', 'Backup berhasil dihapus');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal hapus backup: ' . $e->getMessage());
         }
     }
 
