@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // Admin - File Materi
     Route::get('/admin/file-materi', [AdminController::class, 'fileMateri'])->name('admin.file-materi')->middleware('role:admin');
     Route::delete('/admin/file-materi/{id}', [AdminController::class, 'deleteMateri'])->name('admin.file-materi.delete')->middleware('role:admin');
+    Route::delete('/admin/file-materi-bulk', [AdminController::class, 'bulkDeleteMateri'])->name('admin.file-materi.bulk-delete')->middleware('role:admin');
     
     // Admin - Kegiatan Sekolah
     Route::get('/admin/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan')->middleware('role:admin');
@@ -80,6 +81,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/pengajuan-izin', [AdminController::class, 'pengajuanIzin'])->name('admin.pengajuan-izin')->middleware('role:admin');
     Route::post('/admin/pengajuan-izin/{id}/approve', [AdminController::class, 'approveIzin'])->name('admin.pengajuan-izin.approve')->middleware('role:admin');
     Route::post('/admin/pengajuan-izin/{id}/reject', [AdminController::class, 'rejectIzin'])->name('admin.pengajuan-izin.reject')->middleware('role:admin');
+    
+    // Admin - Jadwal Pelajaran
+    Route::get('/admin/jadwal', [AdminController::class, 'jadwal'])->name('admin.jadwal')->middleware('role:admin');
+    Route::get('/admin/jadwal/create', [AdminController::class, 'createJadwal'])->name('admin.jadwal.create')->middleware('role:admin');
+    Route::post('/admin/jadwal', [AdminController::class, 'storeJadwal'])->name('admin.jadwal.store')->middleware('role:admin');
+    Route::put('/admin/jadwal/{id}', [AdminController::class, 'updateJadwal'])->name('admin.jadwal.update')->middleware('role:admin');
+    Route::delete('/admin/jadwal/{id}', [AdminController::class, 'deleteJadwal'])->name('admin.jadwal.delete')->middleware('role:admin');
     
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
@@ -106,6 +114,9 @@ Route::middleware('auth')->group(function () {
     
     // Siswa Profile
     Route::get('/siswa/profile', [SiswaController::class, 'profile'])->name('siswa.profile')->middleware('role:siswa');
+    
+    // Siswa Roster/Jadwal
+    Route::get('/siswa/roster', [SiswaController::class, 'roster'])->name('siswa.roster')->middleware('role:siswa');
     Route::post('/siswa/profile/update-semester', [SiswaController::class, 'updateSemester'])->name('siswa.profile.update-semester')->middleware('role:siswa');
     
     // Materi Pembelajaran - daftar materi dan download

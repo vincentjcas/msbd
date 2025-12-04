@@ -54,9 +54,12 @@ GURU_REGISTRATION_UPDATE.md
 MIGRASI_GURU_EXISTING.md
 GUIDE_GURU_LAMA.md
 
-# Data Siswa (Sensitif)
+# Data Siswa dan Guru (Sensitif)
 /excel/
 *.csv
+*.xlsx
+*.xls
+daftar_akun_guru.txt
 
 # Script kredensial
 create_*.php

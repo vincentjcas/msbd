@@ -72,7 +72,7 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Menampilkan roster sesuai dengan kelas dan tahun ajaran siswa
             </p>
-            <a href="#" onclick="alert('Fitur jadwal akan tersedia'); return false;" class="btn btn-primary btn-sm">
+            <a href="{{ route('siswa.roster') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-eye"></i> Lihat Jadwal
             </a>
         </div>

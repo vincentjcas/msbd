@@ -63,6 +63,26 @@ class SiswaController extends Controller
         return view('siswa.profile', compact('siswa'));
     }
 
+    public function roster()
+    {
+        $user = auth()->user();
+        $siswa = $user->siswa;
+
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
+
+        // Get all jadwal for this student's class, grouped by day
+        $jadwalPerHari = Jadwal::where('id_kelas', $siswa->id_kelas)
+            ->with(['guru.user', 'kelas'])
+            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu')")
+            ->orderBy('jam_mulai')
+            ->get()
+            ->groupBy('hari');
+
+        return view('siswa.roster', compact('jadwalPerHari', 'siswa'));
+    }
+
     public function updateSemester(Request $request)
     {
         $request->validate([
@@ -171,7 +191,7 @@ class SiswaController extends Controller
             return $t;
         });
 
-        return view('siswa.tugas.index', compact('tugasWithStatus'));
+        return view('siswa.tugas.tugas-siswa-list', compact('tugasWithStatus'));
     }
 
     public function detailTugas($id)
@@ -493,9 +513,8 @@ class SiswaController extends Controller
                 'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
                 'id_jadwal' => 'required|exists:jadwal_pelajaran,id_jadwal',
                 'alasan' => $request->tipe === 'izin' ? 'required|string|min:10|max:500' : 'nullable|string',
-                'bukti_file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+                'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
             ], [
-                'bukti_file.required' => 'Bukti (surat/foto) wajib diunggah',
                 'bukti_file.mimes' => 'Format file harus PDF, JPG, atau PNG',
                 'bukti_file.max' => 'Ukuran file maksimal 5 MB',
                 'tanggal.required' => 'Tanggal izin wajib diisi',
@@ -517,10 +536,13 @@ class SiswaController extends Controller
             // Get jadwal to extract id_guru
             $jadwal = Jadwal::findOrFail($request->id_jadwal);
 
-            // Upload file bukti
-            $file = $request->file('bukti_file');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('izin', $filename, 'public');
+            // Upload file bukti (opsional)
+            $path = null;
+            if ($request->hasFile('bukti_file')) {
+                $file = $request->file('bukti_file');
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('izin', $filename, 'public');
+            }
 
             // Buat record izin dengan id_guru dari jadwal
             $izin = Izin::create([

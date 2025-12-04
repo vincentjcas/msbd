@@ -6,7 +6,7 @@
 <div class="content-section">
     <h3 class="section-title"><i class="fas fa-file-medical"></i> Ajukan Izin</h3>
 
-    <p style="color: #6b7280; margin-bottom: 1.5rem;">Ajukan izin atau surat sakit untuk ketidakhadiran Anda. Bukti (surat sakit atau surat izin) wajib diunggah dalam format PDF atau gambar (JPG/PNG) dengan ukuran maksimal 5 MB.</p>
+    <p style="color: #6b7280; margin-bottom: 1.5rem;">Ajukan izin atau surat sakit untuk ketidakhadiran Anda. Bukti (surat sakit atau surat izin) bersifat opsional, dapat diunggah dalam format PDF atau gambar (JPG/PNG) dengan ukuran maksimal 5 MB.</p>
 
     @if($errors->any())
         <div style="background: #fee2e2; border-left: 4px solid #dc2626; color: #991b1b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
@@ -98,13 +98,13 @@
         <!-- Upload Bukti -->
         <div style="margin-bottom: 1.5rem;">
             <label for="bukti_file" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
-                <span id="bukti-label">Upload Bukti</span>
+                <span id="bukti-label">Upload Bukti <span style="color: #6b7280; font-weight: 400;">(Opsional)</span></span>
             </label>
             <div style="border: 2px dashed #cbd5e0; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: all 0.3s;" 
                  id="upload-area"
                  onclick="document.getElementById('bukti_file').click();">
                 <input type="file" id="bukti_file" name="bukti_file" accept=".pdf,.jpg,.jpeg,.png" 
-                       style="display: none;" required>
+                       style="display: none;">
                 <div style="font-size: 3rem; margin-bottom: 0.5rem;">📄</div>
                 <p style="color: #4a5568; font-weight: 500; margin: 0;">Klik atau drag file ke sini</p>
                 <p style="color: #718096; font-size: 0.9rem; margin: 0.5rem 0 0 0;">Format: PDF, JPG, PNG | Maks: 5 MB</p>
@@ -127,7 +127,7 @@
     <!-- Tombol Aksi -->
     <div style="padding: 1.5rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-start; margin-top: 2rem; border-radius: 0 0 10px 10px;">
         <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            <i class="fas fa-arrow-left"></i> Kembali
         </a>
     </div>
 </div>
@@ -250,7 +250,7 @@
                 alasanContainer.style.display = 'none';
                 alasanInput.removeAttribute('required');
                 alasanInput.value = '';
-                buktiLabel.innerHTML = 'Upload Surat Sakit';
+                buktiLabel.innerHTML = 'Upload Surat Sakit <span style="color: #6b7280; font-weight: 400;">(Opsional)</span>';
             }
         });
 
@@ -258,7 +258,7 @@
             if (this.checked) {
                 alasanContainer.style.display = 'block';
                 alasanInput.setAttribute('required', 'required');
-                buktiLabel.innerHTML = 'Upload Bukti Izin <span style="color: #dc2626;">*</span>';
+                buktiLabel.innerHTML = 'Upload Bukti Izin <span style="color: #6b7280; font-weight: 400;">(Opsional)</span>';
             }
         });
 
@@ -350,17 +350,6 @@
                     });
                     return false;
                 }
-            }
-
-            if (!buktiInput.files.length) {
-                e.preventDefault();
-                Swal.fire({
-                    title: 'Validasi Gagal',
-                    text: 'Bukti (surat/foto) wajib diunggah',
-                    icon: 'warning',
-                    confirmButtonColor: '#0369a1'
-                });
-                return false;
             }
 
             // Show loading

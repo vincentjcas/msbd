@@ -210,7 +210,7 @@ class AdminController extends Controller
     public function jadwal()
     {
         $jadwal = Jadwal::with(['kelas', 'guru.user'])->orderBy('hari')->get();
-        return view('admin.jadwal.index', compact('jadwal'));
+        return view('admin.jadwal.jadwal-list', compact('jadwal'));
     }
 
     public function createJadwal()
@@ -515,12 +515,53 @@ class AdminController extends Controller
     }
 
     /**
+     * Bulk delete materi
+     */
+    public function bulkDeleteMateri(Request $request)
+    {
+        $request->validate([
+            'materi_ids' => 'required|array|min:1',
+            'materi_ids.*' => 'exists:materi,id_materi'
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $materiIds = $request->materi_ids;
+            $deletedCount = 0;
+            $deletedTitles = [];
+            
+            foreach ($materiIds as $id) {
+                $materi = \App\Models\Materi::find($id);
+                if ($materi) {
+                    // Hapus file jika ada
+                    if ($materi->file_materi && \Storage::exists('public/materi/' . $materi->file_materi)) {
+                        \Storage::delete('public/materi/' . $materi->file_materi);
+                    }
+                    
+                    $deletedTitles[] = $materi->judul_materi;
+                    $materi->delete();
+                    $deletedCount++;
+                }
+            }
+            
+            $titles = implode(', ', array_slice($deletedTitles, 0, 3)) . ($deletedCount > 3 ? '...' : '');
+            $this->logActivity->log('bulk_delete_materi', auth()->user()->id_user, "Bulk hapus {$deletedCount} materi: {$titles}");
+            
+            DB::commit();
+            return redirect()->route('admin.file-materi')->with('success', "Berhasil menghapus {$deletedCount} materi");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus materi: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Kegiatan Sekolah - Daftar kegiatan
      */
     public function kegiatan()
     {
         $kegiatan = \App\Models\Kegiatan::orderBy('tanggal', 'desc')->paginate(20);
-        return view('admin.kegiatan.index', compact('kegiatan'));
+        return view('admin.kegiatan.kegiatan-list', compact('kegiatan'));
     }
 
     /**

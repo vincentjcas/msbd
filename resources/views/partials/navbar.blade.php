@@ -1,7 +1,8 @@
 <div class="navbar">
     <div class="navbar-brand">
-        <img src="{{ asset('images/yapim.png') }}" alt="Logo" style="height: 40px; width: auto; border-radius: 8px;">
-        <a href="{{ url('/') }}" style="color: white; text-decoration: none;">
+        <img src="{{ asset('images/yapim.png') }}" alt="Logo" style="height: 40px; width: auto; border-radius: 8px; cursor: pointer;" 
+             onclick="goToDashboard()" title="Kembali ke Dashboard">
+        <a href="javascript:void(0);" onclick="goToDashboard()" style="color: white; text-decoration: none; cursor: pointer;">
             SMK YAPIM BIRU-BIRU
         </a>
     </div>
@@ -18,3 +19,33 @@
         </form>
     </div>
 </div>
+
+<script>
+function goToDashboard() {
+    const role = '{{ auth()->user()->role }}';
+    let dashboardUrl = '/';
+    
+    switch(role) {
+        case 'admin':
+            dashboardUrl = '{{ route("admin.dashboard") }}';
+            break;
+        case 'guru':
+            dashboardUrl = '{{ route("guru.dashboard") }}';
+            break;
+        case 'siswa':
+            dashboardUrl = '{{ route("siswa.dashboard") }}';
+            break;
+        case 'kepala_sekolah':
+            dashboardUrl = '{{ route("kepala_sekolah.dashboard") }}';
+            break;
+        case 'pembina':
+            dashboardUrl = '{{ route("pembina.dashboard") }}';
+            break;
+        default:
+            dashboardUrl = '/';
+    }
+    
+    window.location.href = dashboardUrl;
+}
+</script>
+

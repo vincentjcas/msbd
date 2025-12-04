@@ -214,9 +214,9 @@
                 Mengatur dan membuat jadwal pelajaran (roster harian) untuk setiap kelas
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur jadwal akan tersedia')">
-                    <i class="fas fa-edit"></i> Atur Jadwal
-                </button>
+                <a href="{{ route('admin.jadwal') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-calendar-alt"></i> Kelola Jadwal
+                </a>
             </div>
         </div>
 

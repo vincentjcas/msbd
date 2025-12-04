@@ -253,7 +253,7 @@ class GuruController extends Controller
             ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
 
-        return view('guru.materi.index', compact('materi'));
+        return view('guru.materi.materi-list', compact('materi'));
     }
 
     public function createMateri()
@@ -320,7 +320,7 @@ class GuruController extends Controller
             ->orderBy('deadline', 'desc')
             ->get();
 
-        return view('guru.tugas.index', compact('tugas'));
+        return view('guru.tugas.tugas-guru-list', compact('tugas'));
     }
 
     public function createTugas()
