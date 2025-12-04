@@ -666,7 +666,7 @@ class AdminController extends Controller
      */
     public function pengajuanIzin()
     {
-        $izin = \App\Models\Izin::with(['siswa.user', 'siswa.kelas'])
+        $izin = \App\Models\Izin::with(['siswa.user', 'siswa.kelas', 'jadwal'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         

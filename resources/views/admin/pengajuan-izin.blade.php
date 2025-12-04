@@ -19,14 +19,13 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">No</th>
-                    <th style="width: 15%;">Siswa</th>
-                    <th style="width: 10%;">Kelas</th>
-                    <th style="width: 8%;">Tipe</th>
-                    <th style="width: 12%;">Tanggal Izin</th>
-                    <th style="width: 20%;">Alasan/Keterangan</th>
+                    <th style="width: 20%;">Siswa</th>
+                    <th style="width: 12%;">Kelas</th>
+                    <th style="width: 10%;">Tipe</th>
+                    <th style="width: 12%;">Tanggal</th>
+                    <th style="width: 15%;">Mata Pelajaran</th>
+                    <th style="width: 18%;">Alasan/Keterangan</th>
                     <th style="width: 8%;">Bukti</th>
-                    <th style="width: 10%;">Status</th>
-                    <th style="width: 12%;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -53,10 +52,17 @@
                     </td>
                     <td>{{ \Carbon\Carbon::parse($item->tanggal)->format('d/m/Y') }}</td>
                     <td>
-                        @if($item->tipe == 'izin' && $item->alasan)
+                        @if($item->jadwal)
+                            <small style="color: #3b82f6; font-weight: 500;">{{ $item->jadwal->mata_pelajaran }}</small>
+                        @else
+                            <small style="color: #cbd5e0;">-</small>
+                        @endif
+                    </td>
+                    <td>
+                        @if($item->tipe == 'sakit')
+                            <small style="color: #cbd5e0;">-</small>
+                        @elseif($item->alasan)
                             <small style="color: #4a5568;">{{ Str::limit($item->alasan, 50) }}</small>
-                        @elseif($item->keterangan)
-                            <small style="color: #718096; font-style: italic;">{{ Str::limit($item->keterangan, 50) }}</small>
                         @else
                             <small style="color: #cbd5e0;">-</small>
                         @endif
@@ -68,35 +74,6 @@
                         </a>
                         @else
                         <small style="color: #cbd5e0;">-</small>
-                        @endif
-                    </td>
-                    <td>
-                        @php
-                            $statusClass = [
-                                'pending' => 'badge-pending',
-                                'disetujui' => 'badge-success',
-                                'ditolak' => 'badge-danger'
-                            ];
-                        @endphp
-                        <span class="badge {{ $statusClass[$item->status] ?? 'badge-secondary' }}">
-                            {{ ucfirst($item->status) }}
-                        </span>
-                    </td>
-                    <td>
-                        @if($item->status == 'pending')
-                        <div style="display: flex; gap: 0.25rem; flex-direction: column;">
-                            <form action="{{ route('admin.pengajuan-izin.approve', $item->id_izin) }}" method="POST" style="margin: 0;">
-                                @csrf
-                                <button type="submit" class="btn btn-sm" style="background: #10b981; color: white; padding: 0.25rem 0.75rem; width: 100%;" onclick="return confirm('Setujui izin ini?')">
-                                    <i class="fas fa-check"></i> Setujui
-                                </button>
-                            </form>
-                            <button type="button" class="btn btn-sm" style="background: #ef4444; color: white; padding: 0.25rem 0.75rem; width: 100%;" onclick="showRejectModal({{ $item->id_izin }}, '{{ $item->siswa->user->nama_lengkap }}')">
-                                <i class="fas fa-times"></i> Tolak
-                            </button>
-                        </div>
-                        @else
-                        <small style="color: #9ca3af;">-</small>
                         @endif
                     </td>
                 </tr>

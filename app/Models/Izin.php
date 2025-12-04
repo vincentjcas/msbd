@@ -12,11 +12,14 @@ class Izin extends Model
 
     protected $fillable = [
         'id_user',
-        'id_guru',
+        'tipe',
         'id_jadwal',
+        'id_guru',
         'tanggal',
+        'hari',
         'alasan',
         'bukti_file',
+        'status',
     ];
 
     protected $casts = [

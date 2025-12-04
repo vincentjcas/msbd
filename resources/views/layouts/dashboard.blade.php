@@ -196,6 +196,13 @@
             color: #4a5568;
             border-bottom: 2px solid #e2e8f0;
         }
+        .data-table thead th {
+            color: #4a5568 !important;
+        }
+        .data-table thead tr:hover th {
+            color: #4a5568 !important;
+            background: #f7fafc !important;
+        }
         .data-table td {
             padding: 1rem;
             border-bottom: 1px solid #e2e8f0;

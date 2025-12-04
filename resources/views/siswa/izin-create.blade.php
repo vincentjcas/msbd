@@ -4,7 +4,14 @@
 
 @section('content')
 <div class="content-section">
-    <h3 class="section-title"><i class="fas fa-file-medical"></i> Ajukan Izin</h3>
+    <!-- Header dengan Tombol Kembali -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h3 class="section-title" style="margin: 0;"><i class="fas fa-file-medical"></i> Ajukan Izin</h3>
+        <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+    </div>
+    
 
     <p style="color: #6b7280; margin-bottom: 1.5rem;">Ajukan izin atau surat sakit untuk ketidakhadiran Anda. Bukti (surat sakit atau surat izin) bersifat opsional, dapat diunggah dalam format PDF atau gambar (JPG/PNG) dengan ukuran maksimal 5 MB.</p>
 
@@ -59,6 +66,16 @@
                 <i class="fas fa-calendar-check"></i> Hari : <span id="hari-text"></span>
             </p>
         </div>
+        
+        <!-- Notifikasi Tidak Ada Jadwal -->
+        <div id="no-jadwal-warning" style="margin-bottom: 1.5rem; padding: 1rem; background: #fee2e2; border-left: 4px solid #dc2626; border-radius: 6px; display: none;">
+            <p style="margin: 0; color: #991b1b; font-weight: 600;">
+                <i class="fas fa-exclamation-triangle"></i> <span id="no-jadwal-text">Tidak ada jadwal pelajaran di hari ini</span>
+            </p>
+            <p style="margin: 0.5rem 0 0 0; color: #7f1d1d; font-size: 0.9rem;">
+                Silakan pilih tanggal lain yang memiliki jadwal pelajaran.
+            </p>
+        </div>
 
         <!-- Pilih Jadwal (Jam Pelajaran) -->
         <div id="jadwal-container" style="margin-bottom: 1.5rem; display: none;">
@@ -105,22 +122,12 @@
         </div>
 
         <!-- Tombol Submit -->
-        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
-            <button type="submit" class="btn btn-primary" style="flex: 1;">
+        <div style="display: flex; justify-content: center; margin-top: 2rem;">
+            <button type="submit" id="btn-submit" class="btn btn-primary" style="min-width: 200px;">
                 <i class="fas fa-paper-plane"></i> Ajukan Izin
             </button>
-            <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="flex: 1; text-align: center;">
-                <i class="fas fa-times"></i> Batal
-            </a>
         </div>
     </form>
-
-    <!-- Tombol Aksi -->
-    <div style="padding: 1.5rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-start; margin-top: 2rem; border-radius: 0 0 10px 10px;">
-        <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-    </div>
 </div>
 
 <style>
@@ -142,6 +149,15 @@
     .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(3, 105, 161, 0.4);
+    }
+    .btn-primary:disabled {
+        background: #94a3b8;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    .btn-primary:disabled:hover {
+        transform: none;
+        box-shadow: none;
     }
     .btn-secondary {
         background: #e2e8f0;
@@ -176,16 +192,27 @@
         const hariText = document.getElementById('hari-text');
         const jadwalContainer = document.getElementById('jadwal-container');
         const jadwalSelect = document.getElementById('id_jadwal');
+        const noJadwalWarning = document.getElementById('no-jadwal-warning');
+        const noJadwalText = document.getElementById('no-jadwal-text');
+        const btnSubmit = document.getElementById('btn-submit');
 
         // Get siswa kelas from auth
         const idKelas = {{ auth()->user()->siswa->id_kelas ?? 'null' }};
 
         // Nama hari dalam Bahasa Indonesia
         const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        
+        // Variable untuk track current request
+        let currentFetchController = null;
 
         // Auto-detect hari from tanggal
         tanggalInput.addEventListener('change', function() {
             const tanggal = this.value;
+            
+            // Cancel previous fetch if exists
+            if (currentFetchController) {
+                currentFetchController.abort();
+            }
             
             if (!tanggal) {
                 hariInput.value = '';
@@ -196,12 +223,21 @@
                 return;
             }
 
-            // Detect hari dari tanggal - fix timezone issue
-            // Parse tanggal dalam format YYYY-MM-DD
-            const [year, month, day] = tanggal.split('-').map(num => parseInt(num));
-            const date = new Date(year, month - 1, day); // month is 0-indexed
+            // Detect hari dari tanggal dengan cara yang PASTI
+            const parts = tanggal.split('-');
+            const year = parseInt(parts[0]);
+            const month = parseInt(parts[1]) - 1;
+            const day = parseInt(parts[2]);
+            
+            const date = new Date(year, month, day, 12, 0, 0); // Noon time
             const dayIndex = date.getDay();
             const hari = namaHari[dayIndex];
+            
+            console.log('=== DEBUG ===');
+            console.log('Input tanggal:', tanggal);
+            console.log('Parsed date:', date.toDateString());
+            console.log('Day index:', dayIndex);
+            console.log('Hari terdeteksi:', hari);
             
             // Update hidden input dan info
             hariInput.value = hari;
@@ -230,9 +266,16 @@
                 });
                 return;
             }
+            
+            console.log('Loading jadwal untuk hari:', hari);
+            
+            // Create new AbortController for this request
+            currentFetchController = new AbortController();
 
             // Fetch jadwal
-            fetch(`/api/jadwal?id_kelas=${idKelas}&hari=${hari}`)
+            fetch(`/api/jadwal?id_kelas=${idKelas}&hari=${hari}`, {
+                signal: currentFetchController.signal
+            })
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
@@ -240,6 +283,8 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log('API Response:', data);
+                    
                     // Check if data is array or has error property
                     if (data.error) {
                         throw new Error(data.message || 'Gagal memuat jadwal');
@@ -248,15 +293,31 @@
                     jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
                     
                     if (!Array.isArray(data) || data.length === 0) {
-                        Swal.fire({
-                            title: 'Tidak Ada Jadwal',
-                            text: `Tidak ada jadwal pelajaran di hari ${hari}`,
-                            icon: 'info',
-                            confirmButtonColor: '#0369a1'
-                        });
+                        console.log('Tidak ada jadwal untuk hari:', hari);
+                        // Show warning
+                        noJadwalText.textContent = `Tidak ada jadwal pelajaran di hari ${hari}`;
+                        noJadwalWarning.style.display = 'block';
                         jadwalContainer.style.display = 'none';
                         jadwalSelect.removeAttribute('required');
+                        
+                        // Disable submit button dan upload area
+                        btnSubmit.disabled = true;
+                        uploadArea.style.opacity = '0.5';
+                        uploadArea.style.cursor = 'not-allowed';
+                        uploadArea.onclick = null;
+                        buktiInput.disabled = true;
                     } else {
+                        console.log(`Ditemukan ${data.length} jadwal`);
+                        // Hide warning
+                        noJadwalWarning.style.display = 'none';
+                        
+                        // Enable submit button dan upload area
+                        btnSubmit.disabled = false;
+                        uploadArea.style.opacity = '1';
+                        uploadArea.style.cursor = 'pointer';
+                        uploadArea.onclick = function() { buktiInput.click(); };
+                        buktiInput.disabled = false;
+                        
                         data.forEach(jadwal => {
                             const option = document.createElement('option');
                             option.value = jadwal.id_jadwal;
@@ -268,13 +329,20 @@
                     }
                 })
                 .catch(error => {
+                    if (error.name === 'AbortError') {
+                        console.log('Fetch aborted');
+                        return;
+                    }
                     console.error('Error:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: error.message || 'Gagal memuat jadwal',
-                        icon: 'error',
-                        confirmButtonColor: '#dc2626'
-                    });
+                    // Hanya show alert kalau memang error server, bukan "tidak ada jadwal"
+                    if (error.message !== 'Gagal memuat jadwal') {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Terjadi kesalahan saat memuat jadwal',
+                            icon: 'error',
+                            confirmButtonColor: '#dc2626'
+                        });
+                    }
                     jadwalContainer.style.display = 'none';
                     jadwalSelect.removeAttribute('required');
                 });

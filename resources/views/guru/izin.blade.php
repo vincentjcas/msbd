@@ -222,6 +222,7 @@
                     <th>Nama</th>
                     <th>Kelas</th>
                     <th>Jenis Izin</th>
+                    <th>Mata Pelajaran</th>
                     <th>Alasan / Keterangan</th>
                     <th>Tanggal</th>
                     <th>Bukti</th>
@@ -251,6 +252,13 @@
                             <span class="badge-izin badge-umum">Izin</span>
                         @endif
                     </td>
+                    <td>
+                        @if($izin->jadwal)
+                            <span style="color: #3b82f6; font-weight: 500;">{{ $izin->jadwal->mata_pelajaran }}</span>
+                        @else
+                            <span style="color: #cbd5e0;">-</span>
+                        @endif
+                    </td>
                     <td class="cell-alasan">
                         @if($izin->alasan === 'Sakit')
                             -
@@ -259,7 +267,7 @@
                         @endif
                     </td>
                     <td class="cell-tanggal">
-                        {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y, H:i') : '-' }}
+                        {{ $izin->tanggal ? \Carbon\Carbon::parse($izin->tanggal)->format('d M Y') : '-' }}
                     </td>
                     <td class="cell-aksi">
                         @if($izin->bukti_file)
