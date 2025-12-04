@@ -212,7 +212,6 @@
         </div>
         <div class="login-header">
             <h1>Login</h1>
-            <p>Sistem Multi-Role Authentication</p>
         </div>
 
         <form method="POST" action="{{ route('login') }}">

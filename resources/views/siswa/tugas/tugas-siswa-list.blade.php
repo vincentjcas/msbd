@@ -2,9 +2,14 @@
 
 @section('content')
 <div class="content-section">
-    <div style="margin-bottom: 2rem;">
-        <h2 class="section-title">Daftar Tugas</h2>
-        <p style="color: #718096; margin-top: 0.5rem;">Lihat tugas yang diberikan oleh guru dan kumpulkan jawaban</p>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <div>
+            <h2 class="section-title">Daftar Tugas</h2>
+            <p style="color: #718096; margin-top: 0.5rem;">Lihat tugas yang diberikan oleh guru dan kumpulkan jawaban</p>
+        </div>
+        <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
     </div>
 
     @if(session('success'))
@@ -111,12 +116,5 @@
             @endforeach
         </div>
     @endif
-
-    <!-- Tombol Aksi -->
-    <div style="padding: 1.5rem; background: #f9fafb; border-top: 1px solid #e5e7eb; display: flex; gap: 1rem; justify-content: flex-start; margin-top: 2rem; border-radius: 0 0 10px 10px;">
-        <a href="{{ route('siswa.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-    </div>
 </div>
 @endsection

@@ -181,14 +181,6 @@
     </div>
 </div>
 
-<div class="content-section">
-    <h3 class="section-title"><i class="fas fa-calendar-day"></i> Jadwal Mengajar Hari Ini</h3>
-    <div class="empty-state">
-        <i class="fas fa-calendar-times"></i>
-        <p>Tidak ada jadwal mengajar hari ini</p>
-    </div>
-</div>
-
 <script>
 // Variabel global untuk menyimpan jam masuk
 let jamMasukDicatat = null;

@@ -274,29 +274,45 @@ class SiswaController extends Controller
     public function storeIzin(Request $request)
     {
         $request->validate([
+            'tipe' => 'required|in:sakit,izin',
             'tanggal' => 'required|date',
-            'alasan' => 'required|string',
-            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'hari' => 'required|in:Minggu,Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+            'id_jadwal' => 'nullable|exists:jadwal,id_jadwal',
+            'alasan' => 'required_if:tipe,izin|string|max:500',
+            'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
+
+        // Get guru from jadwal if jadwal selected
+        $id_guru = null;
+        if ($request->id_jadwal) {
+            $jadwal = \App\Models\Jadwal::find($request->id_jadwal);
+            if ($jadwal) {
+                $id_guru = $jadwal->id_guru;
+            }
+        }
 
         $data = [
             'id_user' => auth()->user()->id_user,
+            'tipe' => $request->tipe,
+            'id_jadwal' => $request->id_jadwal,
+            'id_guru' => $id_guru,
             'tanggal' => $request->tanggal,
+            'hari' => $request->hari,
             'alasan' => $request->alasan,
-            'status_approval' => 'pending',
+            'status' => 'pending',
         ];
 
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('izin', $filename, 'public');
-            $data['bukti_file'] = $path;
+            $data['bukti_file'] = $filename;
         }
 
         $izin = Izin::create($data);
-        $this->logActivity->log('submit_izin', auth()->user()->id_user, 'Mengajukan izin untuk tanggal: ' . $request->tanggal);
+        $this->logActivity->log('submit_izin', auth()->user()->id_user, 'Mengajukan izin ' . $request->tipe . ' untuk tanggal: ' . $request->tanggal);
 
-        return redirect()->route('siswa.izin')->with('success', 'Izin berhasil dikirim.');
+        return redirect()->route('siswa.izin')->with('success', 'Pengajuan izin berhasil dikirim.');
     }
 
     /**
@@ -577,7 +593,7 @@ class SiswaController extends Controller
         try {
             $request->validate([
                 'id_kelas' => 'required|exists:kelas,id_kelas',
-                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+                'hari' => 'required|in:Minggu,Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             ]);
 
             $jadwal = Jadwal::where('id_kelas', $request->id_kelas)
@@ -591,14 +607,24 @@ class SiswaController extends Controller
                         'mata_pelajaran' => $item->mata_pelajaran,
                         'jam_mulai' => substr($item->jam_mulai, 0, 5), // HH:MM
                         'jam_selesai' => substr($item->jam_selesai, 0, 5), // HH:MM
-                        'guru_nama' => $item->guru->user->nama ?? 'Unknown',
+                        'guru_nama' => $item->guru && $item->guru->user ? $item->guru->user->nama_lengkap : 'Guru tidak ditemukan',
                     ];
                 });
 
             return response()->json($jadwal);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Server error',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
         }
     }
 }

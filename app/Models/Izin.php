@@ -12,11 +12,14 @@ class Izin extends Model
 
     protected $fillable = [
         'id_user',
-        'id_guru',
+        'tipe',
         'id_jadwal',
+        'id_guru',
         'tanggal',
+        'hari',
         'alasan',
         'bukti_file',
+        'status',
     ];
 
     protected $casts = [
@@ -28,6 +31,11 @@ class Izin extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'id_user', 'id_user');
+    }
+
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'id_user', 'id_user');
     }
 
     public function guru()

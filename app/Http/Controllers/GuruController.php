@@ -12,6 +12,7 @@ use App\Models\PengumpulanTugas;
 use App\Models\Izin;
 use App\Models\Kelas;
 use App\Models\Siswa;
+use App\Models\GuruKelasMapel;
 use App\Models\Views\VRekapPresensiSiswa;
 use App\Models\Views\VStatistikKehadiranKelas;
 use App\Services\DatabaseProcedureService;
@@ -260,8 +261,22 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         
-        // Ambil semua kelas yang tersedia
-        $kelas = Kelas::orderBy('tingkat')->orderBy('nama_kelas')->get();
+        // Coba ambil dari guru_kelas_mapel dulu
+        $kelasIds = GuruKelasMapel::forGuruActiveYear($guru->id_guru)
+            ->distinct()
+            ->pluck('id_kelas');
+        
+        // Jika kosong, ambil dari jadwal
+        if ($kelasIds->isEmpty()) {
+            $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
+                ->distinct()
+                ->pluck('id_kelas');
+        }
+        
+        $kelas = Kelas::whereIn('id_kelas', $kelasIds)
+            ->orderBy('tingkat')
+            ->orderBy('nama_kelas')
+            ->get();
 
         return view('guru.materi.create', compact('kelas'));
     }
@@ -326,17 +341,23 @@ class GuruController extends Controller
     public function createTugas()
     {
         $guru = auth()->user()->guru;
-        $kelas = Jadwal::where('id_guru', $guru->id_guru)
-            ->with('kelas')
-            ->get()
-            ->pluck('kelas')
-            ->unique('id_kelas')
-            ->filter();
-
-        // Jika guru belum punya jadwal, fallback ke semua kelas aktif
-        if ($kelas->isEmpty()) {
-            $kelas = Kelas::all();
+        
+        // Coba ambil dari guru_kelas_mapel dulu
+        $kelasIds = GuruKelasMapel::forGuruActiveYear($guru->id_guru)
+            ->distinct()
+            ->pluck('id_kelas');
+        
+        // Jika kosong, ambil dari jadwal
+        if ($kelasIds->isEmpty()) {
+            $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
+                ->distinct()
+                ->pluck('id_kelas');
         }
+        
+        $kelas = Kelas::whereIn('id_kelas', $kelasIds)
+            ->orderBy('tingkat')
+            ->orderBy('nama_kelas')
+            ->get();
 
         return view('guru.tugas.create', compact('kelas'));
     }

@@ -185,7 +185,7 @@
             </p>
             <div>
                 <a href="{{ route('admin.pengajuan-izin') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-clipboard-list"></i> Kelola Izin
+                    <i class="fas fa-clipboard-list"></i> Lihat Izin
                 </a>
             </div>
         </div>

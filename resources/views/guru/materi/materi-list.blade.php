@@ -7,12 +7,17 @@
             <h2 class="section-title">Materi Pembelajaran</h2>
             <p style="color: #718096; margin-top: 0.5rem;">Kelola materi pembelajaran untuk siswa</p>
         </div>
-        <a href="{{ route('guru.materi.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            Upload Materi Baru
-        </a>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ route('guru.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <a href="{{ route('guru.materi.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Upload Materi Baru
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
