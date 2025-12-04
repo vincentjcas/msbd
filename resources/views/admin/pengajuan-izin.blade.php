@@ -11,20 +11,6 @@
 <div class="content-section">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h3 class="section-title" style="margin: 0;"><i class="fas fa-list"></i> Daftar Pengajuan Izin</h3>
-        
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <div style="display: flex; gap: 0.5rem;">
-                <span class="badge badge-pending" style="padding: 0.5rem 1rem;">
-                    <i class="fas fa-clock"></i> Pending: {{ $izin->where('status', 'pending')->count() }}
-                </span>
-                <span class="badge badge-success" style="padding: 0.5rem 1rem;">
-                    <i class="fas fa-check"></i> Disetujui: {{ $izin->where('status', 'disetujui')->count() }}
-                </span>
-                <span class="badge badge-danger" style="padding: 0.5rem 1rem;">
-                    <i class="fas fa-times"></i> Ditolak: {{ $izin->where('status', 'ditolak')->count() }}
-                </span>
-            </div>
-        </div>
     </div>
 
     @if($izin->count() > 0)

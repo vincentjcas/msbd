@@ -46,27 +46,18 @@
                    value="{{ old('tanggal') }}"
                    min="{{ date('Y-m-d') }}"
                    style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white; cursor: pointer;">
-            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Pilih tanggal ketidakhadiran (hari ini atau yang akan datang)</p>
+            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Pilih tanggal ketidakhadiran, hari akan otomatis terdeteksi</p>
             @error('tanggal')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
         </div>
 
-        <!-- Pilih Hari -->
-        <div style="margin-bottom: 1.5rem;">
-            <label for="hari" style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: #2d3748;">
-                Hari Pelajaran <span style="color: #dc2626;">*</span>
-            </label>
-            <select id="hari" name="hari" required
-                    style="width: 100%; padding: 0.85rem; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 0.95rem; background: white; cursor: pointer;">
-                <option value="">-- Pilih Hari --</option>
-                <option value="Senin" {{ old('hari') == 'Senin' ? 'selected' : '' }}>Senin</option>
-                <option value="Selasa" {{ old('hari') == 'Selasa' ? 'selected' : '' }}>Selasa</option>
-                <option value="Rabu" {{ old('hari') == 'Rabu' ? 'selected' : '' }}>Rabu</option>
-                <option value="Kamis" {{ old('hari') == 'Kamis' ? 'selected' : '' }}>Kamis</option>
-                <option value="Jumat" {{ old('hari') == 'Jumat' ? 'selected' : '' }}>Jumat</option>
-                <option value="Sabtu" {{ old('hari') == 'Sabtu' ? 'selected' : '' }}>Sabtu</option>
-            </select>
-            <p style="color: #6b7280; font-size: 0.85rem; margin-top: 0.25rem;">Pilih hari untuk melihat jadwal pelajaran</p>
-            @error('hari')<p style="color: #dc2626; font-size: 0.85rem; margin-top: 0.25rem;">{{ $message }}</p>@enderror
+        <!-- Hari (Auto-detected, hidden) -->
+        <input type="hidden" id="hari" name="hari" value="{{ old('hari') }}">
+        
+        <!-- Info Hari Terdeteksi -->
+        <div id="hari-info" style="margin-bottom: 1.5rem; padding: 1rem; background: #e0f2fe; border-left: 4px solid #0369a1; border-radius: 6px; display: none;">
+            <p style="margin: 0; color: #0c4a6e; font-weight: 600;">
+                <i class="fas fa-calendar-check"></i> Hari terdeteksi: <span id="hari-text"></span>
+            </p>
         </div>
 
         <!-- Pilih Jadwal (Jam Pelajaran) -->
@@ -179,17 +170,48 @@
         const buktiInput = document.getElementById('bukti_file');
         const uploadArea = document.getElementById('upload-area');
         const fileName = document.getElementById('file-name');
-        const hariSelect = document.getElementById('hari');
+        const tanggalInput = document.getElementById('tanggal');
+        const hariInput = document.getElementById('hari');
+        const hariInfo = document.getElementById('hari-info');
+        const hariText = document.getElementById('hari-text');
         const jadwalContainer = document.getElementById('jadwal-container');
         const jadwalSelect = document.getElementById('id_jadwal');
 
         // Get siswa kelas from auth
         const idKelas = {{ auth()->user()->siswa->id_kelas ?? 'null' }};
 
-        // Load jadwal when hari is selected
-        hariSelect.addEventListener('change', function() {
-            const hari = this.value;
+        // Nama hari dalam Bahasa Indonesia
+        const namaHari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        // Auto-detect hari from tanggal
+        tanggalInput.addEventListener('change', function() {
+            const tanggal = this.value;
             
+            if (!tanggal) {
+                hariInput.value = '';
+                hariInfo.style.display = 'none';
+                jadwalContainer.style.display = 'none';
+                jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
+                jadwalSelect.removeAttribute('required');
+                return;
+            }
+
+            // Detect hari dari tanggal
+            const date = new Date(tanggal);
+            const dayIndex = date.getDay();
+            const hari = namaHari[dayIndex];
+            
+            // Update hidden input dan info
+            hariInput.value = hari;
+            hariText.textContent = hari;
+            hariInfo.style.display = 'block';
+            
+            // Load jadwal untuk hari tersebut
+            loadJadwal(hari);
+        });
+
+        // Function to load jadwal
+        function loadJadwal(hari) {
             if (!hari) {
                 jadwalContainer.style.display = 'none';
                 jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
@@ -242,7 +264,7 @@
                         confirmButtonColor: '#dc2626'
                     });
                 });
-        });
+        }
 
         // Toggle alasan field based on tipe
         tipeSakit.addEventListener('change', function() {
