@@ -56,7 +56,7 @@
         <!-- Info Hari Terdeteksi -->
         <div id="hari-info" style="margin-bottom: 1.5rem; padding: 1rem; background: #e0f2fe; border-left: 4px solid #0369a1; border-radius: 6px; display: none;">
             <p style="margin: 0; color: #0c4a6e; font-weight: 600;">
-                <i class="fas fa-calendar-check"></i> Hari terdeteksi: <span id="hari-text"></span>
+                <i class="fas fa-calendar-check"></i> Hari : <span id="hari-text"></span>
             </p>
         </div>
 
@@ -196,8 +196,10 @@
                 return;
             }
 
-            // Detect hari dari tanggal
-            const date = new Date(tanggal);
+            // Detect hari dari tanggal - fix timezone issue
+            // Parse tanggal dalam format YYYY-MM-DD
+            const [year, month, day] = tanggal.split('-').map(num => parseInt(num));
+            const date = new Date(year, month - 1, day); // month is 0-indexed
             const dayIndex = date.getDay();
             const hari = namaHari[dayIndex];
             
@@ -231,11 +233,21 @@
 
             // Fetch jadwal
             fetch(`/api/jadwal?id_kelas=${idKelas}&hari=${hari}`)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
                 .then(data => {
+                    // Check if data is array or has error property
+                    if (data.error) {
+                        throw new Error(data.message || 'Gagal memuat jadwal');
+                    }
+                    
                     jadwalSelect.innerHTML = '<option value="">-- Pilih Jam Pelajaran --</option>';
                     
-                    if (data.length === 0) {
+                    if (!Array.isArray(data) || data.length === 0) {
                         Swal.fire({
                             title: 'Tidak Ada Jadwal',
                             text: `Tidak ada jadwal pelajaran di hari ${hari}`,
@@ -259,10 +271,12 @@
                     console.error('Error:', error);
                     Swal.fire({
                         title: 'Error',
-                        text: 'Gagal memuat jadwal',
+                        text: error.message || 'Gagal memuat jadwal',
                         icon: 'error',
                         confirmButtonColor: '#dc2626'
                     });
+                    jadwalContainer.style.display = 'none';
+                    jadwalSelect.removeAttribute('required');
                 });
         }
 

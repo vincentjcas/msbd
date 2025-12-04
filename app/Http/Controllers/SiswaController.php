@@ -577,7 +577,7 @@ class SiswaController extends Controller
         try {
             $request->validate([
                 'id_kelas' => 'required|exists:kelas,id_kelas',
-                'hari' => 'required|in:Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
+                'hari' => 'required|in:Minggu,Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             ]);
 
             $jadwal = Jadwal::where('id_kelas', $request->id_kelas)
@@ -591,14 +591,24 @@ class SiswaController extends Controller
                         'mata_pelajaran' => $item->mata_pelajaran,
                         'jam_mulai' => substr($item->jam_mulai, 0, 5), // HH:MM
                         'jam_selesai' => substr($item->jam_selesai, 0, 5), // HH:MM
-                        'guru_nama' => $item->guru->user->nama ?? 'Unknown',
+                        'guru_nama' => $item->guru && $item->guru->user ? $item->guru->user->nama_lengkap : 'Guru tidak ditemukan',
                     ];
                 });
 
             return response()->json($jadwal);
 
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'error' => 'Validation failed',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 422);
         } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Server error',
+                'message' => $e->getMessage(),
+                'data' => []
+            ], 500);
         }
     }
 }
