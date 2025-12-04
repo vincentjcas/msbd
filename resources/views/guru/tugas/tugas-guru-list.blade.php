@@ -7,10 +7,15 @@
             <h2 class="section-title">Daftar Tugas</h2>
             <p style="color: #718096; margin-top: 0.5rem;">Kelola tugas yang sudah dibuat dan lihat pengumpulan siswa</p>
         </div>
-        <a href="{{ route('guru.tugas.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-            <i class="fas fa-plus"></i>
-            Buat Tugas Baru
-        </a>
+        <div style="display: flex; gap: 1rem;">
+            <a href="{{ route('guru.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <a href="{{ route('guru.tugas.create') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-plus"></i>
+                Buat Tugas Baru
+            </a>
+        </div>
     </div>
 
     @if(session('success'))
