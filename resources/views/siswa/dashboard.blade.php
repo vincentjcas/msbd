@@ -119,22 +119,6 @@
     </div>
 </div>
 
-<div class="content-section">
-    <h3 class="section-title"><i class="fas fa-calendar-day"></i> Jadwal Pelajaran Hari Ini</h3>
-    <div class="empty-state">
-        <i class="fas fa-calendar-times"></i>
-        <p>Tidak ada jadwal pelajaran hari ini</p>
-    </div>
-</div>
-
-<div class="content-section">
-    <h3 class="section-title"><i class="fas fa-book-open"></i> Materi Terbaru</h3>
-    <div class="empty-state">
-        <i class="fas fa-folder-open"></i>
-        <p>Belum ada materi pembelajaran yang diunggah</p>
-    </div>
-</div>
-
 <script>
 function isiAbsen() {
     // Cek status absen hari ini terlebih dahulu

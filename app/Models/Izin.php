@@ -30,6 +30,11 @@ class Izin extends Model
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
+    public function siswa()
+    {
+        return $this->belongsTo(Siswa::class, 'id_user', 'id_user');
+    }
+
     public function guru()
     {
         return $this->belongsTo(Guru::class, 'id_guru', 'id_guru');
