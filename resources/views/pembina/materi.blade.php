@@ -2,11 +2,12 @@
 
 @section('content')
 <div class="content-section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h2 class="section-title">Materi Pembelajaran</h2>
             <p style="color: #718096; margin-top: 0.5rem;">Lihat semua materi pembelajaran yang diupload oleh guru</p>
         </div>
+        <x-dashboard-button />
     </div>
 
     @if(session('success'))

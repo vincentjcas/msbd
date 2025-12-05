@@ -3,9 +3,12 @@
 @section('title', 'Data Presensi')
 
 @section('content')
-<div class="page-header">
-    <h2><i class="fas fa-clipboard-list"></i> Data Presensi</h2>
-    <p>Lihat data presensi siswa dan guru (Read-Only)</p>
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2><i class="fas fa-clipboard-list"></i> Data Presensi</h2>
+        <p>Lihat data presensi siswa dan guru (Read-Only)</p>
+    </div>
+    <x-dashboard-button />
 </div>
 
 <div class="content-section">

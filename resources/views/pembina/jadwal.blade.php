@@ -3,10 +3,12 @@
 @section('title', 'Jadwal Aktif')
 
 @section('content')
-<div style="margin-bottom: 1.5rem;">
-    <a href="{{ route('pembina.dashboard') }}" class="btn" style="background: #64748b; color: white; padding: 0.75rem 1.5rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali
-    </a>
+<div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1><i class="fas fa-calendar-alt"></i> Jadwal Pembelajaran Aktif</h1>
+        <p>Lihat jadwal pembelajaran semua guru dan kelas</p>
+    </div>
+    <x-dashboard-button />
 </div>
 
 <div class="welcome-card">
