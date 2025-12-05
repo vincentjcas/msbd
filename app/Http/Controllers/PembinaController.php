@@ -200,20 +200,32 @@ class PembinaController extends Controller
     /**
      * Jadwal Aktif
      */
-    public function jadwalAktif()
+    public function jadwalAktif(Request $request)
     {
         try {
-            $jadwal = Jadwal::with(['kelas', 'guru'])
-                ->orderBy('hari')
-                ->orderBy('jam_mulai')
-                ->get();
-
+            $query = Jadwal::with(['kelas', 'guru.user']);
+            
+            // Filter hari ini saja
             $hariIni = now()->locale('id')->dayName;
-            $jadwalHariIni = $jadwal->filter(function ($j) use ($hariIni) {
-                return $j->hari === $hariIni;
-            });
+            $query->where('hari', $hariIni);
+            
+            // Filter jurusan jika ada
+            if ($request->filled('jurusan')) {
+                $query->whereHas('kelas', function($q) use ($request) {
+                    $q->where('nama_kelas', 'like', '%-' . $request->jurusan . '-%');
+                });
+            }
+            
+            // Filter tingkat jika ada
+            if ($request->filled('tingkat')) {
+                $query->whereHas('kelas', function($q) use ($request) {
+                    $q->where('nama_kelas', 'like', $request->tingkat . '-%');
+                });
+            }
+            
+            $jadwal = $query->orderBy('jam_mulai')->get();
 
-            return view('pembina.jadwal', compact('jadwal', 'jadwalHariIni', 'hariIni'));
+            return view('pembina.jadwal', compact('jadwal', 'hariIni'));
         } catch (\Exception $e) {
             \Log::error('Error in jadwalAktif: ' . $e->getMessage());
             return back()->with('error', 'Gagal mengambil data jadwal');

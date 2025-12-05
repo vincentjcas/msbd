@@ -5,7 +5,7 @@
 @section('content')
 <div style="margin-bottom: 1.5rem;">
     <a href="{{ route('pembina.dashboard') }}" class="btn" style="background: #64748b; color: white; padding: 0.75rem 1.5rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+        <i class="fas fa-arrow-left"></i> Kembali
     </a>
 </div>
 
