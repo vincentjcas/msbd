@@ -7,7 +7,7 @@
             <h2 class="section-title">Detail Tugas</h2>
             <p style="color: #718096; margin-top: 0.5rem;">Lihat detail tugas dan pengumpulan siswa</p>
         </div>
-        <div style="display: flex; gap: 0.5rem;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
             <form action="{{ route('guru.tugas.delete', $tugas->id_tugas) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus tugas ini? Semua pengumpulan siswa ({{ $tugas->pengumpulan->count() }} siswa) juga akan dihapus.');">
                 @csrf
                 @method('DELETE')
@@ -20,6 +20,7 @@
                 <i class="fas fa-arrow-left"></i>
                 Kembali
             </a>
+            <x-dashboard-button />
         </div>
     </div>
 

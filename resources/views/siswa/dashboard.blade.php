@@ -59,9 +59,9 @@
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
                 Mengisi absen harian berdasarkan jadwal yang sedang aktif (manual)
             </p>
-            <button class="btn btn-primary btn-sm" onclick="isiAbsen()">
+            <a href="{{ route('siswa.absen.index') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-hand-paper"></i> Isi Absen Sekarang
-            </button>
+            </a>
         </div>
 
         <!-- 2. Lihat Jadwal -->

@@ -98,9 +98,9 @@
                 Mencatat kehadiran siswa sesuai kelas yang diampu
             </p>
             <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur absen siswa akan tersedia')">
-                    <i class="fas fa-check-square"></i> Isi Absen
-                </button>
+                <a href="{{ route('guru.absen.index') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-check-square"></i> Buat Absen
+                </a>
             </div>
         </div>
 

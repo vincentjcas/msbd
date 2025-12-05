@@ -3,9 +3,12 @@
 @section('title', 'Statistik Kehadiran')
 
 @section('content')
-<div class="header-section">
-    <h1><i class="fas fa-chart-bar"></i> Statistik Kehadiran</h1>
-    <p>Lihat statistik kehadiran siswa dan guru</p>
+<div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1><i class="fas fa-chart-bar"></i> Statistik Kehadiran</h1>
+        <p>Lihat statistik kehadiran siswa dan guru</p>
+    </div>
+    <x-dashboard-button />
 </div>
 
 <div class="filters-section" style="background: white; padding: 1.5rem; border-radius: 10px; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">

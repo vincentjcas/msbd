@@ -3,9 +3,12 @@
 @section('title', 'Jadwal Aktif')
 
 @section('content')
-<div class="header-section">
-    <h1><i class="fas fa-calendar-alt"></i> Jadwal Pembelajaran Aktif</h1>
-    <p>Lihat jadwal pembelajaran semua guru dan kelas</p>
+<div class="header-section" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h1><i class="fas fa-calendar-alt"></i> Jadwal Pembelajaran Aktif</h1>
+        <p>Lihat jadwal pembelajaran semua guru dan kelas</p>
+    </div>
+    <x-dashboard-button />
 </div>
 
 @if($jadwalHariIni->count() > 0)

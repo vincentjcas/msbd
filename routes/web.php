@@ -121,6 +121,18 @@ Route::middleware('auth')->group(function () {
     Route::post('/guru/tugas/{id}/nilai', [GuruController::class, 'nilaiTugas'])->name('guru.tugas.nilai')->middleware('role:guru');
     Route::delete('/guru/tugas/{id}', [GuruController::class, 'deleteTugas'])->name('guru.tugas.delete')->middleware('role:guru');
     
+    // Guru - Absen Siswa
+    Route::get('/guru/absen', [\App\Http\Controllers\Guru\AbsenController::class, 'index'])->name('guru.absen.index')->middleware('role:guru');
+    Route::get('/guru/absen/create', [\App\Http\Controllers\Guru\AbsenController::class, 'create'])->name('guru.absen.create')->middleware('role:guru');
+    Route::post('/guru/absen', [\App\Http\Controllers\Guru\AbsenController::class, 'store'])->name('guru.absen.store')->middleware('role:guru');
+    Route::get('/guru/absen/{absen}', [\App\Http\Controllers\Guru\AbsenController::class, 'show'])->name('guru.absen.show')->middleware('role:guru');
+    Route::put('/guru/absen/{absen}', [\App\Http\Controllers\Guru\AbsenController::class, 'update'])->name('guru.absen.update')->middleware('role:guru');
+    Route::delete('/guru/absen/{absen}', [\App\Http\Controllers\Guru\AbsenController::class, 'destroy'])->name('guru.absen.destroy')->middleware('role:guru');
+    
+    // Guru - Data Kehadiran
+    Route::get('/guru/data-kehadiran', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiran'])->name('guru.data-kehadiran')->middleware('role:guru');
+    Route::get('/guru/data-kehadiran/{mata_pelajaran}', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiranPertemuan'])->name('guru.data-kehadiran-pertemuan')->middleware('role:guru');
+    
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
     
@@ -147,6 +159,12 @@ Route::middleware('auth')->group(function () {
     // Siswa Presensi
     Route::post('/siswa/presensi/submit', [SiswaController::class, 'submitAbsen'])->name('siswa.presensi.submit')->middleware('role:siswa');
     Route::get('/siswa/presensi/status', [SiswaController::class, 'statusAbsenHariIni'])->name('siswa.presensi.status')->middleware('role:siswa');
+    
+    // Siswa - Absen
+    Route::get('/siswa/absen', [\App\Http\Controllers\Siswa\AbsenController::class, 'index'])->name('siswa.absen.index')->middleware('role:siswa');
+    Route::get('/siswa/absen/{mapelName}', [\App\Http\Controllers\Siswa\AbsenController::class, 'show'])->name('siswa.absen.show')->middleware('role:siswa');
+    Route::get('/siswa/absen/{absenId}/isi', [\App\Http\Controllers\Siswa\AbsenController::class, 'create'])->name('siswa.absen.create')->middleware('role:siswa');
+    Route::post('/siswa/absen', [\App\Http\Controllers\Siswa\AbsenController::class, 'store'])->name('siswa.absen.store')->middleware('role:siswa');
     
     // Kepala Sekolah Dashboard
     Route::get('/kepala-sekolah/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('kepala_sekolah.dashboard')->middleware('role:kepala_sekolah');
