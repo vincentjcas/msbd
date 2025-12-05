@@ -91,7 +91,7 @@
 </style>
 
 <div class="welcome-section">
-    <h1>Selamat Datang, {{ explode(' ', auth()->user()->nama_lengkap ?? auth()->user()->name)[0] }}!</h1>
+    <h1>Selamat Datang, Elbiagus!</h1>
     <p>Pantau semua aspek operasional sekolah dari dashboard kepala sekolah</p>
 </div>
 

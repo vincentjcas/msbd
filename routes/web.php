@@ -202,6 +202,10 @@ Route::middleware('auth')->group(function () {
     // Pembina - Catatan & Rekomendasi
     Route::get('/pembina/laporan-aktivitas', [PembinaController::class, 'laporanAktivitas'])->name('pembina.laporan-aktivitas')->middleware('role:pembina');
     Route::post('/pembina/catatan', [PembinaController::class, 'saveCatatan'])->name('pembina.catatan.save')->middleware('role:pembina');
+    
+    // Pembina - Lihat Kegiatan Sekolah (Read-only)
+    Route::get('/pembina/kegiatan', [PembinaController::class, 'kegiatan'])->name('pembina.kegiatan')->middleware('role:pembina');
+    Route::get('/pembina/kegiatan/{id}', [PembinaController::class, 'detailKegiatan'])->name('pembina.kegiatan.detail')->middleware('role:pembina');
         
     // Default Dashboard
     Route::get('/dashboard', function () {
