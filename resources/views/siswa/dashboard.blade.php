@@ -122,7 +122,7 @@
                 <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Lihat jadwal kegiatan sekolah yang akan datang
+                Lihat jadwal kegiatan sekolah mendatang dan sedang berlangsung
             </p>
             <a href="{{ route('siswa.kegiatan') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-eye"></i> Lihat Kegiatan

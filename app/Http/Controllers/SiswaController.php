@@ -649,6 +649,9 @@ class SiswaController extends Controller
 
     public function kegiatan()
     {
+        // Auto-update status kegiatan berdasarkan waktu
+        $this->autoUpdateStatusKegiatan();
+        
         $filter = request('filter', 'upcoming'); // 'upcoming' atau 'history'
         
         $query = Kegiatan::with('pembuatKegiatan');
@@ -664,6 +667,41 @@ class SiswaController extends Controller
         $kegiatan = $query->orderBy('tanggal_mulai', $orderBy)->paginate(20);
         
         return view('siswa.kegiatan.index', compact('kegiatan', 'filter'));
+    }
+
+    private function autoUpdateStatusKegiatan()
+    {
+        $now = now();
+        
+        // Update status ke 'completed' jika waktu selesai sudah lewat
+        Kegiatan::where('status', '!=', 'cancelled')
+            ->where('status', '!=', 'completed')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'completed']);
+        
+        // Update status ke 'ongoing' jika waktu mulai sudah tiba tapi belum selesai
+        Kegiatan::where('status', 'planned')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_mulai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_mulai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_mulai', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '>', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '>=', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'ongoing']);
     }
 
     public function detailKegiatan($id)
