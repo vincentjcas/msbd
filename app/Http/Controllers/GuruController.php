@@ -305,7 +305,7 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         $materi = Materi::where('id_guru', $guru->id_guru)
-            ->with('kelas')
+            ->with(['kelas', 'guru'])
             ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
 
@@ -343,12 +343,15 @@ class GuruController extends Controller
             'mata_pelajaran' => 'required|string|max:100',
             'judul' => 'required|string|max:200',
             'deskripsi' => 'nullable|string',
-            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:10240',
+            'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx|max:10240',
         ]);
 
-        $file = $request->file('file');
-        $filename = time() . '_' . $file->getClientOriginalName();
-        $path = $file->storeAs('materi', $filename, 'public');
+        $filename = null;
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->storeAs('materi', $filename, 'public');
+        }
 
         $materi = Materi::create([
             'id_guru' => auth()->user()->guru->id_guru,
@@ -380,6 +383,27 @@ class GuruController extends Controller
         $this->logActivity->logCrud('delete', auth()->user()->id_user, 'materi', $id);
 
         return redirect()->route('guru.materi')->with('success', 'Materi berhasil dihapus');
+    }
+
+    public function bulkDeleteMateri(Request $request)
+    {
+        $ids = json_decode($request->ids);
+        $guru = auth()->user()->guru;
+        
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $materi = Materi::find($id);
+            if ($materi && $materi->id_guru === $guru->id_guru) {
+                if ($materi->file_materi && Storage::disk('public')->exists('materi/' . $materi->file_materi)) {
+                    Storage::disk('public')->delete('materi/' . $materi->file_materi);
+                }
+                $materi->delete();
+                $this->logActivity->logCrud('delete', auth()->user()->id_user, 'materi', $id);
+                $deleted++;
+            }
+        }
+        
+        return redirect()->route('guru.materi')->with('success', $deleted . ' materi berhasil dihapus');
     }
 
     public function tugas()

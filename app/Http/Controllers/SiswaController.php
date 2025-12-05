@@ -163,7 +163,7 @@ class SiswaController extends Controller
     {
         $siswa = auth()->user()->siswa;
         $materi = Materi::where('id_kelas', $siswa->id_kelas)
-            ->with(['guru.user'])
+            ->with(['guru.user', 'kelas'])
             ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
 
@@ -304,7 +304,7 @@ class SiswaController extends Controller
         // Get guru from jadwal if jadwal selected
         $id_guru = null;
         if ($request->id_jadwal) {
-            $jadwal = \App\Models\Jadwal::find($request->id_jadwal);
+            $jadwal = Jadwal::find($request->id_jadwal);
             if ($jadwal) {
                 $id_guru = $jadwal->id_guru;
             }

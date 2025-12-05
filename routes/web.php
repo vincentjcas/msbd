@@ -105,6 +105,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/guru/materi/create', [GuruController::class, 'createMateri'])->name('guru.materi.create')->middleware('role:guru');
     Route::post('/guru/materi', [GuruController::class, 'storeMateri'])->name('guru.materi.store')->middleware('role:guru');
     Route::delete('/guru/materi/{id}', [GuruController::class, 'deleteMateri'])->name('guru.materi.delete')->middleware('role:guru');
+    Route::delete('/guru/materi-bulk', [GuruController::class, 'bulkDeleteMateri'])->name('guru.materi.bulk-delete')->middleware('role:guru');
     
     // Guru - Tugas
     Route::get('/guru/tugas', [GuruController::class, 'tugas'])->name('guru.tugas')->middleware('role:guru');
