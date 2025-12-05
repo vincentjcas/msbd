@@ -163,7 +163,7 @@ class SiswaController extends Controller
     {
         $siswa = auth()->user()->siswa;
         $materi = Materi::where('id_kelas', $siswa->id_kelas)
-            ->with(['guru.user'])
+            ->with(['guru.user', 'kelas'])
             ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
 

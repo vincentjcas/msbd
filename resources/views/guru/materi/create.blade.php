@@ -89,10 +89,10 @@
             <!-- File Upload -->
             <div>
                 <label for="file" style="display: block; font-size: 0.875rem; font-weight: 600; color: #2d3748; margin-bottom: 0.5rem;">
-                    File Materi <span style="color: #dc2626;">*</span>
+                    File Materi (Opsional)
                 </label>
                 <div style="border: 2px dashed #d1d5db; border-radius: 0.5rem; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s;" id="file-drop-area">
-                    <input type="file" name="file" id="file" required accept=".pdf,.doc,.docx,.ppt,.pptx" style="display: none;" onchange="updateFileName(this)">
+                    <input type="file" name="file" id="file" accept=".pdf,.doc,.docx,.ppt,.pptx" style="display: none;" onchange="updateFileName(this)">
                     <label for="file" style="cursor: pointer; display: block;">
                         <svg style="width: 3rem; height: 3rem; margin: 0 auto 1rem; color: #9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
