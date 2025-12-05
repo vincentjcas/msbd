@@ -17,7 +17,7 @@
             <i class="fas fa-circle" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i> Sedang Berlangsung
         </span>
         @elseif($kegiatan->status == 'planned')
-        <span class="badge" style="background: white; color: #1e40af; margin-top: 1rem;">Akan Datang</span>
+        <span class="badge" style="background: white; color: #1e40af; margin-top: 1rem;">Mendatang</span>
         @elseif($kegiatan->status == 'completed')
         <span class="badge" style="background: white; color: #065f46; margin-top: 1rem;">Selesai</span>
         @endif

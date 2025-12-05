@@ -64,7 +64,7 @@
                     <td>{{ $item->tempat ?? '-' }}</td>
                     <td>
                         @if($item->status == 'planned')
-                        <span class="badge badge-info">Direncanakan</span>
+                        <span class="badge badge-info">Mendatang</span>
                         @elseif($item->status == 'ongoing')
                         <span class="badge badge-warning">Sedang Berlangsung</span>
                         @elseif($item->status == 'completed')

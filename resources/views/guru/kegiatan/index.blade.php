@@ -11,7 +11,7 @@
 
 <div class="welcome-card">
     <h2><i class="fas fa-calendar-alt"></i> Kegiatan Sekolah</h2>
-    <p>Lihat jadwal kegiatan sekolah yang akan datang</p>
+    <p>Lihat jadwal kegiatan sekolah mendatang dan sedang berlangsung</p>
 </div>
 
 <!-- Filter Tabs -->
@@ -24,7 +24,7 @@
                text-decoration: none; 
                border-radius: 6px; 
                transition: all 0.2s;">
-        <i class="fas fa-calendar"></i> Akan Datang
+        <i class="fas fa-calendar"></i> Mendatang/Berlangsung
     </a>
     <a href="{{ route('guru.kegiatan', ['filter' => 'history']) }}" 
        class="btn" 
@@ -51,7 +51,7 @@
                     @elseif($item->status == 'completed')
                     <span class="badge badge-success" style="margin-top: 0.5rem;"><i class="fas fa-check-circle"></i> Selesai</span>
                     @else
-                    <span class="badge badge-info" style="margin-top: 0.5rem;">Akan Datang</span>
+                    <span class="badge badge-info" style="margin-top: 0.5rem;">Mendatang</span>
                     @endif
                 </div>
             </div>

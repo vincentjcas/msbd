@@ -79,7 +79,7 @@
             <div class="form-group">
                 <label for="status">Status Kegiatan <span style="color: #ef4444;">*</span></label>
                 <select id="status" name="status" class="form-control" required>
-                    <option value="planned" {{ old('status', $kegiatan->status) == 'planned' ? 'selected' : '' }}>Direncanakan</option>
+                    <option value="planned" {{ old('status', $kegiatan->status) == 'planned' ? 'selected' : '' }}>Mendatang</option>
                     <option value="ongoing" {{ old('status', $kegiatan->status) == 'ongoing' ? 'selected' : '' }}>Sedang Berlangsung</option>
                     <option value="completed" {{ old('status', $kegiatan->status) == 'completed' ? 'selected' : '' }}>Selesai</option>
                     <option value="cancelled" {{ old('status', $kegiatan->status) == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
