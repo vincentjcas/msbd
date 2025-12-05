@@ -5,7 +5,7 @@
 @section('content')
 <div style="margin-bottom: 1.5rem;">
     <a href="{{ route('kepala_sekolah.dashboard') }}" class="btn" style="background: #64748b; color: white; padding: 0.75rem 1.5rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+        <i class="fas fa-arrow-left"></i> Kembali
     </a>
 </div>
 
@@ -75,16 +75,25 @@
                     </td>
                     <td>
                         <div style="display: flex; gap: 0.5rem;">
-                            <a href="{{ route('kepala_sekolah.kegiatan.edit', $item->id_kegiatan) }}" class="btn btn-sm" style="background: #f59e0b; color: white;">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="{{ route('kepala_sekolah.kegiatan.delete', $item->id_kegiatan) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus kegiatan ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-sm" style="background: #ef4444; color: white;">
+                            @if($item->status == 'planned')
+                                <a href="{{ route('kepala_sekolah.kegiatan.edit', $item->id_kegiatan) }}" class="btn btn-sm" style="background: #f59e0b; color: white;">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('kepala_sekolah.kegiatan.delete', $item->id_kegiatan) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus kegiatan ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm" style="background: #ef4444; color: white;">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            @else
+                                <button class="btn btn-sm" style="background: #d1d5db; color: #6b7280; cursor: not-allowed;" disabled title="Tidak bisa diedit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm" style="background: #d1d5db; color: #6b7280; cursor: not-allowed;" disabled title="Tidak bisa dihapus">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                            </form>
+                            @endif
                         </div>
                     </td>
                 </tr>

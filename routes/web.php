@@ -95,6 +95,7 @@ Route::middleware('auth')->group(function () {
     
     // Guru Dashboard
     Route::get('/guru/dashboard', [GuruController::class, 'dashboard'])->name('guru.dashboard')->middleware('role:guru');
+    Route::get('/guru/kelas', [GuruController::class, 'kelasAmpuan'])->name('guru.kelas')->middleware('role:guru');
     Route::get('/guru/server-time', [GuruController::class, 'getServerTime'])->name('guru.server-time')->middleware('role:guru');
     Route::post('/guru/absen-masuk', [GuruController::class, 'absenMasuk'])->name('guru.absen-masuk')->middleware('role:guru');
     Route::post('/guru/absen-keluar', [GuruController::class, 'absenKeluar'])->name('guru.absen-keluar')->middleware('role:guru');
@@ -132,7 +133,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/siswa/tugas/{id}', [SiswaController::class, 'detailTugas'])->name('siswa.tugas.detail')->middleware('role:siswa');
     Route::post('/siswa/tugas/{id}/submit', [SiswaController::class, 'submitTugas'])->name('siswa.tugas.submit')->middleware('role:siswa');
 
-    // Izin siswa - form dan submit
+    // Izin siswa - daftar, form dan submit
+    Route::get('/siswa/izin', [SiswaController::class, 'izin'])->name('siswa.izin')->middleware('role:siswa');
     Route::get('/siswa/izin/buat', [SiswaController::class, 'ajukanIzin'])->name('siswa.izin.create')->middleware('role:siswa');
     Route::post('/siswa/izin/submit', [SiswaController::class, 'submitAjukanIzin'])->name('siswa.izin.submit')->middleware('role:siswa');
     

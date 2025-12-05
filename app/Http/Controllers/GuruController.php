@@ -59,12 +59,34 @@ class GuruController extends Controller
             ->where('tanggal', $today)
             ->first();
 
+        // Jam kerja standar (07:30 untuk guru)
+        $jamKerjaStandar = '07:30:00';
+        $statusKehadiran = 'Belum Absen';
+        
+        if ($presensiHariIni && !is_null($presensiHariIni->jam_masuk)) {
+            $jamMasuk = $presensiHariIni->jam_masuk;
+            $jamMasukTime = \Carbon\Carbon::createFromFormat('H:i:s', $jamMasuk);
+            $jamStandarTime = \Carbon\Carbon::createFromFormat('H:i:s', $jamKerjaStandar);
+            
+            if ($jamMasukTime->lessThanOrEqualTo($jamStandarTime)) {
+                $statusKehadiran = 'Anda Tepat Waktu';
+            } else {
+                // Hitung selisih waktu
+                $diff = $jamMasukTime->diff($jamStandarTime);
+                $jam = $diff->h;
+                $menit = $diff->i;
+                $detik = $diff->s;
+                $statusKehadiran = "Anda Terlambat {$jam} jam {$menit} menit {$detik} detik";
+            }
+        }
+
         // Tentukan status absen
         $statusAbsen = [
             'sudah_masuk' => $presensiHariIni && !is_null($presensiHariIni->jam_masuk),
             'sudah_keluar' => $presensiHariIni && !is_null($presensiHariIni->jam_keluar),
             'jam_masuk' => $presensiHariIni->jam_masuk ?? null,
             'jam_keluar' => $presensiHariIni->jam_keluar ?? null,
+            'status_kehadiran' => $statusKehadiran,
         ];
 
         $view = view('guru.dashboard', compact('jadwalHariIni', 'totalKelas', 'totalMateri', 'totalTugas', 'statusAbsen'));
@@ -72,6 +94,38 @@ class GuruController extends Controller
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');
+    }
+
+    public function kelasAmpuan()
+    {
+        $guru = auth()->user()->guru;
+        
+        // Ambil semua kelas yang diampu guru dengan jadwalnya
+        $kelasAmpuan = Jadwal::where('id_guru', $guru->id_guru)
+            ->with('kelas')
+            ->distinct()
+            ->get(['id_kelas', 'id_guru'])
+            ->unique('id_kelas');
+        
+        // Untuk setiap kelas, ambil jadwal lengkapnya
+        $kelasDetail = [];
+        foreach ($kelasAmpuan as $item) {
+            $jadwal = Jadwal::where('id_kelas', $item->id_kelas)
+                ->where('id_guru', $guru->id_guru)
+                ->with('kelas')
+                ->get();
+            
+            if ($jadwal->count() > 0) {
+                $kelasDetail[] = [
+                    'id_kelas' => $item->id_kelas,
+                    'nama_kelas' => $jadwal->first()->kelas->nama_kelas,
+                    'jumlah_siswa' => Siswa::where('id_kelas', $item->id_kelas)->count(),
+                    'jadwal' => $jadwal
+                ];
+            }
+        }
+        
+        return view('guru.kelas.index', compact('kelasDetail'));
     }
 
     public function getServerTime()
@@ -468,12 +522,21 @@ class GuruController extends Controller
 
     public function kegiatan()
     {
-        $kegiatan = Kegiatan::with('pembuatKegiatan')
-            ->whereIn('status', ['planned', 'ongoing'])
-            ->orderBy('tanggal_mulai', 'asc')
-            ->paginate(20);
+        $filter = request('filter', 'upcoming'); // 'upcoming' atau 'history'
         
-        return view('guru.kegiatan.index', compact('kegiatan'));
+        $query = Kegiatan::with('pembuatKegiatan');
+        
+        if ($filter === 'history') {
+            $query->where('status', 'completed');
+            $orderBy = 'desc';
+        } else {
+            $query->whereIn('status', ['planned', 'ongoing']);
+            $orderBy = 'asc';
+        }
+        
+        $kegiatan = $query->orderBy('tanggal_mulai', $orderBy)->paginate(20);
+        
+        return view('guru.kegiatan.index', compact('kegiatan', 'filter'));
     }
 
     public function detailKegiatan($id)

@@ -1,7 +1,7 @@
 <div class="navbar">
     <div class="navbar-brand">
         <img src="{{ asset('images/yapim.png') }}" alt="Logo" style="height: 40px; width: auto; border-radius: 8px; cursor: pointer;" 
-             onclick="goToDashboard()" title="Kembali ke Dashboard">
+             onclick="goToDashboard()" title="Kembali">
         <a href="javascript:void(0);" onclick="goToDashboard()" style="color: white; text-decoration: none; cursor: pointer;">
             SMK YAPIM BIRU-BIRU
         </a>

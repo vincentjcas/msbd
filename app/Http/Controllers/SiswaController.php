@@ -45,11 +45,21 @@ class SiswaController extends Controller
         $tahun = date('Y');
         $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
 
+        // Hitung total materi tersedia
         $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
+        
+        // Hitung pengajuan izin yang belum disetujui (pending)
+        $totalIzinPending = Izin::where('id_user', $user->id_user)
+            ->where('status', 'pending')
+            ->count();
+        
+        // Hitung jadwal hari ini
+        $jadwalHariIniCount = $jadwalHariIni->count();
+
         $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
         $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
 
-        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
+        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalIzinPending', 'jadwalHariIniCount', 'totalTugas', 'tugasSelesai'));
     }
 
     public function profile()
@@ -260,9 +270,17 @@ class SiswaController extends Controller
 
     public function izin()
     {
-        $izinList = VStatusIzinSiswa::where('id_siswa', auth()->user()->siswa->id_siswa)
-            ->orderBy('tanggal_pengajuan', 'desc')
-            ->get();
+        $user = auth()->user();
+        $siswa = $user->siswa;
+        
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
+        
+        // Ambil semua izin yang pernah diajukan user ini
+        $izinList = Izin::where('id_user', $user->id_user)
+            ->orderBy('tanggal', 'desc')
+            ->paginate(20);
 
         return view('siswa.izin', compact('izinList'));
     }
@@ -631,12 +649,21 @@ class SiswaController extends Controller
 
     public function kegiatan()
     {
-        $kegiatan = Kegiatan::with('pembuatKegiatan')
-            ->whereIn('status', ['planned', 'ongoing'])
-            ->orderBy('tanggal_mulai', 'asc')
-            ->paginate(20);
+        $filter = request('filter', 'upcoming'); // 'upcoming' atau 'history'
         
-        return view('siswa.kegiatan.index', compact('kegiatan'));
+        $query = Kegiatan::with('pembuatKegiatan');
+        
+        if ($filter === 'history') {
+            $query->where('status', 'completed');
+            $orderBy = 'desc';
+        } else {
+            $query->whereIn('status', ['planned', 'ongoing']);
+            $orderBy = 'asc';
+        }
+        
+        $kegiatan = $query->orderBy('tanggal_mulai', $orderBy)->paginate(20);
+        
+        return view('siswa.kegiatan.index', compact('kegiatan', 'filter'));
     }
 
     public function detailKegiatan($id)
