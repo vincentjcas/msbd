@@ -5,7 +5,7 @@
 @section('content')
 <div style="margin-bottom: 1.5rem;">
     <a href="{{ route('guru.dashboard') }}" class="btn" style="background: #64748b; color: white; padding: 0.75rem 1.5rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 6px;">
-        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+        <i class="fas fa-arrow-left"></i> Kembali
     </a>
 </div>
 
@@ -14,16 +14,42 @@
     <p>Lihat jadwal kegiatan sekolah yang akan datang</p>
 </div>
 
+<!-- Filter Tabs -->
+<div style="margin-bottom: 1.5rem; display: flex; gap: 0.5rem;">
+    <a href="{{ route('guru.kegiatan', ['filter' => 'upcoming']) }}" 
+       class="btn" 
+       style="background: {{ $filter === 'upcoming' ? '#667eea' : '#e5e7eb' }}; 
+               color: {{ $filter === 'upcoming' ? 'white' : '#374151' }}; 
+               padding: 0.75rem 1.5rem; 
+               text-decoration: none; 
+               border-radius: 6px; 
+               transition: all 0.2s;">
+        <i class="fas fa-calendar"></i> Akan Datang
+    </a>
+    <a href="{{ route('guru.kegiatan', ['filter' => 'history']) }}" 
+       class="btn" 
+       style="background: {{ $filter === 'history' ? '#667eea' : '#e5e7eb' }}; 
+               color: {{ $filter === 'history' ? 'white' : '#374151' }}; 
+               padding: 0.75rem 1.5rem; 
+               text-decoration: none; 
+               border-radius: 6px; 
+               transition: all 0.2s;">
+        <i class="fas fa-history"></i> Riwayat
+    </a>
+</div>
+
 <div class="content-section">
     @if($kegiatan->count() > 0)
     <div class="kegiatan-grid">
         @foreach($kegiatan as $item)
         <div class="kegiatan-card">
-            <div class="kegiatan-header" style="background: {{ $item->status == 'ongoing' ? '#fef3c7' : '#dbeafe' }};">
+            <div class="kegiatan-header" style="background: {{ $item->status == 'ongoing' ? '#fef3c7' : ($item->status == 'completed' ? '#d1fae5' : '#dbeafe') }};">
                 <div style="flex: 1;">
                     <h3 style="margin: 0; color: #1f2937; font-size: 1.125rem;">{{ $item->nama_kegiatan }}</h3>
                     @if($item->status == 'ongoing')
                     <span class="badge badge-warning" style="margin-top: 0.5rem;"><i class="fas fa-circle" style="font-size: 0.5rem; animation: pulse 2s infinite;"></i> Sedang Berlangsung</span>
+                    @elseif($item->status == 'completed')
+                    <span class="badge badge-success" style="margin-top: 0.5rem;"><i class="fas fa-check-circle"></i> Selesai</span>
                     @else
                     <span class="badge badge-info" style="margin-top: 0.5rem;">Akan Datang</span>
                     @endif

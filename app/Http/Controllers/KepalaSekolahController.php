@@ -264,11 +264,26 @@ class KepalaSekolahController extends Controller
     public function editKegiatan($id)
     {
         $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent edit jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat mengedit kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
         return view('kepala_sekolah.kegiatan.edit', compact('kegiatan'));
     }
 
     public function updateKegiatan(Request $request, $id)
     {
+        $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent update jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat mengubah kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
         $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
             'jenis_kegiatan' => 'required|in:rapat,ujian,acara_resmi,lainnya',
@@ -282,7 +297,6 @@ class KepalaSekolahController extends Controller
 
         DB::beginTransaction();
         try {
-            $kegiatan = Kegiatan::findOrFail($id);
             $kegiatan->update([
                 'nama_kegiatan' => $request->nama_kegiatan,
                 'deskripsi' => $request->deskripsi,
@@ -306,9 +320,16 @@ class KepalaSekolahController extends Controller
 
     public function deleteKegiatan($id)
     {
+        $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent delete jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat menghapus kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
         DB::beginTransaction();
         try {
-            $kegiatan = Kegiatan::findOrFail($id);
             $namaKegiatan = $kegiatan->nama_kegiatan;
             $kegiatan->delete();
             
