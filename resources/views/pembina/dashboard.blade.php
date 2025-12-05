@@ -31,13 +31,6 @@
         <div class="stat-value">{{ $totalLaporan }}</div>
         <div class="stat-label">Total Laporan</div>
     </div>
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-hourglass-half"></i>
-        </div>
-        <div class="stat-value">{{ $laporanPending }}</div>
-        <div class="stat-label">Laporan Pending</div>
-    </div>
 </div>
 
 <div class="content-section">
@@ -106,6 +99,19 @@
             </p>
             <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.laporan-aktivitas') }}'">
                 <i class="fas fa-list"></i> Lihat Laporan
+            </button>
+        </div>
+
+        <!-- 6. Kegiatan Sekolah -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-check"></i> Kegiatan Sekolah
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Melihat jadwal dan informasi kegiatan sekolah
+            </p>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.kegiatan') }}'">
+                <i class="fas fa-eye"></i> Lihat Kegiatan
             </button>
         </div>
     </div>
