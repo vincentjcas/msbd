@@ -116,6 +116,19 @@
             </a>
         </div>
 
+        <!-- 6. Kegiatan Sekolah -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #db2777;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Lihat jadwal kegiatan sekolah yang akan datang
+            </p>
+            <a href="{{ route('siswa.kegiatan') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-eye"></i> Lihat Kegiatan
+            </a>
+        </div>
+
     </div>
 </div>
 

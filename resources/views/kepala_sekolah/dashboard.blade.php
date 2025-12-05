@@ -168,6 +168,16 @@
                 <div class="link-desc">Export laporan presensi</div>
             </div>
         </a>
+
+        <a href="{{ route('kepala_sekolah.kegiatan') }}" class="link-card">
+            <div class="link-icon" style="background: #fce7f3; color: #db2777;">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+                <div class="link-title">Kegiatan Sekolah</div>
+                <div class="link-desc">Kelola kegiatan sekolah</div>
+            </div>
+        </a>
     </div>
 </div>
 @endsection

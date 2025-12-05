@@ -75,14 +75,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/admin/file-materi/{id}', [AdminController::class, 'deleteMateri'])->name('admin.file-materi.delete')->middleware('role:admin');
     Route::delete('/admin/file-materi-bulk', [AdminController::class, 'bulkDeleteMateri'])->name('admin.file-materi.bulk-delete')->middleware('role:admin');
     
-    // Admin - Kegiatan Sekolah
-    Route::get('/admin/kegiatan', [AdminController::class, 'kegiatan'])->name('admin.kegiatan')->middleware('role:admin');
-    Route::get('/admin/kegiatan/create', [AdminController::class, 'createKegiatan'])->name('admin.kegiatan.create')->middleware('role:admin');
-    Route::post('/admin/kegiatan', [AdminController::class, 'storeKegiatan'])->name('admin.kegiatan.store')->middleware('role:admin');
-    Route::get('/admin/kegiatan/{id}/edit', [AdminController::class, 'editKegiatan'])->name('admin.kegiatan.edit')->middleware('role:admin');
-    Route::put('/admin/kegiatan/{id}', [AdminController::class, 'updateKegiatan'])->name('admin.kegiatan.update')->middleware('role:admin');
-    Route::delete('/admin/kegiatan/{id}', [AdminController::class, 'deleteKegiatan'])->name('admin.kegiatan.delete')->middleware('role:admin');
-    
     // Admin - Pengajuan Izin
     Route::get('/admin/pengajuan-izin', [AdminController::class, 'pengajuanIzin'])->name('admin.pengajuan-izin')->middleware('role:admin');
     Route::post('/admin/pengajuan-izin/{id}/approve', [AdminController::class, 'approveIzin'])->name('admin.pengajuan-izin.approve')->middleware('role:admin');
@@ -148,6 +140,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/siswa/presensi/submit', [SiswaController::class, 'submitAbsen'])->name('siswa.presensi.submit')->middleware('role:siswa');
     Route::get('/siswa/presensi/status', [SiswaController::class, 'statusAbsenHariIni'])->name('siswa.presensi.status')->middleware('role:siswa');
     
+    // Siswa - Lihat Kegiatan Sekolah (Read-only)
+    Route::get('/siswa/kegiatan', [SiswaController::class, 'kegiatan'])->name('siswa.kegiatan')->middleware('role:siswa');
+    Route::get('/siswa/kegiatan/{id}', [SiswaController::class, 'detailKegiatan'])->name('siswa.kegiatan.detail')->middleware('role:siswa');
+    
     // Kepala Sekolah Dashboard
     Route::get('/kepala-sekolah/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('kepala_sekolah.dashboard')->middleware('role:kepala_sekolah');
     
@@ -157,11 +153,23 @@ Route::middleware('auth')->group(function () {
     // Kepala Sekolah - Rekap Presensi
     Route::get('/kepala-sekolah/rekap-presensi', [KepalaSekolahController::class, 'rekapPresensi'])->name('kepala_sekolah.rekap-presensi')->middleware('role:kepala_sekolah');
     
+    // Kepala Sekolah - Kegiatan Sekolah
+    Route::get('/kepala-sekolah/kegiatan', [KepalaSekolahController::class, 'kegiatan'])->name('kepala_sekolah.kegiatan')->middleware('role:kepala_sekolah');
+    Route::get('/kepala-sekolah/kegiatan/create', [KepalaSekolahController::class, 'createKegiatan'])->name('kepala_sekolah.kegiatan.create')->middleware('role:kepala_sekolah');
+    Route::post('/kepala-sekolah/kegiatan', [KepalaSekolahController::class, 'storeKegiatan'])->name('kepala_sekolah.kegiatan.store')->middleware('role:kepala_sekolah');
+    Route::get('/kepala-sekolah/kegiatan/{id}/edit', [KepalaSekolahController::class, 'editKegiatan'])->name('kepala_sekolah.kegiatan.edit')->middleware('role:kepala_sekolah');
+    Route::put('/kepala-sekolah/kegiatan/{id}', [KepalaSekolahController::class, 'updateKegiatan'])->name('kepala_sekolah.kegiatan.update')->middleware('role:kepala_sekolah');
+    Route::delete('/kepala-sekolah/kegiatan/{id}', [KepalaSekolahController::class, 'deleteKegiatan'])->name('kepala_sekolah.kegiatan.delete')->middleware('role:kepala_sekolah');
+    
     // Kepala Sekolah - Lihat Pengajuan Izin (Read-only)
     Route::get('/kepala-sekolah/izin', [KepalaSekolahController::class, 'izin'])->name('kepala_sekolah.izin')->middleware('role:kepala_sekolah');
     
     // Guru - Lihat Pengajuan Izin (hanya siswa di kelas yang diampu)
     Route::get('/guru/izin', [GuruController::class, 'izin'])->name('guru.izin')->middleware('role:guru');
+    
+    // Guru - Lihat Kegiatan Sekolah (Read-only)
+    Route::get('/guru/kegiatan', [GuruController::class, 'kegiatan'])->name('guru.kegiatan')->middleware('role:guru');
+    Route::get('/guru/kegiatan/{id}', [GuruController::class, 'detailKegiatan'])->name('guru.kegiatan.detail')->middleware('role:guru');
     
     // Kepala Sekolah - Laporan Aktivitas
     Route::get('/kepala-sekolah/laporan', [KepalaSekolahController::class, 'laporan'])->name('kepala_sekolah.laporan')->middleware('role:kepala_sekolah');

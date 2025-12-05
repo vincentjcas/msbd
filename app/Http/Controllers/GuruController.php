@@ -10,6 +10,7 @@ use App\Models\Materi;
 use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\Izin;
+use App\Models\Kegiatan;
 use App\Models\Kelas;
 use App\Models\Siswa;
 use App\Models\GuruKelasMapel;
@@ -463,5 +464,21 @@ class GuruController extends Controller
         $this->logActivity->logApprovalIzin(auth()->user()->id_user, $id, $request->status);
 
         return redirect()->back()->with('success', 'Status izin berhasil diupdate');
+    }
+
+    public function kegiatan()
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')
+            ->whereIn('status', ['planned', 'ongoing'])
+            ->orderBy('tanggal_mulai', 'asc')
+            ->paginate(20);
+        
+        return view('guru.kegiatan.index', compact('kegiatan'));
+    }
+
+    public function detailKegiatan($id)
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')->findOrFail($id);
+        return view('guru.kegiatan.detail', compact('kegiatan'));
     }
 }
