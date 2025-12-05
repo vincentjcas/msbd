@@ -8,6 +8,7 @@ use App\Models\Materi;
 use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\Izin;
+use App\Models\Kegiatan;
 use App\Models\PresensiSiswa;
 use App\Models\Views\VStatusIzinSiswa;
 use App\Services\DatabaseFunctionService;
@@ -626,5 +627,21 @@ class SiswaController extends Controller
                 'data' => []
             ], 500);
         }
+    }
+
+    public function kegiatan()
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')
+            ->whereIn('status', ['planned', 'ongoing'])
+            ->orderBy('tanggal_mulai', 'asc')
+            ->paginate(20);
+        
+        return view('siswa.kegiatan.index', compact('kegiatan'));
+    }
+
+    public function detailKegiatan($id)
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')->findOrFail($id);
+        return view('siswa.kegiatan.detail', compact('kegiatan'));
     }
 }

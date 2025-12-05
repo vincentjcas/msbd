@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Routing\Router;
+use Illuminate\Pagination\Paginator;
 
 use App\Http\Middleware\RoleMiddleware;
 
