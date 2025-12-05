@@ -54,6 +54,12 @@ Route::middleware('auth')->group(function () {
     // Admin Routes
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard')->middleware('role:admin');
     
+    // Admin - Manajemen Users
+    Route::get('/admin/users', [AdminController::class, 'users'])->name('admin.users')->middleware('role:admin');
+    Route::get('/admin/users/{id}', [AdminController::class, 'showUser'])->name('admin.users.show')->middleware('role:admin');
+    Route::post('/admin/users/{id}/toggle-status', [AdminController::class, 'toggleUserStatus'])->name('admin.users.toggle-status')->middleware('role:admin');
+    Route::delete('/admin/users/{id}', [AdminController::class, 'deleteUser'])->name('admin.users.delete')->middleware('role:admin');
+    
     // Admin - Verifikasi Guru
     Route::get('/admin/verifikasi-guru', [AdminController::class, 'verifikasiGuru'])->name('admin.verifikasi-guru')->middleware('role:admin');
     Route::post('/admin/verifikasi-guru/{id}/approve', [AdminController::class, 'approveGuru'])->name('admin.approve-guru')->middleware('role:admin');

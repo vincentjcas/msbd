@@ -3,6 +3,12 @@
 @section('title', 'Backup Database')
 
 @section('content')
+<div style="margin-bottom: 1.5rem;">
+    <a href="{{ route('admin.dashboard') }}" class="btn" style="background: #64748b; color: white; padding: 0.75rem 1.5rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 6px;">
+        <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+    </a>
+</div>
+
 <div class="welcome-card">
     <h2><i class="fas fa-hdd"></i> Backup Database</h2>
     <p>Kelola backup database sistem untuk keamanan data</p>

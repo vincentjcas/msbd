@@ -39,11 +39,58 @@ class AdminController extends Controller
 
     public function users()
     {
+        $search = request('search');
+        $role = request('role');
+        $status = request('status');
+
         $users = User::with(['guru', 'siswa', 'kepalaSekolah', 'pembina'])
+            ->when($search, function($query) use ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('username', 'like', "%{$search}%")
+                      ->orWhere('nama_lengkap', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            })
+            ->when($role, function($query) use ($role) {
+                $query->where('role', $role);
+            })
+            ->when($status !== null && $status !== '', function($query) use ($status) {
+                if ($status === 'pending') {
+                    $query->where('status_approval', 'pending');
+                } elseif ($status === 'approved') {
+                    $query->where('status_approval', 'approved');
+                } elseif ($status === 'active') {
+                    $query->where('status_aktif', 1);
+                } elseif ($status === 'inactive') {
+                    $query->where('status_aktif', 0);
+                }
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(20);
         
         return view('admin.users.index', compact('users'));
+    }
+
+    public function showUser($id)
+    {
+        $user = User::with(['guru', 'siswa', 'kepalaSekolah', 'pembina'])->findOrFail($id);
+        return view('admin.users.show', compact('user'));
+    }
+
+    public function toggleUserStatus($id)
+    {
+        try {
+            $user = User::findOrFail($id);
+            $user->status_aktif = !$user->status_aktif;
+            $user->save();
+
+            $status = $user->status_aktif ? 'aktif' : 'nonaktif';
+            $this->logActivity->log('update_status', auth()->user()->id_user, "Ubah status user {$user->username} menjadi {$status}");
+
+            return back()->with('success', "Status user berhasil diubah menjadi {$status}");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengubah status: ' . $e->getMessage());
+        }
     }
 
     public function createUser()

@@ -154,9 +154,9 @@
                 Menambah, mengedit, menghapus data pengguna (kepala sekolah, pembina, guru, siswa)
             </p>
             <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur manajemen user akan tersedia')">
+                <a href="{{ route('admin.users') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-cog"></i> Kelola Data
-                </button>
+                </a>
             </div>
         </div>
 
