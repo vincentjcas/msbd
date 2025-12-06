@@ -44,145 +44,194 @@
             <strong>Belum ada pertemuan.</strong> Guru belum membuat absen untuk mata pelajaran ini.
         </div>
     @else
-        <div class="card shadow-sm border-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 6%; text-align: center;">No</th>
-                            <th style="width: 16%;">Deskripsi</th>
-                            <th style="width: 14%;">Tanggal Pertemuan</th>
-                            <th style="width: 18%;">Jam dan Jenis Presensi</th>
-                            <th style="width: 24%;">Topik Pembelajaran</th>
-                            <th style="width: 12%; text-align: center;">Kehadiran</th>
-                            <th style="width: 10%; text-align: center;">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($absens as $index => $absen)
-                            @php
-                                $pertemuanNumber = $index + 1;
-                                $now = now();
-                                $isOpen = $now >= $absen->jam_buka && $now <= $absen->jam_tutup;
-                                // Gunakan collection yang sudah di-load, jangan query baru
-                                $absenSiswa = $absen->absenSiswas->firstWhere('id_siswa', \Illuminate\Support\Facades\Auth::user()->siswa->id_siswa);
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            @foreach($absens as $index => $absen)
+                @php
+                    $pertemuanNumber = $index + 1;
+                    $now = now();
+                    $isOpen = $now >= $absen->jam_buka && $now <= $absen->jam_tutup;
+                    // Gunakan collection yang sudah di-load, jangan query baru
+                    $absenSiswa = $absen->absenSiswas->firstWhere('id_siswa', \Illuminate\Support\Facades\Auth::user()->siswa->id_siswa);
 
-                                $statusColors = [
-                                    'hadir' => 'success',
-                                    'tidak_hadir' => 'secondary',
-                                    'izin' => 'warning',
-                                    'sakit' => 'info'
-                                ];
-                                $statusLabels = [
-                                    'hadir' => 'Hadir',
-                                    'tidak_hadir' => 'Belum Diisi',
-                                    'izin' => 'Izin',
-                                    'sakit' => 'Sakit'
-                                ];
-                                
-                                // Button aktif HANYA jika belum pernah di-submit (waktu_absen NULL)
-                                $canPresent = $isOpen && $absenSiswa && $absenSiswa->waktu_absen === null;
-                                
-                                // Status display: jika tidak_hadir tapi ada waktu_absen, tampilkan "Absen" (diubah guru)
-                                $displayStatus = $absenSiswa->status;
-                                if ($absenSiswa->status === 'tidak_hadir' && $absenSiswa->waktu_absen !== null) {
-                                    $displayStatus = 'absen_edited'; // Custom key untuk label
-                                }
-                            @endphp
-                            <tr class="align-middle" style="border-bottom: 1px solid #e5e7eb;">
-                                <!-- No -->
-                                <td style="text-align: center; font-weight: 600; color: #1f2937;">
-                                    {{ $pertemuanNumber }}
-                                </td>
+                    $statusColors = [
+                        'hadir' => '#10b981',
+                        'tidak_hadir' => '#6b7280',
+                        'izin' => '#f59e0b',
+                        'sakit' => '#3b82f6'
+                    ];
+                    
+                    // Button aktif HANYA jika belum pernah di-submit (waktu_absen NULL)
+                    $canPresent = $isOpen && $absenSiswa && $absenSiswa->waktu_absen === null;
+                    
+                    // Status display
+                    $displayStatus = $absenSiswa->status;
+                    $isClosed = !$isOpen;
+                    $isLocked = !$canPresent && $isOpen;
+                @endphp
+                <div style="
+                    background: white;
+                    border: 1px solid #e5e7eb;
+                    border-radius: 0.75rem;
+                    padding: 1.25rem;
+                    display: flex;
+                    gap: 1rem;
+                    align-items: flex-start;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+                "
+                onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)';"
+                onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'; this.style.transform='translateY(0)';">
+                    
+                    <!-- No Badge -->
+                    <div style="
+                        background: #dbeafe;
+                        color: #1e40af;
+                        width: 3rem;
+                        height: 3rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 0.5rem;
+                        font-weight: 700;
+                        font-size: 1.125rem;
+                        flex-shrink: 0;
+                    ">
+                        {{ $pertemuanNumber }}
+                    </div>
 
-                                <!-- Deskripsi -->
-                                <td>
-                                    <span style="font-weight: 600; color: #374151;">
-                                        <i class="fas fa-calendar-alt"></i> Pertemuan {{ $pertemuanNumber }}
-                                    </span>
-                                </td>
+                    <!-- Content -->
+                    <div style="flex: 1;">
+                        <!-- Judul Pertemuan -->
+                        <h5 style="margin: 0 0 0.5rem 0; color: #1f2937; font-weight: 600;">
+                            Pertemuan {{ $pertemuanNumber }}
+                            @if($absenSiswa && $absenSiswa->waktu_absen === null)
+                                <span style="
+                                    display: inline-block;
+                                    background: #fecaca;
+                                    color: #991b1b;
+                                    padding: 0.25rem 0.75rem;
+                                    border-radius: 0.25rem;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    margin-left: 0.5rem;
+                                ">Belum Absen</span>
+                            @else
+                                <span style="
+                                    display: inline-block;
+                                    background: #d1fae5;
+                                    color: #065f46;
+                                    padding: 0.25rem 0.75rem;
+                                    border-radius: 0.25rem;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    margin-left: 0.5rem;
+                                ">Sudah Absen</span>
+                            @endif
+                        </h5>
 
-                                <!-- Tanggal Pertemuan -->
-                                <td>
-                                    <small style="color: #6b7280;">
-                                        {{ $absen->jam_buka->format('d/m/Y') }}
-                                    </small>
-                                </td>
+                        <!-- Tanggal & Hari -->
+                        <p style="margin: 0.5rem 0; color: #6b7280; font-size: 0.9375rem;">
+                            <i class="fas fa-calendar-alt"></i>
+                            {{ \Carbon\Carbon::parse($absen->jam_buka)->locale('id_ID')->translatedFormat('l, d F Y') }}
+                        </p>
 
-                                <!-- Jam dan Jenis Presensi -->
-                                <td>
-                                    @if($absen->jam_buka && $absen->jam_tutup)
-                                        <small style="color: #374151; font-weight: 500;">
-                                            {{ $absen->jam_buka->format('H:i') }} - {{ $absen->jam_tutup->format('H:i') }}
-                                            <br>
-                                            <span style="color: #0ea5e9; cursor: pointer;">Mandiri</span>
-                                        </small>
-                                    @else
-                                        <small style="color: #d1d5db;">-</small>
-                                    @endif
-                                </td>
+                        <!-- Topik Materi -->
+                        <p style="margin: 0.25rem 0 0.5rem 0; color: #9ca3af; font-size: 0.875rem;">
+                            {{ $absen->keterangan ?? '(tanpa topik)' }}
+                        </p>
 
-                                <!-- Topik Pembelajaran -->
-                                <td>
-                                    <small style="color: #6b7280;">
-                                        @if($absen->keterangan)
-                                            {{ Str::limit($absen->keterangan, 40) }}
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
-                                    </small>
-                                </td>
+                        <!-- Jam Buka Tutup -->
+                        <p style="margin: 0; color: #374151; font-size: 0.875rem;">
+                            <i class="fas fa-clock"></i>
+                            <strong>Buka:</strong> {{ $absen->jam_buka->format('H:i') }} &nbsp;
+                            <strong>Tutup:</strong> {{ $absen->jam_tutup->format('H:i') }}
+                        </p>
+                    </div>
 
-                                <!-- Kehadiran Status -->
-                                <td style="text-align: center;">
-                                    @if($absenSiswa)
-                                        @php
-                                            $labelKey = $displayStatus;
-                                            if ($displayStatus === 'absen_edited') {
-                                                $labelText = 'Absen';
-                                                $colorKey = 'tidak_hadir';
-                                            } else {
-                                                $labelText = $statusLabels[$displayStatus] ?? ucfirst($displayStatus);
-                                                $colorKey = $displayStatus;
-                                            }
-                                        @endphp
-                                        <span class="badge bg-{{ $statusColors[$colorKey] ?? 'secondary' }}">
-                                            {{ $labelText }}
-                                        </span>
-                                        </span>
-                                    @else
-                                        <span class="badge bg-secondary">Belum Diisi</span>
-                                    @endif
-                                </td>
+                    <!-- Status & Action (Right Side) -->
+                    <div style="
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-end;
+                        gap: 0.75rem;
+                    ">
+                        <!-- Status Display -->
+                        <div>
+                            @if($isClosed)
+                                <span style="
+                                    color: #d1d5db;
+                                    font-size: 0.875rem;
+                                    font-weight: 500;
+                                ">Sudah Ditutup</span>
+                            @elseif($absenSiswa && $absenSiswa->waktu_absen)
+                                <span style="
+                                    color: #0ea5e9;
+                                    font-size: 0.875rem;
+                                    font-weight: 500;
+                                ">Dicatat pada {{ $absenSiswa->waktu_absen->format('H:i') }}</span>
+                            @else
+                                <span style="
+                                    color: #ef4444;
+                                    font-size: 0.875rem;
+                                    font-weight: 500;
+                                ">Belum Dicatat</span>
+                            @endif
+                        </div>
 
-                                <!-- Aksi -->
-                                <td style="text-align: center;">
-                                    @if($canPresent)
-                                        <!-- Tombol AKTIF - Belum pernah submit -->
-                                        <button type="button"
-                                                class="btn btn-sm btn-outline-primary"
-                                                onclick="markPresent({{ $absen->id }}, this)">
-                                            <i class="fas fa-check"></i> Hadir
-                                        </button>
-                                    @elseif(!$isOpen)
-                                        <!-- Presensi sudah tutup -->
-                                        <button class="btn btn-sm btn-outline-secondary" disabled 
-                                                style="opacity: 0.6;">
-                                            <i class="fas fa-clock"></i> Tutup
-                                        </button>
-                                    @else
-                                        <!-- Sudah pernah submit (oleh siswa atau guru ubah) - TERKUNCI -->
-                                        <button class="btn btn-sm btn-outline-secondary" disabled 
-                                                style="opacity: 0.6;">
-                                            <i class="fas fa-lock"></i> Terkunci
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                        <!-- Action Button -->
+                        <div>
+                            @if($canPresent)
+                                <!-- Tombol AKTIF - Belum pernah submit -->
+                                <button type="button"
+                                        class="btn btn-sm"
+                                        style="
+                                            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                                            color: white;
+                                            border: none;
+                                            padding: 0.5rem 1rem;
+                                            border-radius: 0.375rem;
+                                            font-weight: 500;
+                                            cursor: pointer;
+                                            transition: all 0.2s ease;
+                                        "
+                                        onmouseover="this.style.boxShadow='0 4px 6px rgba(37, 99, 235, 0.3)'; this.style.transform='scale(1.02)';"
+                                        onmouseout="this.style.boxShadow='none'; this.style.transform='scale(1)';"
+                                        onclick="markPresent({{ $absen->id }}, this)">
+                                    <i class="fas fa-check-circle"></i> Isi Absen
+                                </button>
+                            @elseif($isClosed)
+                                <!-- Presensi sudah tutup -->
+                                <button class="btn btn-sm" disabled 
+                                        style="
+                                            background: #e5e7eb;
+                                            color: #9ca3af;
+                                            border: none;
+                                            padding: 0.5rem 1rem;
+                                            border-radius: 0.375rem;
+                                            font-weight: 500;
+                                            cursor: not-allowed;
+                                        ">
+                                    <i class="fas fa-lock"></i> Ditutup
+                                </button>
+                            @else
+                                <!-- Sudah pernah submit - TERKUNCI -->
+                                <button class="btn btn-sm" disabled 
+                                        style="
+                                            background: #e5e7eb;
+                                            color: #9ca3af;
+                                            border: none;
+                                            padding: 0.5rem 1rem;
+                                            border-radius: 0.375rem;
+                                            font-weight: 500;
+                                            cursor: not-allowed;
+                                        ">
+                                    <i class="fas fa-lock"></i> Terkunci
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @endif
 </div>

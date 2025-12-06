@@ -8,7 +8,7 @@
         <div class="col-md-12">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
                 <div>
-                    <h2 class="mb-1"><i class="fas fa-check-circle"></i> Isi Absen Siswa</h2>
+                    <h2 class="mb-1" style="color: #3b82f6; font-weight: 700; font-size: 2rem;"><i class="fas fa-check-circle"></i> Isi Absen</h2>
                     <p class="text-muted">Pilih mata pelajaran untuk melihat dan mengisi absen</p>
                 </div>
                 <x-dashboard-button />
@@ -22,52 +22,40 @@
             <strong>Belum ada jadwal.</strong> Mata pelajaran Anda akan muncul di sini.
         </div>
     @else
-        <div class="card shadow-sm border-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th style="width: 10%; text-align: center;">Presensi</th>
-                            <th style="width: 8%; text-align: center;">No</th>
-                            <th style="width: 40%;">Mata Pelajaran</th>
-                            <th style="width: 42%;">Guru</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($mapels as $index => $mapel)
-                            <tr class="align-middle" style="border-bottom: 1px solid #e5e7eb;">
-                                <!-- Presensi Icon -->
-                                <td style="text-align: center;">
-                                    <a href="{{ route('siswa.absen.show', $mapel->mata_pelajaran) }}" 
-                                       class="btn btn-sm btn-primary"
-                                       style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; color: white; text-decoration: none;">
-                                        <i class="fas fa-list-check"></i>
-                                    </a>
-                                </td>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+            @foreach($mapels as $index => $mapel)
+                <div style="background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; transition: all 0.3s ease; cursor: pointer;"
+                     onmouseover="this.style.boxShadow='0 12px 24px rgba(0,0,0,0.15)'; this.style.transform='translateY(-4px)';"
+                     onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'; this.style.transform='translateY(0)';">
+                    
+                    <!-- Header dengan Mata Pelajaran -->
+                    <div style="padding: 1.5rem; text-align: center;">
+                        <h3 style="color: #3b82f6; font-weight: 700; font-size: 1.25rem; margin: 0 0 0.5rem 0;">
+                            {{ $mapel->mata_pelajaran ?? 'N/A' }}
+                        </h3>
+                        <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">
+                            X-E1
+                        </p>
+                    </div>
 
-                                <!-- No -->
-                                <td style="text-align: center; font-weight: 600; color: #1f2937;">
-                                    {{ $index + 1 }}
-                                </td>
+                    <!-- Icon -->
+                    <div style="text-align: center; padding: 1.5rem 0;">
+                        <div style="width: 120px; height: 120px; margin: 0 auto; background: #fbbf24; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-book" style="font-size: 3rem; color: #10b981;"></i>
+                        </div>
+                    </div>
 
-                                <!-- Mata Pelajaran -->
-                                <td>
-                                    <span style="font-weight: 600; color: #1e3a8a;">
-                                        {{ $mapel->mata_pelajaran ?? 'N/A' }}
-                                    </span>
-                                </td>
-
-                                <!-- Guru -->
-                                <td>
-                                    <small style="color: #6b7280;">
-                                        {{ $mapel->guru->nama_lengkap ?? 'N/A' }}
-                                    </small>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
+                    <!-- Button -->
+                    <div style="padding: 1.5rem;">
+                        <a href="{{ route('siswa.absen.show', $mapel->mata_pelajaran) }}" 
+                           style="display: block; width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-decoration: none; text-align: center; transition: all 0.2s ease;"
+                           onmouseover="this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.4)'; this.style.transform='scale(1.02)';"
+                           onmouseout="this.style.boxShadow='none'; this.style.transform='scale(1)';">
+                            <i class="fas fa-book"></i> Isi Absen
+                        </a>
+                    </div>
+                </div>
+            @endforeach
         </div>
     @endif
 </div>

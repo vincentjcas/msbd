@@ -3,6 +3,29 @@
 @section('title', 'Profile Siswa')
 
 @section('content')
+<!-- Dashboard Button -->
+<div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+    <a href="{{ route('siswa.dashboard') }}" 
+       style="
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: white;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9375rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+       "
+       onmouseover="this.style.boxShadow='0 4px 12px rgba(37, 99, 235, 0.3)'; this.style.transform='translateY(-2px)';"
+       onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'; this.style.transform='translateY(0)';">
+        <i class="fas fa-th-large"></i> Dashboard
+    </a>
+</div>
+
 <div class="welcome-card">
     <h2><i class="fas fa-user-circle"></i> Profile Siswa</h2>
     <p>Berikut adalah data detail profil Anda sebagai siswa.</p>
