@@ -316,18 +316,26 @@ class GuruController extends Controller
     {
         $guru = auth()->user()->guru;
         
-        // Coba ambil dari guru_kelas_mapel dulu
-        $kelasIds = GuruKelasMapel::forGuruActiveYear($guru->id_guru)
-            ->distinct()
+        // Priority 1: Ambil dari jadwal (paling reliable)
+        $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
+            ->distinct('id_kelas')
             ->pluck('id_kelas');
         
-        // Jika kosong, ambil dari jadwal
+        // Priority 2: Jika jadwal kosong, coba dari guru_kelas_mapel
         if ($kelasIds->isEmpty()) {
-            $kelasIds = Jadwal::where('id_guru', $guru->id_guru)
-                ->distinct()
+            $kelasIds = GuruKelasMapel::where('id_guru', $guru->id_guru)
+                ->distinct('id_kelas')
                 ->pluck('id_kelas');
         }
         
+        // Priority 3: Jika masih kosong, coba tanpa filter tahun ajaran aktif
+        if ($kelasIds->isEmpty()) {
+            $kelasIds = GuruKelasMapel::where('id_guru', $guru->id_guru)
+                ->distinct('id_kelas')
+                ->pluck('id_kelas');
+        }
+        
+        // Ambil data kelas
         $kelas = Kelas::whereIn('id_kelas', $kelasIds)
             ->orderBy('tingkat')
             ->orderBy('nama_kelas')

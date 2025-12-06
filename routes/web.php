@@ -238,4 +238,32 @@ Route::middleware('auth')->group(function () {
         }
         return view('dashboard');
     })->name('dashboard');
+
+    // Debug route - cek kelas yang diampu guru
+    Route::get('/debug/guru-kelas', function() {
+        $guru = auth()->user()->guru;
+        if (!$guru) abort(403, 'Bukan guru');
+        
+        $jadwal = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+            ->distinct('id_kelas')
+            ->pluck('id_kelas');
+        
+        $guruKelasMapel = \App\Models\GuruKelasMapel::where('id_guru', $guru->id_guru)
+            ->distinct('id_kelas')
+            ->pluck('id_kelas');
+        
+        $kelas = \App\Models\Kelas::whereIn('id_kelas', $jadwal)
+            ->orderBy('tingkat')
+            ->orderBy('nama_kelas')
+            ->get();
+        
+        return [
+            'guru_id' => $guru->id_guru,
+            'kelas_dari_jadwal' => $jadwal->toArray(),
+            'kelas_dari_guru_kelas_mapel' => $guruKelasMapel->toArray(),
+            'total_kelas_jadwal' => count($jadwal),
+            'total_kelas_mapel' => count($guruKelasMapel),
+            'kelas_data' => $kelas->toArray()
+        ];
+    })->name('debug.guru-kelas');
 });
