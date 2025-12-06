@@ -21,6 +21,9 @@
     <div id="bulkActionsToolbar" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; align-items: center; gap: 1rem;">
         <span id="selectedCount" style="font-weight: 600;">0 materi dipilih</span>
         <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+            <button onclick="toggleSelectAll()" id="selectAllBtn" class="btn btn-sm" style="background: #8b5cf6; color: white; padding: 0.5rem 1rem;">
+                <i class="fas fa-check-double"></i> Pilih Semua
+            </button>
             <button onclick="bulkDownload()" class="btn btn-sm" style="background: #10b981; color: white; padding: 0.5rem 1rem;">
                 <i class="fas fa-download"></i> Download Terpilih
             </button>
@@ -33,81 +36,66 @@
         </div>
     </div>
 
-    <div class="table-container">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th style="width: 3%;">
-                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="cursor: pointer; width: 18px; height: 18px;">
-                    </th>
-                    <th style="width: 5%;">No</th>
-                    <th style="width: 15%;">Guru</th>
-                    <th style="width: 20%;">Judul Materi</th>
-                    <th style="width: 10%;">Mata Pelajaran</th>
-                    <th style="width: 10%;">Kelas</th>
-                    <th style="width: 12%;">File/Link</th>
-                    <th style="width: 10%;">Tanggal Upload</th>
-                    <th style="width: 15%;">Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($materi as $index => $item)
-                <tr>
-                    <td>
-                        <input type="checkbox" class="materi-checkbox" value="{{ $item->id_materi }}" 
-                               data-file="{{ $item->file_materi }}" 
-                               data-title="{{ $item->judul_materi }}"
-                               onchange="updateSelection()" 
-                               style="cursor: pointer; width: 18px; height: 18px;">
-                    </td>
-                    <td>{{ $materi->firstItem() + $index }}</td>
-                    <td>
-                        @if($item->guru && $item->guru->user)
-                        <div style="font-weight: 600;">{{ $item->guru->user->nama_lengkap }}</div>
-                        <small style="color: #718096;">NIP: {{ $item->guru->nip }}</small>
-                        @else
-                        <span style="color: #94a3b8; font-style: italic;">Guru tidak ditemukan</span>
-                        @endif
-                    </td>
-                    <td>
-                        <div style="font-weight: 600; margin-bottom: 0.25rem;">{{ $item->judul_materi }}</div>
-                        @if($item->deskripsi)
-                        <small style="color: #718096;">{{ Str::limit($item->deskripsi, 50) }}</small>
-                        @endif
-                    </td>
-                    <td>{{ $item->mata_pelajaran }}</td>
-                    <td>
-                        <span class="badge badge-info">{{ $item->kelas->nama_kelas }}</span>
-                    </td>
-                    <td>
-                        @if($item->file_materi)
-                        <a href="{{ asset('storage/materi/' . $item->file_materi) }}" target="_blank" class="btn btn-sm" style="background: #3b82f6; color: white; padding: 0.25rem 0.75rem;">
-                            <i class="fas fa-file-download"></i> File
-                        </a>
-                        @endif
-                        @if($item->link_eksternal)
-                        <a href="{{ $item->link_eksternal }}" target="_blank" class="btn btn-sm" style="background: #10b981; color: white; padding: 0.25rem 0.75rem; margin-top: 0.25rem;">
-                            <i class="fas fa-external-link-alt"></i> Link
-                        </a>
-                        @endif
-                    </td>
-                    <td>
-                        <small style="color: #4a5568;">{{ \Carbon\Carbon::parse($item->uploaded_at)->format('d/m/Y') }}</small><br>
-                        <small style="color: #718096;">{{ \Carbon\Carbon::parse($item->uploaded_at)->format('H:i') }}</small>
-                    </td>
-                    <td>
-                        <form action="{{ route('admin.file-materi.delete', $item->id_materi) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin ingin menghapus materi ini?')">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm" style="background: #ef4444; color: white; padding: 0.25rem 0.75rem;">
-                                <i class="fas fa-trash"></i> Hapus
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+    <!-- Card Grid -->
+    <div class="materi-grid">
+        @foreach($materi as $m)
+        <div class="materi-card">
+            <!-- Checkbox in top-left corner -->
+            <input type="checkbox" class="materi-checkbox" value="{{ $m->id_materi }}" 
+                   data-file="{{ $m->file_materi }}" 
+                   data-title="{{ $m->judul_materi }}"
+                   onchange="updateSelection()" 
+                   style="position: absolute; top: 0.75rem; left: 0.75rem; cursor: pointer; width: 20px; height: 20px; z-index: 10;">
+            
+            <!-- Card Header with gradient -->
+            <div class="card-header">
+                <i class="fas fa-book" style="font-size: 1.5rem; margin-bottom: 0.5rem;"></i>
+                <h4 style="margin: 0; font-size: 1rem; font-weight: 600; color: white;">{{ $m->judul_materi }}</h4>
+                <span class="class-badge">{{ $m->kelas->nama_kelas }}</span>
+            </div>
+            
+            <!-- Card Body -->
+            <div class="card-body">
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-user-tie" style="color: #64748b; font-size: 0.875rem;"></i>
+                        <span style="font-size: 0.875rem; font-weight: 600; color: #1e293b;">
+                            @if($m->guru && $m->guru->user)
+                                {{ $m->guru->user->nama_lengkap }}
+                            @else
+                                <span style="color: #94a3b8; font-style: italic;">Guru tidak ditemukan</span>
+                            @endif
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-book-open" style="color: #64748b; font-size: 0.875rem;"></i>
+                        <span style="font-size: 0.875rem; color: #475569;">{{ $m->mata_pelajaran }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-calendar" style="color: #64748b; font-size: 0.875rem;"></i>
+                        <span style="font-size: 0.875rem; color: #64748b;">{{ \Carbon\Carbon::parse($m->uploaded_at)->format('d M Y, H:i') }}</span>
+                    </div>
+                </div>
+
+                @if($m->deskripsi)
+                <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem; line-height: 1.5;">
+                    {{ Str::limit($m->deskripsi, 80) }}
+                </p>
+                @endif
+
+                <div style="display: flex; gap: 0.5rem; margin-top: auto;">
+                    <button onclick="showDetail({{ $m->id_materi }})" class="btn-detail">
+                        <i class="fas fa-eye"></i> Lihat Detail
+                    </button>
+                    @if($m->file_materi)
+                    <a href="{{ asset('storage/materi/' . $m->file_materi) }}" target="_blank" class="btn-download" title="Download File">
+                        <i class="fas fa-download"></i>
+                    </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endforeach
     </div>
 
     <div style="margin-top: 1.5rem;">
@@ -121,67 +109,257 @@
     @endif
 </div>
 
+<!-- Modal Detail -->
+<div id="detailModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 12px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+        <div style="background: linear-gradient(135deg, #0e7490 0%, #14b8a6 100%); color: white; padding: 1.5rem; border-radius: 12px 12px 0 0;">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600;" id="modalTitle">Detail Materi</h3>
+        </div>
+        <div style="padding: 1.5rem;">
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Judul Materi</label>
+                <p style="font-size: 1rem; color: #1e293b; margin: 0;" id="modalJudul"></p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Mata Pelajaran</label>
+                <p style="font-size: 1rem; color: #1e293b; margin: 0;" id="modalMapel"></p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Kelas</label>
+                <p style="font-size: 1rem; color: #1e293b; margin: 0;" id="modalKelas"></p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Guru Pengajar</label>
+                <p style="font-size: 1rem; color: #1e293b; margin: 0;" id="modalGuru"></p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Deskripsi</label>
+                <p style="font-size: 0.875rem; color: #475569; margin: 0; line-height: 1.6;" id="modalDeskripsi"></p>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.25rem;">Tanggal Upload</label>
+                <p style="font-size: 1rem; color: #1e293b; margin: 0;" id="modalTanggal"></p>
+            </div>
+            <div style="margin-bottom: 1rem;" id="modalFileSection">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem;">File</label>
+                <a id="modalFileLink" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: #3b82f6; color: white; border-radius: 6px; text-decoration: none; font-size: 0.875rem;">
+                    <i class="fas fa-download"></i> Download File
+                </a>
+            </div>
+            <div style="margin-bottom: 1.5rem;" id="modalLinkSection">
+                <label style="display: block; font-size: 0.875rem; font-weight: 600; color: #64748b; margin-bottom: 0.5rem;">Link Eksternal</label>
+                <a id="modalLinkEksternal" href="#" target="_blank" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: #10b981; color: white; border-radius: 6px; text-decoration: none; font-size: 0.875rem;">
+                    <i class="fas fa-external-link-alt"></i> Buka Link
+                </a>
+            </div>
+            <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                <button onclick="deleteFromModal()" class="btn" style="background: #ef4444; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+                <button onclick="closeModal()" class="btn" style="background: #64748b; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; font-weight: 500;">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
-.table-container {
-    overflow-x: auto;
+.materi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.materi-card {
     background: white;
-    border-radius: 8px;
+    border-radius: 12px;
+    overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
-.data-table {
-    width: 100%;
-    border-collapse: collapse;
+.materi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.data-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.card-header {
+    background: linear-gradient(135deg, #0369a1 0%, #0ea5e9 100%);
     color: white;
+    padding: 1.5rem 1rem 1rem 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
 }
 
-.data-table th {
-    padding: 1rem;
-    text-align: left;
-    font-weight: 600;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.data-table tbody tr {
-    border-bottom: 1px solid #e2e8f0;
-    transition: background 0.2s;
-}
-
-.data-table tbody tr:hover {
-    background: #f7fafc;
-}
-
-.data-table td {
-    padding: 1rem;
-    font-size: 0.875rem;
-    color: #2d3748;
-}
-
-.badge {
-    display: inline-block;
+.class-badge {
+    background: rgba(255,255,255,0.2);
     padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 600;
+    margin-top: 0.5rem;
+    backdrop-filter: blur(10px);
 }
 
-.badge-info {
-    background: #e0f2fe;
-    color: #0369a1;
+.card-body {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.btn-detail {
+    flex: 1;
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+    color: white;
+    padding: 0.625rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-detail:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(249, 115, 22, 0.3);
+}
+
+.btn-download {
+    background: #10b981;
+    color: white;
+    padding: 0.625rem 0.875rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-download:hover {
+    background: #059669;
 }
 </style>
 
 <script>
+// Store materi data for modal
+const materiData = {!! json_encode($materi->mapWithKeys(function($m) {
+    return [$m->id_materi => [
+        'id_materi' => $m->id_materi,
+        'judul_materi' => $m->judul_materi,
+        'mata_pelajaran' => $m->mata_pelajaran,
+        'kelas' => $m->kelas->nama_kelas ?? '',
+        'guru' => $m->guru && $m->guru->user ? $m->guru->user->nama_lengkap : 'Guru tidak ditemukan',
+        'deskripsi' => $m->deskripsi,
+        'uploaded_at' => $m->uploaded_at ? $m->uploaded_at->format('d M Y, H:i') : '-',
+        'file_materi' => $m->file_materi,
+        'link_eksternal' => $m->link_eksternal,
+    ]];
+})) !!};
+
+function showDetail(id) {
+    const data = materiData[id];
+    if (!data) return;
+    
+    document.getElementById('modalTitle').textContent = 'Detail Materi';
+    document.getElementById('modalJudul').textContent = data.judul_materi;
+    document.getElementById('modalMapel').textContent = data.mata_pelajaran;
+    document.getElementById('modalKelas').textContent = data.kelas;
+    document.getElementById('modalGuru').textContent = data.guru;
+    document.getElementById('modalDeskripsi').textContent = data.deskripsi || 'Tidak ada deskripsi';
+    document.getElementById('modalTanggal').textContent = data.uploaded_at;
+    
+    // File section
+    const fileSection = document.getElementById('modalFileSection');
+    if (data.file_materi) {
+        fileSection.style.display = 'block';
+        document.getElementById('modalFileLink').href = '/storage/materi/' + data.file_materi;
+    } else {
+        fileSection.style.display = 'none';
+    }
+    
+    // Link section
+    const linkSection = document.getElementById('modalLinkSection');
+    if (data.link_eksternal) {
+        linkSection.style.display = 'block';
+        document.getElementById('modalLinkEksternal').href = data.link_eksternal;
+    } else {
+        linkSection.style.display = 'none';
+    }
+    
+    // Store current ID for delete
+    document.getElementById('detailModal').dataset.currentId = id;
+    
+    document.getElementById('detailModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+
+function deleteFromModal() {
+    const id = document.getElementById('detailModal').dataset.currentId;
+    const data = materiData[id];
+    
+    if (!confirm(`Yakin ingin menghapus materi "${data.judul_materi}"?`)) {
+        return;
+    }
+    
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/admin/file-materi/' + id;
+    
+    const csrfToken = document.createElement('input');
+    csrfToken.type = 'hidden';
+    csrfToken.name = '_token';
+    csrfToken.value = '{{ csrf_token() }}';
+    form.appendChild(csrfToken);
+    
+    const methodField = document.createElement('input');
+    methodField.type = 'hidden';
+    methodField.name = '_method';
+    methodField.value = 'DELETE';
+    form.appendChild(methodField);
+    
+    document.body.appendChild(form);
+    form.submit();
+}
+
+// Close modal when clicking outside
+document.getElementById('detailModal')?.addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+
 function toggleSelectAll() {
-    const selectAll = document.getElementById('selectAll');
     const checkboxes = document.querySelectorAll('.materi-checkbox');
-    checkboxes.forEach(cb => cb.checked = selectAll.checked);
+    const checkedCount = document.querySelectorAll('.materi-checkbox:checked').length;
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    
+    if (checkedCount === checkboxes.length) {
+        // Deselect all
+        checkboxes.forEach(cb => cb.checked = false);
+        selectAllBtn.innerHTML = '<i class="fas fa-check-double"></i> Pilih Semua';
+    } else {
+        // Select all
+        checkboxes.forEach(cb => cb.checked = true);
+        selectAllBtn.innerHTML = '<i class="fas fa-times-circle"></i> Batalkan Pilih Semua';
+    }
     updateSelection();
 }
 
@@ -189,23 +367,27 @@ function updateSelection() {
     const checkboxes = document.querySelectorAll('.materi-checkbox:checked');
     const toolbar = document.getElementById('bulkActionsToolbar');
     const selectedCount = document.getElementById('selectedCount');
-    const selectAll = document.getElementById('selectAll');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const allCheckboxes = document.querySelectorAll('.materi-checkbox');
     
     if (checkboxes.length > 0) {
         toolbar.style.display = 'flex';
         selectedCount.textContent = checkboxes.length + ' materi dipilih';
+        
+        // Update tombol Select All
+        if (checkboxes.length === allCheckboxes.length) {
+            selectAllBtn.innerHTML = '<i class="fas fa-times-circle"></i> Batalkan Pilih Semua';
+        } else {
+            selectAllBtn.innerHTML = '<i class="fas fa-check-double"></i> Pilih Semua';
+        }
     } else {
         toolbar.style.display = 'none';
     }
-    
-    // Update select all checkbox state
-    const allCheckboxes = document.querySelectorAll('.materi-checkbox');
-    selectAll.checked = allCheckboxes.length > 0 && checkboxes.length === allCheckboxes.length;
 }
 
 function clearSelection() {
     document.querySelectorAll('.materi-checkbox').forEach(cb => cb.checked = false);
-    document.getElementById('selectAll').checked = false;
+    document.getElementById('selectAllBtn').innerHTML = '<i class="fas fa-check-double"></i> Pilih Semua';
     updateSelection();
 }
 
@@ -222,7 +404,6 @@ function bulkDownload() {
     checkboxes.forEach((checkbox, index) => {
         const fileName = checkbox.dataset.file;
         if (fileName) {
-            // Delay each download to prevent browser blocking
             setTimeout(() => {
                 const link = document.createElement('a');
                 link.href = '/storage/materi/' + fileName;
@@ -231,7 +412,7 @@ function bulkDownload() {
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-            }, index * 300); // 300ms delay between downloads
+            }, index * 300);
             filesDownloaded++;
         } else {
             noFileCount++;
@@ -261,7 +442,6 @@ function bulkDelete() {
         return;
     }
     
-    // Create form and submit
     const form = document.createElement('form');
     form.method = 'POST';
     form.action = '{{ route("admin.file-materi.bulk-delete") }}';

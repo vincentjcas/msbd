@@ -8,6 +8,7 @@ use App\Models\Materi;
 use App\Models\Tugas;
 use App\Models\PengumpulanTugas;
 use App\Models\Izin;
+use App\Models\Kegiatan;
 use App\Models\PresensiSiswa;
 use App\Models\Views\VStatusIzinSiswa;
 use App\Services\DatabaseFunctionService;
@@ -44,11 +45,21 @@ class SiswaController extends Controller
         $tahun = date('Y');
         $persentaseKehadiran = $this->dbFunction->hitungPersentaseKehadiran($user->id_user, $bulan, $tahun);
 
+        // Hitung total materi tersedia
         $totalMateri = Materi::where('id_kelas', $siswa->id_kelas)->count();
+        
+        // Hitung pengajuan izin yang belum disetujui (pending)
+        $totalIzinPending = Izin::where('id_user', $user->id_user)
+            ->where('status', 'pending')
+            ->count();
+        
+        // Hitung jadwal hari ini
+        $jadwalHariIniCount = $jadwalHariIni->count();
+
         $totalTugas = Tugas::where('id_kelas', $siswa->id_kelas)->count();
         $tugasSelesai = PengumpulanTugas::where('id_siswa', $siswa->id_siswa)->count();
 
-        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalTugas', 'tugasSelesai'));
+        return view('siswa.dashboard', compact('jadwalHariIni', 'persentaseKehadiran', 'totalMateri', 'totalIzinPending', 'jadwalHariIniCount', 'totalTugas', 'tugasSelesai'));
     }
 
     public function profile()
@@ -152,7 +163,7 @@ class SiswaController extends Controller
     {
         $siswa = auth()->user()->siswa;
         $materi = Materi::where('id_kelas', $siswa->id_kelas)
-            ->with(['guru.user'])
+            ->with(['guru.user', 'kelas'])
             ->orderBy('uploaded_at', 'desc')
             ->paginate(20);
 
@@ -259,9 +270,17 @@ class SiswaController extends Controller
 
     public function izin()
     {
-        $izinList = VStatusIzinSiswa::where('id_siswa', auth()->user()->siswa->id_siswa)
-            ->orderBy('tanggal_pengajuan', 'desc')
-            ->get();
+        $user = auth()->user();
+        $siswa = $user->siswa;
+        
+        if (!$siswa) {
+            return redirect()->route('siswa.dashboard')->with('error', 'Data siswa tidak ditemukan.');
+        }
+        
+        // Ambil semua izin yang pernah diajukan user ini
+        $izinList = Izin::where('id_user', $user->id_user)
+            ->orderBy('tanggal', 'desc')
+            ->paginate(20);
 
         return view('siswa.izin', compact('izinList'));
     }
@@ -285,7 +304,7 @@ class SiswaController extends Controller
         // Get guru from jadwal if jadwal selected
         $id_guru = null;
         if ($request->id_jadwal) {
-            $jadwal = \App\Models\Jadwal::find($request->id_jadwal);
+            $jadwal = Jadwal::find($request->id_jadwal);
             if ($jadwal) {
                 $id_guru = $jadwal->id_guru;
             }
@@ -626,5 +645,68 @@ class SiswaController extends Controller
                 'data' => []
             ], 500);
         }
+    }
+
+    public function kegiatan()
+    {
+        // Auto-update status kegiatan berdasarkan waktu
+        $this->autoUpdateStatusKegiatan();
+        
+        $filter = request('filter', 'upcoming'); // 'upcoming' atau 'history'
+        
+        $query = Kegiatan::with('pembuatKegiatan');
+        
+        if ($filter === 'history') {
+            $query->where('status', 'completed');
+            $orderBy = 'desc';
+        } else {
+            $query->whereIn('status', ['planned', 'ongoing']);
+            $orderBy = 'asc';
+        }
+        
+        $kegiatan = $query->orderBy('tanggal_mulai', $orderBy)->paginate(20);
+        
+        return view('siswa.kegiatan.index', compact('kegiatan', 'filter'));
+    }
+
+    private function autoUpdateStatusKegiatan()
+    {
+        $now = now();
+        
+        // Update status ke 'completed' jika waktu selesai sudah lewat
+        Kegiatan::where('status', '!=', 'cancelled')
+            ->where('status', '!=', 'completed')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'completed']);
+        
+        // Update status ke 'ongoing' jika waktu mulai sudah tiba tapi belum selesai
+        Kegiatan::where('status', 'planned')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_mulai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_mulai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_mulai', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '>', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '>=', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'ongoing']);
+    }
+
+    public function detailKegiatan($id)
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')->findOrFail($id);
+        return view('siswa.kegiatan.detail', compact('kegiatan'));
     }
 }

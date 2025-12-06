@@ -10,6 +10,7 @@ use App\Models\Jadwal;
 use App\Models\JadwalStatus;
 use App\Models\Materi;
 use App\Models\Kelas;
+use App\Models\Kegiatan;
 use App\Models\LaporanAktivitas;
 use App\Models\Views\VStatistikKehadiranKelas;
 use App\Models\Views\VRekapPresensiGuru;
@@ -199,20 +200,32 @@ class PembinaController extends Controller
     /**
      * Jadwal Aktif
      */
-    public function jadwalAktif()
+    public function jadwalAktif(Request $request)
     {
         try {
-            $jadwal = Jadwal::with(['kelas', 'guru'])
-                ->orderBy('hari')
-                ->orderBy('jam_mulai')
-                ->get();
-
+            $query = Jadwal::with(['kelas', 'guru.user']);
+            
+            // Filter hari ini saja
             $hariIni = now()->locale('id')->dayName;
-            $jadwalHariIni = $jadwal->filter(function ($j) use ($hariIni) {
-                return $j->hari === $hariIni;
-            });
+            $query->where('hari', $hariIni);
+            
+            // Filter jurusan jika ada
+            if ($request->filled('jurusan')) {
+                $query->whereHas('kelas', function($q) use ($request) {
+                    $q->where('nama_kelas', 'like', '%-' . $request->jurusan . '-%');
+                });
+            }
+            
+            // Filter tingkat jika ada
+            if ($request->filled('tingkat')) {
+                $query->whereHas('kelas', function($q) use ($request) {
+                    $q->where('nama_kelas', 'like', $request->tingkat . '-%');
+                });
+            }
+            
+            $jadwal = $query->orderBy('jam_mulai')->get();
 
-            return view('pembina.jadwal', compact('jadwal', 'jadwalHariIni', 'hariIni'));
+            return view('pembina.jadwal', compact('jadwal', 'hariIni'));
         } catch (\Exception $e) {
             \Log::error('Error in jadwalAktif: ' . $e->getMessage());
             return back()->with('error', 'Gagal mengambil data jadwal');
@@ -301,6 +314,69 @@ class PembinaController extends Controller
             \Log::error('Error in saveCatatan: ' . $e->getMessage());
             return back()->with('error', 'Gagal menyimpan catatan');
         }
+    }
+
+    public function kegiatan()
+    {
+        // Auto-update status kegiatan berdasarkan waktu
+        $this->autoUpdateStatusKegiatan();
+        
+        $filter = request('filter', 'upcoming'); // 'upcoming' atau 'history'
+        
+        $query = Kegiatan::with('pembuatKegiatan');
+        
+        if ($filter === 'history') {
+            $query->where('status', 'completed');
+            $orderBy = 'desc';
+        } else {
+            $query->whereIn('status', ['planned', 'ongoing']);
+            $orderBy = 'asc';
+        }
+        
+        $kegiatan = $query->orderBy('tanggal_mulai', $orderBy)->paginate(20);
+        
+        return view('pembina.kegiatan.index', compact('kegiatan', 'filter'));
+    }
+
+    private function autoUpdateStatusKegiatan()
+    {
+        $now = now();
+        
+        // Update status ke 'completed' jika waktu selesai sudah lewat
+        Kegiatan::where('status', '!=', 'cancelled')
+            ->where('status', '!=', 'completed')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'completed']);
+        
+        // Update status ke 'ongoing' jika waktu mulai sudah tiba tapi belum selesai
+        Kegiatan::where('status', 'planned')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_mulai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_mulai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_mulai', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '>', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '>=', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'ongoing']);
+    }
+
+    public function detailKegiatan($id)
+    {
+        $kegiatan = Kegiatan::with('pembuatKegiatan')->findOrFail($id);
+        return view('pembina.kegiatan.detail', compact('kegiatan'));
     }
 }
 

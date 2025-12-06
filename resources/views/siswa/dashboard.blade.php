@@ -24,25 +24,25 @@
 </div>
 
 <div class="stats-grid">
-    <div class="stat-card">
+    <div class="stat-card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.href='{{ route('siswa.materi') }}';" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
         <div class="stat-icon">
             <i class="fas fa-book"></i>
         </div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $totalMateri ?? '--' }}</div>
         <div class="stat-label">Materi Tersedia</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.href='{{ route('siswa.izin') }}';" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
         <div class="stat-icon">
             <i class="fas fa-clipboard-list"></i>
         </div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $totalIzinPending ?? '--' }}</div>
         <div class="stat-label">Pengajuan Izin</div>
     </div>
-    <div class="stat-card">
+    <div class="stat-card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.href='{{ route('siswa.roster') }}';" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
         <div class="stat-icon">
             <i class="fas fa-calendar-day"></i>
         </div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $jadwalHariIniCount ?? '--' }}</div>
         <div class="stat-label">Jadwal Hari Ini</div>
     </div>
 </div>
@@ -113,6 +113,19 @@
             </p>
             <a href="{{ route('siswa.tugas') }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-tasks"></i> Lihat Tugas
+            </a>
+        </div>
+
+        <!-- 6. Kegiatan Sekolah -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Lihat jadwal kegiatan sekolah mendatang dan sedang berlangsung
+            </p>
+            <a href="{{ route('siswa.kegiatan') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-eye"></i> Lihat Kegiatan
             </a>
         </div>
 

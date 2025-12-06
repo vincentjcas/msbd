@@ -11,8 +11,10 @@ use App\Models\Views\VGrafikKehadiranHarian;
 use App\Models\Views\VGrafikKehadiranSiswaHarian;
 use App\Models\Views\VRekapPresensiGuru;
 use App\Models\Views\VRekapPresensiSiswa;
+use App\Models\Kegiatan;
 use App\Services\DatabaseProcedureService;
 use App\Services\LogActivityService;
+use Illuminate\Support\Facades\DB;
 
 class KepalaSekolahController extends Controller
 {
@@ -169,5 +171,175 @@ class KepalaSekolahController extends Controller
         ];
 
         return view('kepala_sekolah.download-rekap', compact('rekap', 'bulan', 'tahun'));
+    }
+
+    public function kegiatan()
+    {
+        // Auto-update status kegiatan berdasarkan waktu
+        $this->autoUpdateStatusKegiatan();
+        
+        $kegiatan = Kegiatan::with('pembuatKegiatan')
+            ->orderBy('tanggal_mulai', 'desc')
+            ->paginate(20);
+        
+        return view('kepala_sekolah.kegiatan.index', compact('kegiatan'));
+    }
+
+    private function autoUpdateStatusKegiatan()
+    {
+        $now = now();
+        
+        // Update status ke 'completed' jika waktu selesai sudah lewat
+        Kegiatan::where('status', '!=', 'cancelled')
+            ->where('status', '!=', 'completed')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'completed']);
+        
+        // Update status ke 'ongoing' jika waktu mulai sudah tiba tapi belum selesai
+        Kegiatan::where('status', 'planned')
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_mulai', '<', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_mulai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_mulai', '<=', $now->format('H:i:s'));
+                    });
+            })
+            ->where(function($query) use ($now) {
+                $query->where('tanggal_selesai', '>', $now->format('Y-m-d'))
+                    ->orWhere(function($q) use ($now) {
+                        $q->where('tanggal_selesai', '=', $now->format('Y-m-d'))
+                          ->where('waktu_selesai', '>=', $now->format('H:i:s'));
+                    });
+            })
+            ->update(['status' => 'ongoing']);
+    }
+
+    public function createKegiatan()
+    {
+        return view('kepala_sekolah.kegiatan.create');
+    }
+
+    public function storeKegiatan(Request $request)
+    {
+        $request->validate([
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis_kegiatan' => 'required|in:rapat,ujian,acara_resmi,lainnya',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required',
+            'waktu_selesai' => 'required',
+            'lokasi' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $kegiatan = Kegiatan::create([
+                'nama_kegiatan' => $request->nama_kegiatan,
+                'deskripsi' => $request->deskripsi,
+                'tanggal_mulai' => $request->tanggal,
+                'tanggal_selesai' => $request->tanggal,
+                'waktu_mulai' => $request->waktu_mulai,
+                'waktu_selesai' => $request->waktu_selesai,
+                'tempat' => $request->lokasi,
+                'status' => 'planned',
+                'dibuat_oleh' => auth()->user()->id_user,
+            ]);
+            
+            $this->logActivity->log('create_kegiatan', auth()->user()->id_user, "Tambah kegiatan: {$kegiatan->nama_kegiatan}");
+            
+            DB::commit();
+            return redirect()->route('kepala_sekolah.kegiatan')->with('success', 'Kegiatan berhasil ditambahkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menambahkan kegiatan: ' . $e->getMessage());
+        }
+    }
+
+    public function editKegiatan($id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent edit jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat mengedit kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
+        return view('kepala_sekolah.kegiatan.edit', compact('kegiatan'));
+    }
+
+    public function updateKegiatan(Request $request, $id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent update jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat mengubah kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
+        $request->validate([
+            'nama_kegiatan' => 'required|string|max:255',
+            'jenis_kegiatan' => 'required|in:rapat,ujian,acara_resmi,lainnya',
+            'tanggal' => 'required|date',
+            'waktu_mulai' => 'required',
+            'waktu_selesai' => 'required',
+            'lokasi' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
+            'status' => 'required|in:planned,ongoing,completed,cancelled',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $kegiatan->update([
+                'nama_kegiatan' => $request->nama_kegiatan,
+                'deskripsi' => $request->deskripsi,
+                'tanggal_mulai' => $request->tanggal,
+                'tanggal_selesai' => $request->tanggal,
+                'waktu_mulai' => $request->waktu_mulai,
+                'waktu_selesai' => $request->waktu_selesai,
+                'tempat' => $request->lokasi,
+                'status' => $request->status,
+            ]);
+            
+            $this->logActivity->log('update_kegiatan', auth()->user()->id_user, "Update kegiatan: {$kegiatan->nama_kegiatan}");
+            
+            DB::commit();
+            return redirect()->route('kepala_sekolah.kegiatan')->with('success', 'Kegiatan berhasil diupdate');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal mengupdate kegiatan: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteKegiatan($id)
+    {
+        $kegiatan = Kegiatan::findOrFail($id);
+        
+        // Prevent delete jika status ongoing atau completed
+        if (in_array($kegiatan->status, ['ongoing', 'completed'])) {
+            return redirect()->route('kepala_sekolah.kegiatan')
+                ->with('error', 'Tidak dapat menghapus kegiatan yang sedang berlangsung atau sudah selesai');
+        }
+        
+        DB::beginTransaction();
+        try {
+            $namaKegiatan = $kegiatan->nama_kegiatan;
+            $kegiatan->delete();
+            
+            $this->logActivity->log('delete_kegiatan', auth()->user()->id_user, "Hapus kegiatan: {$namaKegiatan}");
+            
+            DB::commit();
+            return redirect()->route('kepala_sekolah.kegiatan')->with('success', 'Kegiatan berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal menghapus kegiatan: ' . $e->getMessage());
+        }
     }
 }

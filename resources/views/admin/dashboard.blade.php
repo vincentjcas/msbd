@@ -190,22 +190,7 @@
             </div>
         </div>
 
-        <!-- 6. Kegiatan Sekolah -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Menambah, memperbarui, dan menghapus data kegiatan sekolah (rapat, ujian, acara resmi)
-            </p>
-            <div>
-                <a href="{{ route('admin.kegiatan') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-plus-circle"></i> Kelola Kegiatan
-                </a>
-            </div>
-        </div>
-
-        <!-- 7. Jadwal Pelajaran -->
+        <!-- 6. Jadwal Pelajaran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-table"></i> Jadwal Pelajaran
@@ -220,7 +205,7 @@
             </div>
         </div>
 
-        <!-- 8. File Materi -->
+        <!-- 7. File Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-folder-open"></i> File Materi
@@ -235,7 +220,7 @@
             </div>
         </div>
 
-        <!-- 9. Backup Database -->
+        <!-- 8. Backup Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-hdd"></i> Backup Database

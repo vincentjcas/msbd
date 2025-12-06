@@ -10,32 +10,35 @@
 </div>
 
 <div class="stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon">
-            <i class="fas fa-clock"></i>
-        </div>
-        <div class="stat-value">--:--</div>
-        <div class="stat-label">Jam Masuk Hari Ini</div>
-    </div>
-    <div class="stat-card">
+    <div class="stat-card" style="cursor: pointer; transition: all 0.2s;" onclick="window.location.href='{{ route('guru.kelas') }}';" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 16px rgba(0,0,0,0.15)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'">
         <div class="stat-icon">
             <i class="fas fa-school"></i>
         </div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $totalKelas ?? '--' }}</div>
         <div class="stat-label">Kelas Diampu</div>
     </div>
     <div class="stat-card">
         <div class="stat-icon">
-            <i class="fas fa-user-graduate"></i>
+            <i class="fas fa-clock"></i>
         </div>
-        <div class="stat-value">--</div>
-        <div class="stat-label">Total Siswa</div>
+        <div class="stat-value" style="font-size: 1rem;">
+            @if($statusAbsen['sudah_masuk'])
+                <span style="color: {{ strpos($statusAbsen['status_kehadiran'], 'Tepat Waktu') !== false ? '#10b981' : '#ef4444' }}; font-weight: 600;">
+                    {{ strpos($statusAbsen['status_kehadiran'], 'Tepat Waktu') !== false ? '✓' : '⚠' }}
+                </span>
+            @else
+                <span style="color: #6b7280;">--</span>
+            @endif
+        </div>
+        <div class="stat-label" style="font-size: 0.85rem; font-weight: 500; color: #374151;">
+            {{ $statusAbsen['status_kehadiran'] }}
+        </div>
     </div>
     <div class="stat-card">
         <div class="stat-icon">
             <i class="fas fa-folder"></i>
         </div>
-        <div class="stat-value">--</div>
+        <div class="stat-value">{{ $totalMateri ?? '--' }}</div>
         <div class="stat-label">Materi Diunggah</div>
     </div>
 </div>
@@ -119,7 +122,22 @@
             </div>
         </div>
 
-        <!-- 4. Kelola Tugas -->
+        <!-- 4. Kegiatan Sekolah -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-alt"></i> Kegiatan Sekolah
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Lihat jadwal kegiatan sekolah mendatang dan sedang berlangsung
+            </p>
+            <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                <a href="{{ route('guru.kegiatan') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> Lihat Kegiatan
+                </a>
+            </div>
+        </div>
+
+        <!-- 5. Kelola Tugas -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-tasks"></i> Kelola Tugas
@@ -134,7 +152,7 @@
             </div>
         </div>
 
-        <!-- 5. Lihat Data Kehadiran -->
+        <!-- 6. Lihat Data Kehadiran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #0369a1;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-chart-bar"></i> Data Kehadiran
@@ -232,6 +250,12 @@ function absenMasuk() {
                 console.log('Absen Masuk Response:', data);
                 
                 if (data.success) {
+                    // Update stat card Jam Masuk Hari Ini
+                    const jamMasukCard = document.querySelector('.stat-card:nth-child(1) .stat-value');
+                    if (jamMasukCard) {
+                        jamMasukCard.textContent = jamMasukDicatat;
+                    }
+                    
                     // Update badge info dengan jam yang disimpan
                     const infoBadge = document.querySelector('[data-absen-info]');
                     if (infoBadge) {
