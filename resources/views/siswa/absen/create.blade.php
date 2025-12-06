@@ -118,7 +118,7 @@
                         <small class="text-muted">Guru Pengampu</small>
                     </p>
                     <p class="mb-3">
-                        <strong>{{ $absen->guru->nama_lengkap ?? 'N/A' }}</strong>
+                        <strong>{{ $absen->guru?->user?->nama_lengkap ?? 'N/A' }}</strong>
                     </p>
 
                     <p class="mb-2">

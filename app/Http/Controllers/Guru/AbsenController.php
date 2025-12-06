@@ -51,7 +51,7 @@ class AbsenController extends Controller
             abort(403, 'Anda tidak mengajar mata pelajaran ini');
         }
         
-        $siswaKelas = Siswa::where('id_kelas', $idKelas)->get();
+        $siswaKelas = Siswa::where('id_kelas', $idKelas)->with('user')->get();
         
         return view('guru.absen.create', compact('mapelName', 'idKelas', 'siswaKelas', 'jadwal'));
     }
@@ -122,7 +122,7 @@ class AbsenController extends Controller
             abort(403);
         }
 
-        $absenSiswas = $absen->absenSiswas()->with('siswa')->get();
+        $absenSiswas = $absen->absenSiswas()->with(['siswa.user'])->get();
         
         return view('guru.absen.show', compact('absen', 'absenSiswas'));
     }

@@ -75,7 +75,7 @@
             <i class="fas fa-book"></i> {{ $j->mata_pelajaran ?? 'N/A' }}
         </h4>
         <p style="color: #718096; margin: 0.5rem 0;"><strong>Kelas:</strong> {{ $j->kelas->nama_kelas ?? 'N/A' }}</p>
-        <p style="color: #718096; margin: 0.5rem 0;"><strong>Guru:</strong> {{ $j->guru->nama_guru ?? 'N/A' }}</p>
+        <p style="color: #718096; margin: 0.5rem 0;"><strong>Guru:</strong> {{ $j->guru?->user?->nama_lengkap ?? 'N/A' }}</p>
         <p style="color: #718096; margin: 0.5rem 0;"><strong>Jam:</strong> {{ date('H:i', strtotime($j->jam_mulai)) }} - {{ date('H:i', strtotime($j->jam_selesai)) }}</p>
     </div>
     @endforeach

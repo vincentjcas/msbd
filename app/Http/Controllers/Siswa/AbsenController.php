@@ -37,7 +37,7 @@ class AbsenController extends Controller
         // Get first Jadwal entry for this mapel name (to show jadwal info)
         $jadwal = Jadwal::where('id_kelas', $siswa->id_kelas)
             ->where('mata_pelajaran', $mapelName)
-            ->with(['guru', 'kelas'])
+            ->with(['guru.user', 'kelas'])
             ->first();
 
         // Get all absens for this mapel from all guru_kelas_mapel entries with same mata_pelajaran
@@ -46,7 +46,7 @@ class AbsenController extends Controller
                 ->where('mata_pelajaran', $mapelName)
                 ->pluck('id_guru_kelas_mapel')
         )
-        ->with(['guru', 'kelas', 'absenSiswas'])
+        ->with(['guru.user', 'kelas', 'absenSiswas'])
         ->orderBy('id', 'asc')
         ->get();
         
@@ -55,7 +55,7 @@ class AbsenController extends Controller
         }
         
         // Fallback: ambil guru dari first absen jika jadwal tidak ada
-        $guruName = $jadwal?->guru?->nama_lengkap ?? $absens->first()?->guru?->nama_lengkap ?? 'N/A';
+        $guruName = $jadwal?->guru?->user?->nama_lengkap ?? $absens->first()?->guru?->user?->nama_lengkap ?? 'N/A';
         
         return view('siswa.absen.show', compact('jadwal', 'absens', 'siswa', 'mapelName', 'guruName'));
     }
@@ -63,7 +63,7 @@ class AbsenController extends Controller
     public function create($absenId)
     {
         $siswa = Siswa::where('id_user', auth()->user()->id_user)->first();
-        $absen = Absen::findOrFail($absenId);
+        $absen = Absen::with(['guru.user', 'guruKelasMapel'])->findOrFail($absenId);
         
         // Check kelas dari kelas_id (gunakan kelas_id bukan id_kelas karena itu nama field di tabel)
         if ($absen->kelas_id != $siswa->id_kelas) {

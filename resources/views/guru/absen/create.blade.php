@@ -171,8 +171,8 @@
                                         {{ $index + 1 }}
                                     </div>
                                     <div style="flex: 1; min-width: 0;">
-                                        <p class="mb-0" style="font-weight: 600; color: #1f2937; font-size: 0.85rem;">
-                                            {{ $siswa->nama_lengkap ?? 'N/A' }}
+                                        <p style="margin: 0; font-weight: 500; color: #1f2937; font-size: 0.875rem;">
+                                            {{ $siswa->user?->nama_lengkap ?? 'N/A' }}
                                         </p>
                                         <small style="color: #6b7280; font-size: 0.75rem;">{{ $siswa->nis ?? 'N/A' }}</small>
                                     </div>

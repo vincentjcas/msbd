@@ -73,7 +73,7 @@
                                 <td style="padding: 1rem; text-align: left;">
                                     <div>
                                         <p style="margin: 0; font-weight: 600; color: #1f2937; font-size: 0.9375rem;">
-                                            {{ $absenSiswa->siswa->nama_lengkap ?? 'N/A' }}
+                                            {{ $absenSiswa->siswa?->user?->nama_lengkap ?? 'N/A' }}
                                         </p>
                                         <p style="margin: 0.25rem 0 0 0; color: #6b7280; font-size: 0.8125rem;">
                                             {{ $absenSiswa->siswa->nis ?? 'N/A' }}
