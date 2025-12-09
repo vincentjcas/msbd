@@ -236,6 +236,8 @@
         }
         .btn-secondary:hover {
             background: #cbd5e0;
+            transform: none !important;
+            box-shadow: none !important;
         }
         .btn-sm {
             padding: 0.5rem 1rem;

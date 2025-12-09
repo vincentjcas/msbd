@@ -35,37 +35,38 @@
     }
 </style>
 
-<div class="container-fluid">
-    <!-- Header -->
-    <div class="row mb-5">
-        <div class="col-md-12">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                <div>
-                    <h3 class="mb-2" style="font-weight: 700; color: #1f2937;">
-                        <i class="fas fa-clipboard-check" style="color: #3b82f6;"></i> Kelola Absen Siswa
-                    </h3>
-                    <p class="text-muted">Buat dan kelola absen untuk setiap mata pelajaran yang Anda ampu</p>
-                </div>
-                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                    <a href="{{ route('guru.data-kehadiran') }}" 
-                       style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.2s ease;"
-                       onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(-2px)';"
-                       onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
-                        <i class="fas fa-eye"></i> Lihat Data
-                    </a>
-                    <x-dashboard-button />
-                </div>
-            </div>
+<div class="container-fluid" style="padding: 2.5rem; max-width: 1400px; margin: 0 auto;">
+    <!-- Header Section with Back Button -->
+    <div style="margin-bottom: 4rem;">
+        <a href="{{ route('guru.dashboard') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.65rem; margin-bottom: 2.5rem; padding: 0.95rem 1.6rem; border-radius: 10px; font-size: 1.05rem;">
+            <i class="fas fa-arrow-left"></i> Kembali
+        </a>
+        
+        <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 3rem; border-radius: 16px; margin-bottom: 2.5rem; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.2);">
+            <h2 class="mb-3" style="font-weight: 700; color: white; font-size: 2.15rem;">
+                <i class="fas fa-clipboard-check" style="margin-right: 0.85rem;"></i>Kelola Absen Siswa
+            </h2>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.1rem; margin: 0;">Buat dan kelola sesi absensi untuk setiap mata pelajaran yang Anda ampu</p>
         </div>
+
+        <a href="{{ route('guru.data-kehadiran') }}" 
+           style="padding: 0.875rem 1.75rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 10px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.65rem; font-size: 1rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);"
+           onmouseover="this.style.boxShadow='0 6px 16px rgba(245, 158, 11, 0.35)'; this.style.transform='translateY(-2px)';"
+           onmouseout="this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.25)'; this.style.transform='translateY(0)';">
+            <i class="fas fa-chart-line"></i> Lihat Data Kehadiran
+        </a>
     </div>
 
     @if($mapels->isEmpty())
-        <div class="alert alert-info border-0" style="background-color: #dbeafe; border-radius: 8px;">
-            <i class="fas fa-info-circle"></i> 
-            <strong>Belum ada mata pelajaran.</strong> Anda tidak memiliki jadwal mengajar saat ini.
+        <div class="alert border-0" style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-radius: 16px; padding: 3rem; text-align: center; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);">
+            <div style="background: white; width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);">
+                <i class="fas fa-info-circle" style="font-size: 2.5rem; color: #3b82f6;"></i>
+            </div>
+            <h5 style="font-weight: 700; color: #1f2937; margin-bottom: 0.75rem; font-size: 1.25rem;">Belum ada mata pelajaran</h5>
+            <p style="color: #6b7280; margin: 0; font-size: 1rem;">Anda tidak memiliki jadwal mengajar saat ini.</p>
         </div>
     @else
-        <div class="row">
+        <div class="row justify-content-center">
             @foreach($mapels as $index => $mapel)
                 @php
                     // Warna gradient untuk setiap card
@@ -79,38 +80,41 @@
                     ];
                     $gradient = $gradients[$index % count($gradients)];
                 @endphp
-                <div class="col-md-6 col-lg-6 mb-4">
-                    <div class="card shadow-lg border-0" style="border-radius: 12px; overflow: hidden; transition: all 0.3s ease; display: flex;">
+                <div class="col-md-6 col-lg-6 mb-5">
+                    <div class="card border-0 h-100" style="border-radius: 14px; overflow: hidden; display: flex; box-shadow: 0 4px 12px rgba(0,0,0,0.08); transition: all 0.3s ease;">
                         <!-- Left: Content -->
-                        <div style="flex: 1; padding: 2rem;">
-                            <h5 style="font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; font-size: 1.1rem;">
-                                {{ $mapel->mata_pelajaran ?? 'N/A' }}
-                            </h5>
-                            <p class="mb-3" style="color: #6b7280; font-size: 0.9rem;">
-                                <i class="fas fa-users"></i> Kelas {{ $mapel->kelas->nama_kelas ?? 'N/A' }}
-                            </p>
+                        <div style="flex: 1; padding: 2rem; background: white;">
+                            <div style="margin-bottom: 1.25rem;">
+                                <h5 style="font-weight: 600; color: #1f2937; margin-bottom: 0.65rem; font-size: 1.15rem; line-height: 1.4;">
+                                    {{ $mapel->mata_pelajaran ?? 'N/A' }}
+                                </h5>
+                                <p class="mb-0" style="color: #6b7280; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fas fa-users" style="color: #3b82f6;"></i> 
+                                    <span>Kelas {{ $mapel->kelas->nama_kelas ?? 'N/A' }}</span>
+                                </p>
+                            </div>
 
                             <!-- Guru Info -->
-                            <div style="background-color: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem;">
-                                <small style="color: #6b7280; font-weight: 600; display: block; margin-bottom: 0.25rem;">
-                                    GURU
+                            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 1.15rem; border-radius: 10px; margin-bottom: 1.25rem; border-left: 3px solid #3b82f6;">
+                                <small style="color: #64748b; font-weight: 600; display: block; margin-bottom: 0.5rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.8px;">
+                                    <i class="fas fa-chalkboard-teacher"></i> PENGAMPU
                                 </small>
-                                <p class="mb-0" style="color: #1f2937; font-weight: 600; font-size: 0.9rem;">
+                                <p class="mb-0" style="color: #1e293b; font-weight: 600; font-size: 0.95rem;">
                                     {{ $mapel->guru->nama_lengkap ?? auth()->user()->nama_lengkap }}
                                 </p>
                             </div>
 
                             <!-- Stats -->
-                            <div class="row mb-3">
-                                <div class="col-6">
-                                    <small style="color: #6b7280; font-size: 0.8rem;">Pertemuan</small>
-                                    <div style="font-size: 1.3rem; font-weight: 700; color: #3b82f6;">
+                            <div class="row mb-4" style="gap: 0.75rem;">
+                                <div class="col" style="background: #eff6ff; padding: 1.15rem; border-radius: 10px; text-align: center;">
+                                    <small style="color: #60a5fa; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; display: block; margin-bottom: 0.5rem;">Pertemuan</small>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #2563eb;">
                                         {{ $mapel->total_absens ?? 0 }}
                                     </div>
                                 </div>
-                                <div class="col-6">
-                                    <small style="color: #6b7280; font-size: 0.8rem;">Jadwal</small>
-                                    <div style="font-size: 1.3rem; font-weight: 700; color: #10b981;">
+                                <div class="col" style="background: #f0fdf4; padding: 1.15rem; border-radius: 10px; text-align: center;">
+                                    <small style="color: #4ade80; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; display: block; margin-bottom: 0.5rem;">Jadwal</small>
+                                    <div style="font-size: 1.5rem; font-weight: 700; color: #16a34a;">
                                         {{ $mapel->jadwal_count ?? 0 }}
                                     </div>
                                 </div>
@@ -119,13 +123,15 @@
                             <!-- Action Button -->
                             <a href="{{ route('guru.absen.create', ['mata_pelajaran' => $mapel->mata_pelajaran, 'id_kelas' => $mapel->id_kelas]) }}" 
                                class="btn btn-sm"
-                               style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; font-weight: 600; padding: 0.65rem 1.5rem; border-radius: 6px; text-decoration: none; display: inline-block; transition: all 0.3s ease; width: 100%;">
-                                <i class="fas fa-plus-circle"></i> Buat Absen
+                               style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; font-weight: 600; padding: 0.8rem 1.25rem; border-radius: 8px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; width: 100%; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); font-size: 0.95rem;"
+                               onmouseover="this.style.boxShadow='0 6px 16px rgba(16, 185, 129, 0.35)'; this.style.transform='translateY(-2px)';"
+                               onmouseout="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.25)'; this.style.transform='translateY(0)';">
+                                <i class="fas fa-plus-circle"></i> Buat Sesi Absen
                             </a>
                         </div>
 
                         <!-- Right: Banner dengan Gradient -->
-                        <div style="background: {{ $gradient }}; width: 140px; min-height: 220px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
+                        <div style="background: {{ $gradient }}; width: 120px; min-height: 200px; display: flex; align-items: center; justify-content: center; position: relative; flex-shrink: 0;">
                             <div style="position: absolute; opacity: 0.15; font-size: 5rem; color: white;">
                                 <i class="fas fa-book"></i>
                             </div>
@@ -143,21 +149,38 @@
 
 <style>
     .card {
-        transition: all 0.3s ease !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
 
     .card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-8px);
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
     }
 
     .btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(100, 116, 139, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #475569 0%, #334155 100%);
+        box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+        transform: translateY(-2px);
+        color: white;
     }
 
     @media (max-width: 768px) {
-        .col-lg-4 {
+        .col-lg-6 {
             flex: 0 0 100%;
             max-width: 100%;
         }
