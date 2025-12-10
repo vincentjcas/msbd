@@ -120,7 +120,7 @@
                               id="keterangan" 
                               name="keterangan"
                               rows="4"
-                              placeholder="Contoh: Pengenalan Database MySQL, SQL Dasar - SELECT Statement..."
+                              placeholder=""
                               style="border-radius: 8px; border: 2px solid #e5e7eb; padding: 0.7rem 0.9rem; font-size: 0.95rem; resize: vertical; width: 100%; line-height: 1.5;">{{ old('keterangan') }}</textarea>
                     @error('keterangan')
                         <small class="text-danger mt-1" style="display: block; font-size: 0.85rem;">{{ $message }}</small>

@@ -69,8 +69,10 @@
                     </td>
                     <td>
                         @if($item->bukti_file)
-                        <a href="{{ asset('storage/izin/' . $item->bukti_file) }}" target="_blank" class="btn btn-sm" style="background: #3b82f6; color: white; padding: 0.25rem 0.5rem;">
-                            <i class="fas fa-file"></i>
+                        <a href="{{ route('izin.download-bukti', $item->id_izin) }}" class="btn btn-sm" style="background: #3b82f6; color: white; padding: 0.25rem 0.5rem; text-decoration: none; border-radius: 4px; display: inline-flex; align-items: center; gap: 0.25rem; transition: all 0.2s ease;"
+                           onmouseover="this.style.background='#2563eb'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)';"
+                           onmouseout="this.style.background='#3b82f6'; this.style.boxShadow='none';">
+                            <i class="fas fa-download"></i>
                         </a>
                         @else
                         <small style="color: #cbd5e0;">-</small>
@@ -134,7 +136,7 @@
 }
 
 .data-table thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     color: white;
 }
 

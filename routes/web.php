@@ -8,6 +8,7 @@ use App\Http\Controllers\GuruController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\KepalaSekolahController;
 use App\Http\Controllers\PembinaController;
+use App\Http\Controllers\IzinController;
 
 Route::get('/', function () {
     return view('homepage');
@@ -150,6 +151,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/siswa/izin', [SiswaController::class, 'izin'])->name('siswa.izin')->middleware('role:siswa');
     Route::get('/siswa/izin/buat', [SiswaController::class, 'ajukanIzin'])->name('siswa.izin.create')->middleware('role:siswa');
     Route::post('/siswa/izin/submit', [SiswaController::class, 'submitAjukanIzin'])->name('siswa.izin.submit')->middleware('role:siswa');
+    
+    // Download bukti izin
+    Route::get('/izin/{id}/download-bukti', [IzinController::class, 'downloadBukti'])->name('izin.download-bukti')->middleware('auth');
     
     // Siswa Presensi
     Route::post('/siswa/presensi/submit', [SiswaController::class, 'submitAbsen'])->name('siswa.presensi.submit')->middleware('role:siswa');

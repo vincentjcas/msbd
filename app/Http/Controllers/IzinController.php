@@ -76,4 +76,24 @@ class IzinController extends Controller
 
         return view('izin.pending', compact('izinPending'));
     }
+
+    /**
+     * Download bukti izin
+     */
+    public function downloadBukti($id_izin)
+    {
+        $izin = Izin::where('id_izin', $id_izin)->firstOrFail();
+        
+        if (!$izin->bukti_file) {
+            return back()->with('error', 'File bukti tidak ditemukan');
+        }
+        
+        $filePath = storage_path('app/public/izin/' . $izin->bukti_file);
+        
+        if (!file_exists($filePath)) {
+            return back()->with('error', 'File tidak ditemukan di server. Path: ' . $filePath);
+        }
+        
+        return response()->download($filePath);
+    }
 }
