@@ -115,17 +115,26 @@
                                     font-weight: 600;
                                     margin-left: 0.5rem;
                                 ">Belum Absen</span>
-                            @else
+                            @elseif($absenSiswa)
+                                @php
+                                    $statusBadgeMap = [
+                                        'hadir' => ['bg' => '#d1fae5', 'text' => '#065f46', 'label' => 'Hadir'],
+                                        'izin' => ['bg' => '#fef3c7', 'text' => '#92400e', 'label' => 'Izin'],
+                                        'sakit' => ['bg' => '#dbeafe', 'text' => '#1e40af', 'label' => 'Sakit'],
+                                        'tidak_hadir' => ['bg' => '#f3f4f6', 'text' => '#374151', 'label' => 'Absen'],
+                                    ];
+                                    $badgeInfo = $statusBadgeMap[$absenSiswa->status] ?? ['bg' => '#f3f4f6', 'text' => '#374151', 'label' => ucfirst($absenSiswa->status)];
+                                @endphp
                                 <span style="
                                     display: inline-block;
-                                    background: #d1fae5;
-                                    color: #065f46;
+                                    background: {{ $badgeInfo['bg'] }};
+                                    color: {{ $badgeInfo['text'] }};
                                     padding: 0.25rem 0.75rem;
                                     border-radius: 0.25rem;
                                     font-size: 0.75rem;
                                     font-weight: 600;
                                     margin-left: 0.5rem;
-                                ">Sudah Absen</span>
+                                ">{{ $badgeInfo['label'] }}</span>
                             @endif
                         </h5>
 

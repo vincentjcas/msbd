@@ -17,13 +17,34 @@ class AbsenController extends Controller
     {
         $guru = Guru::where('id_user', auth()->user()->id_user)->first();
         
-        // Ambil dari jadwal untuk mendapat semua mata pelajaran yang diampu guru
+        // Ambil semua kombinasi unik (kelas, mapel) yang diampu guru
         $mapels = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
-            ->with(['kelas'])
+            ->with(['kelas', 'guru.user'])
             ->get()
-            ->groupBy('mata_pelajaran')
-            ->map(function($group) {
-                return $group->first(); // Ambil entry pertama dari setiap mapel
+            ->unique(function ($item) {
+                // Kombinasi unik: id_kelas + mata_pelajaran
+                return $item->id_kelas . '-' . $item->mata_pelajaran;
+            })
+            ->map(function($item) use ($guru) {
+                // Hitung total absens untuk kombinasi kelas-mapel ini
+                $totalAbsens = Absen::whereIn('guru_kelas_mapel_id', 
+                    GuruKelasMapel::where('id_guru', $guru->id_guru)
+                        ->where('id_kelas', $item->id_kelas)
+                        ->where('mata_pelajaran', $item->mata_pelajaran)
+                        ->pluck('id_guru_kelas_mapel')
+                )->count();
+                
+                // Hitung total jadwal untuk kombinasi kelas-mapel ini
+                $totalJadwal = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+                    ->where('id_kelas', $item->id_kelas)
+                    ->where('mata_pelajaran', $item->mata_pelajaran)
+                    ->count();
+                
+                // Tambah atribut ke model
+                $item->total_absens = $totalAbsens;
+                $item->jadwal_count = $totalJadwal;
+                
+                return $item;
             })
             ->values();
         
