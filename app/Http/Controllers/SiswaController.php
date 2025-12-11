@@ -292,13 +292,6 @@ class SiswaController extends Controller
 
     public function storeIzin(Request $request)
     {
-        // Log raw request
-        \Log::info('=== RAW REQUEST DATA ===', [
-            'all' => $request->all(),
-            'tipe' => $request->input('tipe'),
-            'alasan' => $request->input('alasan'),
-        ]);
-
         $request->validate([
             'tipe' => 'required|in:sakit,izin',
             'tanggal' => 'required|date',
@@ -317,18 +310,13 @@ class SiswaController extends Controller
             }
         }
 
-        // Set alasan: "-" untuk sakit, alasan dari form untuk izin
-        $tipe = $request->input('tipe');
-        $alasan = ($tipe === 'sakit') ? '-' : $request->input('alasan', '-');
-
-        \Log::info('=== PROCESSED DATA ===', [
-            'tipe_final' => $tipe,
-            'alasan_final' => $alasan,
-        ]);
+        // CRITICAL: Set tipe dan alasan dengan benar
+        $tipe = $request->input('tipe'); // Harus 'sakit' atau 'izin'
+        $alasan = ($tipe === 'sakit') ? '-' : ($request->input('alasan') ?: '-');
 
         $data = [
             'id_user' => auth()->user()->id_user,
-            'tipe' => $tipe,
+            'tipe' => $tipe, // PASTIKAN INI CORRECT!
             'id_jadwal' => $request->id_jadwal,
             'id_guru' => $id_guru,
             'tanggal' => $request->tanggal,
@@ -336,8 +324,6 @@ class SiswaController extends Controller
             'alasan' => $alasan,
             'status' => 'pending',
         ];
-
-        \Log::info('=== DATA TO INSERT ===', $data);
 
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');
@@ -602,11 +588,14 @@ class SiswaController extends Controller
                 'id_user' => $user->id_user,
                 'id_guru' => $jadwal->id_guru,
                 'id_jadwal' => $request->id_jadwal,
+                'tipe' => $request->tipe, // CRITICAL: Simpan field tipe!
                 'tanggal' => $request->tanggal,
+                'hari' => $request->hari, // Simpan field hari juga
                 'alasan' => $request->tipe === 'sakit'
-                    ? 'Sakit'
+                    ? '-'
                     : $request->alasan,
                 'bukti_file' => $path,
+                'status' => 'pending', // Set status awal
             ]);
 
             // Log activity

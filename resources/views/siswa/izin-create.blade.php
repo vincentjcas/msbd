@@ -457,14 +457,15 @@
                 }
             }
             
-            // Debug: Log data sebelum submit
-            console.log('=== FORM SUBMIT DEBUG ===');
+            // DEBUG console log
+            console.log('=== FORM SUBMIT - VALIDASI PASSED ===');
             console.log('Tipe:', tipe.value);
-            console.log('Alasan:', tipe.value === 'sakit' ? '-' : alasanInput.value);
+            console.log('Tanggal:', tanggalInput.value);
             console.log('Hari:', hariInput.value);
             console.log('Jadwal:', jadwalSelect.value);
-
-            // Show loading
+            console.log('Alasan:', alasanInput.value);
+            
+            // Show loading - JANGAN PREVENT DEFAULT, BIARKAN FORM SUBMIT!
             Swal.fire({
                 title: 'Mengirim Izin...',
                 text: 'Mohon tunggu sebentar',
@@ -474,6 +475,9 @@
                     Swal.showLoading();
                 }
             });
+            
+            // PENTING: Return true atau jangan prevent default agar form benar-benar submit!
+            return true;
         });
     });
 </script>
