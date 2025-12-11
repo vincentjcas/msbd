@@ -22,11 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
-db_simak_smk_lama.sql
-db_simak_smk_new.sql
-db_simak_smk.sql
-db_simak_smk_UPDATED.sql
-
+*.sql
+*.bat
 # Dokumentasi / File Markdown (kecuali README.md)
 *.md
 !README.md
