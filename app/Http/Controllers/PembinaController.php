@@ -274,16 +274,11 @@ class PembinaController extends Controller
      */
     public function laporanAktivitas()
     {
-        try {
-            $laporan = LaporanAktivitas::with(['pembina', 'kelas'])
-                ->orderBy('created_at', 'desc')
-                ->paginate(20);
+        $laporan = LaporanAktivitas::with(['pembina.user', 'guru.user'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
-            return view('pembina.laporan-aktivitas', compact('laporan'));
-        } catch (\Exception $e) {
-            \Log::error('Error in laporanAktivitas: ' . $e->getMessage());
-            return back()->with('error', 'Gagal mengambil data laporan');
-        }
+        return view('pembina.laporan-aktivitas', compact('laporan'));
     }
 
     /**

@@ -95,7 +95,7 @@
                 <i class="fas fa-file-contract"></i> Laporan Aktivitas
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Mengelola laporan aktivitas siswa dan verifikasi
+                Mengelola laporan aktivitas siswa
             </p>
             <button class="btn btn-primary btn-sm" onclick="window.location.href='{{ route('pembina.laporan-aktivitas') }}'">
                 <i class="fas fa-list"></i> Lihat Laporan
