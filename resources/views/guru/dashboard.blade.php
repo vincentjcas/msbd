@@ -191,9 +191,9 @@
                 Melihat rekap kehadiran per bulan untuk evaluasi
             </p>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur laporan akan tersedia')">
-                    <i class="fas fa-download"></i> Download Laporan
-                </button>
+                <a href="{{ route('guru.laporan-bulanan') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-eye"></i> Lihat Laporan
+                </a>
             </div>
         </div>
     </div>

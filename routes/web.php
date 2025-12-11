@@ -124,6 +124,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/guru/data-kehadiran', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiran'])->name('guru.data-kehadiran')->middleware('role:guru');
     Route::get('/guru/data-kehadiran/{mata_pelajaran}', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiranPertemuan'])->name('guru.data-kehadiran-pertemuan')->middleware('role:guru');
     
+    // Guru - Laporan Bulanan
+    Route::get('/guru/laporan-bulanan', [GuruController::class, 'laporanBulanan'])->name('guru.laporan-bulanan')->middleware('role:guru');
+    Route::get('/guru/laporan-bulanan/download', [GuruController::class, 'downloadLaporanBulanan'])->name('guru.laporan-bulanan.download')->middleware('role:guru');
+    
     // Siswa Dashboard
     Route::get('/siswa/dashboard', [SiswaController::class, 'dashboard'])->name('siswa.dashboard')->middleware('role:siswa');
     

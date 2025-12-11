@@ -614,4 +614,143 @@ class GuruController extends Controller
         $kegiatan = Kegiatan::with('pembuatKegiatan')->findOrFail($id);
         return view('guru.kegiatan.detail', compact('kegiatan'));
     }
+
+    /**
+     * Halaman Laporan Bulanan - Rekap Kehadiran Guru
+     */
+    public function laporanBulanan(Request $request)
+    {
+        $userId = auth()->user()->id_user;
+        $guru = auth()->user()->guru;
+        
+        // Bulan dan tahun dari request atau default bulan ini
+        $bulan = $request->get('bulan', date('n'));
+        $tahun = $request->get('tahun', date('Y'));
+        
+        // Ambil data presensi bulan yang dipilih
+        $presensi = Presensi::where('id_user', $userId)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->orderBy('tanggal', 'asc')
+            ->get();
+        
+        // Hitung statistik
+        $totalHadir = $presensi->where('status', 'hadir')->count();
+        $totalIzin = $presensi->where('status', 'izin')->count();
+        $totalSakit = $presensi->where('status', 'sakit')->count();
+        $totalAlpha = $presensi->where('status', 'alpha')->count();
+        
+        // Hitung hari kerja dalam bulan (Senin-Sabtu)
+        $startDate = \Carbon\Carbon::createFromDate($tahun, $bulan, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+        $hariKerja = 0;
+        
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            // Senin = 1, Sabtu = 6, Minggu = 0
+            if ($date->dayOfWeek >= 1 && $date->dayOfWeek <= 6) {
+                $hariKerja++;
+            }
+        }
+        
+        // Hitung keterlambatan
+        $jamKerjaStandar = '07:30:00';
+        $terlambat = 0;
+        $totalMenitTerlambat = 0;
+        
+        foreach ($presensi->where('status', 'hadir') as $p) {
+            if ($p->jam_masuk && $p->jam_masuk > $jamKerjaStandar) {
+                $terlambat++;
+                $jamMasuk = \Carbon\Carbon::createFromFormat('H:i:s', $p->jam_masuk);
+                $jamStandar = \Carbon\Carbon::createFromFormat('H:i:s', $jamKerjaStandar);
+                $totalMenitTerlambat += $jamMasuk->diffInMinutes($jamStandar);
+            }
+        }
+        
+        // Persentase kehadiran
+        $persentaseKehadiran = $hariKerja > 0 ? round(($totalHadir / $hariKerja) * 100, 1) : 0;
+        
+        // Data untuk chart
+        $statistik = [
+            'hadir' => $totalHadir,
+            'izin' => $totalIzin,
+            'sakit' => $totalSakit,
+            'alpha' => $totalAlpha,
+            'terlambat' => $terlambat,
+            'total_menit_terlambat' => $totalMenitTerlambat,
+            'hari_kerja' => $hariKerja,
+            'persentase_kehadiran' => $persentaseKehadiran,
+        ];
+        
+        // List bulan untuk dropdown
+        $listBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        // List tahun (3 tahun terakhir)
+        $listTahun = range(date('Y'), date('Y') - 2);
+        
+        return view('guru.laporan-bulanan', compact(
+            'presensi', 'statistik', 'bulan', 'tahun', 'listBulan', 'listTahun', 'guru'
+        ));
+    }
+
+    /**
+     * Download Laporan Bulanan PDF
+     */
+    public function downloadLaporanBulanan(Request $request)
+    {
+        $userId = auth()->user()->id_user;
+        $guru = auth()->user()->guru;
+        $user = auth()->user();
+        
+        $bulan = $request->get('bulan', date('n'));
+        $tahun = $request->get('tahun', date('Y'));
+        
+        // Ambil data presensi
+        $presensi = Presensi::where('id_user', $userId)
+            ->whereMonth('tanggal', $bulan)
+            ->whereYear('tanggal', $tahun)
+            ->orderBy('tanggal', 'asc')
+            ->get();
+        
+        // Hitung statistik
+        $totalHadir = $presensi->where('status', 'hadir')->count();
+        $totalIzin = $presensi->where('status', 'izin')->count();
+        $totalSakit = $presensi->where('status', 'sakit')->count();
+        $totalAlpha = $presensi->where('status', 'alpha')->count();
+        
+        // Hitung hari kerja
+        $startDate = \Carbon\Carbon::createFromDate($tahun, $bulan, 1);
+        $endDate = $startDate->copy()->endOfMonth();
+        $hariKerja = 0;
+        
+        for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+            if ($date->dayOfWeek >= 1 && $date->dayOfWeek <= 6) {
+                $hariKerja++;
+            }
+        }
+        
+        $persentaseKehadiran = $hariKerja > 0 ? round(($totalHadir / $hariKerja) * 100, 1) : 0;
+        
+        $listBulan = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+        
+        $namaBulan = $listBulan[$bulan];
+        
+        // Generate HTML untuk PDF
+        $html = view('guru.laporan-bulanan-pdf', compact(
+            'presensi', 'totalHadir', 'totalIzin', 'totalSakit', 'totalAlpha',
+            'hariKerja', 'persentaseKehadiran', 'namaBulan', 'tahun', 'guru', 'user'
+        ))->render();
+        
+        // Return sebagai HTML yang bisa di-print
+        return response($html)
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'inline; filename="Laporan_Kehadiran_' . $namaBulan . '_' . $tahun . '.html"');
+    }
 }
