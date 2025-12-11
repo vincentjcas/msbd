@@ -262,7 +262,7 @@
 
                         <!-- Jenis Izin -->
                         <td>
-                            @if($izin->alasan === 'Sakit')
+                            @if($izin->tipe === 'sakit')
                                 <span class="badge-izin badge-sakit">Sakit</span>
                             @else
                                 <span class="badge-izin badge-umum">Izin</span>
@@ -271,7 +271,7 @@
 
                         <!-- Alasan / Keterangan -->
                         <td class="cell-alasan">
-                            @if($izin->alasan === 'Sakit')
+                            @if($izin->tipe === 'sakit')
                                 -
                             @else
                                 {{ $izin->alasan }}

@@ -292,12 +292,19 @@ class SiswaController extends Controller
 
     public function storeIzin(Request $request)
     {
+        // Log raw request
+        \Log::info('=== RAW REQUEST DATA ===', [
+            'all' => $request->all(),
+            'tipe' => $request->input('tipe'),
+            'alasan' => $request->input('alasan'),
+        ]);
+
         $request->validate([
             'tipe' => 'required|in:sakit,izin',
             'tanggal' => 'required|date',
             'hari' => 'required|in:Minggu,Senin,Selasa,Rabu,Kamis,Jumat,Sabtu',
             'id_jadwal' => 'nullable|exists:jadwal,id_jadwal',
-            'alasan' => 'required_if:tipe,izin|string|max:500',
+            'alasan' => 'required_if:tipe,izin|nullable|string|max:500',
             'bukti_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
@@ -310,16 +317,27 @@ class SiswaController extends Controller
             }
         }
 
+        // Set alasan: "-" untuk sakit, alasan dari form untuk izin
+        $tipe = $request->input('tipe');
+        $alasan = ($tipe === 'sakit') ? '-' : $request->input('alasan', '-');
+
+        \Log::info('=== PROCESSED DATA ===', [
+            'tipe_final' => $tipe,
+            'alasan_final' => $alasan,
+        ]);
+
         $data = [
             'id_user' => auth()->user()->id_user,
-            'tipe' => $request->tipe,
+            'tipe' => $tipe,
             'id_jadwal' => $request->id_jadwal,
             'id_guru' => $id_guru,
             'tanggal' => $request->tanggal,
             'hari' => $request->hari,
-            'alasan' => $request->alasan,
+            'alasan' => $alasan,
             'status' => 'pending',
         ];
+
+        \Log::info('=== DATA TO INSERT ===', $data);
 
         if ($request->hasFile('bukti_file')) {
             $file = $request->file('bukti_file');

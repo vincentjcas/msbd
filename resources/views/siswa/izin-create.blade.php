@@ -420,11 +420,11 @@
                 return false;
             }
 
-            if (!hariSelect.value) {
+            if (!hariInput.value) {
                 e.preventDefault();
                 Swal.fire({
                     title: 'Validasi Gagal',
-                    text: 'Pilih hari pelajaran terlebih dahulu',
+                    text: 'Pilih tanggal terlebih dahulu',
                     icon: 'warning',
                     confirmButtonColor: '#0369a1'
                 });
@@ -442,8 +442,9 @@
                 return false;
             }
 
+            // Validasi alasan hanya untuk tipe IZIN
             if (tipe.value === 'izin') {
-                const alasan = document.getElementById('alasan').value.trim();
+                const alasan = alasanInput.value.trim();
                 if (!alasan || alasan.length < 10) {
                     e.preventDefault();
                     Swal.fire({
@@ -455,6 +456,13 @@
                     return false;
                 }
             }
+            
+            // Debug: Log data sebelum submit
+            console.log('=== FORM SUBMIT DEBUG ===');
+            console.log('Tipe:', tipe.value);
+            console.log('Alasan:', tipe.value === 'sakit' ? '-' : alasanInput.value);
+            console.log('Hari:', hariInput.value);
+            console.log('Jadwal:', jadwalSelect.value);
 
             // Show loading
             Swal.fire({
