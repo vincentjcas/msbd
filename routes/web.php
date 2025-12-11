@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DbReportController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\GuruController;
@@ -13,9 +12,6 @@ use App\Http\Controllers\IzinController;
 Route::get('/', function () {
     return view('homepage');
 });
-
-// DB report viewer (requires generate:db-report run first)
-Route::get('/admin/db-report', [DbReportController::class, 'index'])->name('admin.db_report');
 
 // Authentication Routes
 use App\Http\Controllers\ForgotPasswordController;

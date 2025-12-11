@@ -130,21 +130,6 @@
         </div>
         --}}
 
-        <!-- 1. Akses Database -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-database"></i> Akses Database
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Memiliki akses penuh terhadap seluruh fitur dan database system
-            </p>
-            <div>
-                <a href="{{ route('admin.db_report') }}" class="btn btn-primary btn-sm">
-                    <i class="fas fa-eye"></i> Lihat Database
-                </a>
-            </div>
-        </div>
-
         <!-- 3. Kelola Struktur & Data -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
