@@ -145,22 +145,7 @@
             </div>
         </div>
 
-        <!-- 4. Monitoring Sistem -->
-        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
-            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="fas fa-shield-alt"></i> Monitoring Sistem
-            </h4>
-            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem; flex-grow: 1;">
-                Validasi teknis terhadap data presensi untuk memastikan tidak ada error
-            </p>
-            <div>
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur monitoring akan tersedia')">
-                    <i class="fas fa-chart-line"></i> Monitor
-                </button>
-            </div>
-        </div>
-
-        <!-- 5. Pengajuan Izin -->
+        <!-- 4. Pengajuan Izin -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-file-medical"></i> Pengajuan Izin
@@ -175,7 +160,7 @@
             </div>
         </div>
 
-        <!-- 6. Jadwal Pelajaran -->
+        <!-- 5. Jadwal Pelajaran -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-table"></i> Jadwal Pelajaran
@@ -190,7 +175,7 @@
             </div>
         </div>
 
-        <!-- 7. File Materi -->
+        <!-- 6. File Materi -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-folder-open"></i> File Materi
@@ -205,7 +190,7 @@
             </div>
         </div>
 
-        <!-- 8. Backup Database -->
+        <!-- 7. Backup Database -->
         <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; min-height: 200px; display: flex; flex-direction: column;">
             <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <i class="fas fa-hdd"></i> Backup Database
