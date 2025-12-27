@@ -64,7 +64,7 @@
                     $canPresent = $isOpen && $absenSiswa && $absenSiswa->waktu_absen === null;
                     
                     // Status display
-                    $displayStatus = $absenSiswa->status;
+                    $displayStatus = $absenSiswa?->status ?? 'belum_absen';
                     $isClosed = !$isOpen;
                     $isLocked = !$canPresent && $isOpen;
                 @endphp
