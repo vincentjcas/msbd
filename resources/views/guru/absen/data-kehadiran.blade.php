@@ -3,64 +3,164 @@
 @section('title', 'Data Kehadiran')
 
 @section('content')
-<div style="padding: 2rem; max-width: 1400px; margin: 0 auto;">
-    <!-- Breadcrumb -->
-    <div class="mb-4" style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-        <a href="{{ route('guru.absen.index') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background-color: #6b7280; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: all 0.2s ease;"
-           onmouseover="this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)';"
-           onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
-            <i class="fas fa-arrow-left"></i> Kembali
-        </a>
-        <x-dashboard-button />
-    </div>
-
+<div style="padding: 2rem;">
     <!-- Header -->
-    {{-- <div class="text-center mb-5">
-        <div style="display: inline-block; background: linear-gradient(135deg, #0ea5e9 0%, #06b6d4 100%); padding: 1rem 2rem; border-radius: 1rem; margin-bottom: 1.5rem; box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3);">
-            <i class="fas fa-chart-bar" style="font-size: 3rem; color: white;"></i>
-        </div> --}}
-        <h2 class="mb-3" style="font-weight: 800; color: #1f2937; font-size: 2.5rem;">
-            Data Kehadiran
+    <div style="margin-bottom: 2rem;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem;">
+            <a href="{{ route('guru.absen.index') }}" style="display: inline-block; padding: 0.75rem 1.5rem; background-color: #6b7280; color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 500; font-size: 0.9375rem; transition: all 0.2s ease;"
+               onmouseover="this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'; this.style.transform='translateY(-2px)';"
+               onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+                <i class="fas fa-arrow-left"></i> Kembali
+            </a>
+            <x-dashboard-button />
+        </div>
+        
+        <h2 style="font-size: 1.875rem; font-weight: 700; color: #1f2937; margin: 0 0 0.5rem 0;">
+            <i class="fas fa-clipboard-check" style="margin-right: 0.75rem;"></i>Data Kehadiran
         </h2>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9375rem;">Verifikasi dan input status kehadiran siswa</p>
     </div>
 
-    <!-- Grid Mata Pelajaran -->
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; justify-items: center;">
-        @forelse($mapels as $mapel)
-            <a href="{{ route('guru.data-kehadiran-pertemuan', $mapel) }}" style="text-decoration: none; color: inherit; width: 100%; max-width: 320px;">
-                <div style="background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; transition: all 0.3s ease; cursor: pointer; height: 100%;"
-                     onmouseover="this.style.boxShadow='0 8px 20px rgba(59,130,246,0.15)'; this.style.transform='translateY(-4px)';"
-                     onmouseout="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; this.style.transform='translateY(0)';">
-                    
-                    <!-- Header dengan Background Gradient -->
-                    <div style="padding: 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; text-align: center;">
-                        <i class="fas fa-book" style="font-size: 2.5rem; margin-bottom: 0.75rem; display: block;"></i>
-                        <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0; letter-spacing: 0.5px;">
-                            {{ $mapel }}
-                        </h3>
-                    </div>
+    <!-- Filter Section -->
+    <div style="background: white; padding: 1.5rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+        <h3 style="font-weight: 700; color: #1f2937; margin-bottom: 1rem;">Filter Pertemuan</h3>
+        
+        <form method="GET" action="{{ route('guru.data-kehadiran') }}" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; align-items: flex-end;">
+            <!-- Filter Tanggal -->
+            <div>
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-calendar-day"></i> Tanggal
+                </label>
+                <input type="date" name="tanggal" value="{{ $tanggalFilter }}" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.95rem;">
+            </div>
 
-                    <!-- Content -->
-                    <div style="padding: 1.5rem; background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%);">
-                        <div style="text-align: center; margin-bottom: 1rem;">
-                            <p style="color: #9ca3af; font-size: 0.75rem; margin: 0 0 0.25rem 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Mata Pelajaran</p>
-                            <p style="font-weight: 700; color: #1f2937; font-size: 1.1rem; margin: 0;">{{ $mapel }}</p>
+            <!-- Filter Mata Pelajaran -->
+            <div>
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-book"></i> Mata Pelajaran
+                </label>
+                <select name="mata_pelajaran" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.95rem;">
+                    <option value="">-- Semua --</option>
+                    @php
+                        $mataPelajaran = $jadwal->pluck('mata_pelajaran')->unique();
+                    @endphp
+                    @foreach($mataPelajaran as $mapel)
+                        <option value="{{ $mapel }}" {{ $mataPelajaranFilter == $mapel ? 'selected' : '' }}>
+                            {{ $mapel }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Filter Kelas -->
+            <div>
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; font-size: 0.9rem;">
+                    <i class="fas fa-graduation-cap"></i> Kelas
+                </label>
+                <select name="kelas" style="width: 100%; padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 0.5rem; font-size: 0.95rem;">
+                    <option value="">-- Semua --</option>
+                    @foreach($jadwal as $j)
+                        <option value="{{ $j->id_kelas }}" {{ $kelasFilter == $j->id_kelas ? 'selected' : '' }}>
+                            {{ $j->kelas->nama_kelas ?? 'N/A' }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Button -->
+            <div style="display: flex; gap: 0.5rem;">
+                <button type="submit" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; font-size: 0.9rem; flex: 1;">
+                    <i class="fas fa-search"></i> Filter
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- List of Pertemuan -->
+    @if($absens->count() > 0)
+        <div style="display: grid; gap: 1rem;">
+            @foreach($absens as $absen)
+                <div style="background: white; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 1.5rem; transition: all 0.2s ease;"
+                     onmouseover="this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'; this.style.transform='translateY(-2px)';"
+                     onmouseout="this.style.boxShadow='0 1px 3px rgba(0,0,0,0.1)'; this.style.transform='translateY(0)';">
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 1.5rem; align-items: center;">
+                        <!-- Info Pertemuan -->
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 0.25rem 0; font-weight: 600; text-transform: uppercase;">Tanggal</p>
+                            <p style="font-size: 1rem; font-weight: 700; color: #1f2937; margin: 0;">
+                                {{ $absen->jam_buka->format('d/m/Y') }}
+                            </p>
                         </div>
 
-                        <button style="width: 100%; padding: 0.75rem 1.25rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease; font-size: 0.9rem; box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);"
-                                onmouseover="this.style.boxShadow='0 4px 12px rgba(245, 158, 11, 0.3)'; this.style.transform='scale(1.02)';"
-                                onmouseout="this.style.boxShadow='0 2px 8px rgba(245, 158, 11, 0.2)'; this.style.transform='scale(1)';">
-                            <i class="fas fa-eye"></i> Lihat Data
-                        </button>
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 0.25rem 0; font-weight: 600; text-transform: uppercase;">Jam</p>
+                            <p style="font-size: 1rem; font-weight: 700; color: #1f2937; margin: 0;">
+                                {{ $absen->jam_buka->format('H:i') }} - {{ $absen->jam_tutup->format('H:i') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0 0 0.25rem 0; font-weight: 600; text-transform: uppercase;">Kelas</p>
+                            <p style="font-size: 1rem; font-weight: 700; color: #1f2937; margin: 0;">
+                                {{ $absen->kelas->nama_kelas ?? 'N/A' }}
+                            </p>
+                        </div>
+
+                        <!-- Button -->
+                        <a href="{{ route('guru.absen.show', $absen->id) }}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: all 0.2s ease;"
+                           onmouseover="this.style.boxShadow='0 4px 12px rgba(16, 185, 129, 0.3)'; this.style.transform='translateY(-2px)';"
+                           onmouseout="this.style.boxShadow='none'; this.style.transform='translateY(0)';">
+                            <i class="fas fa-edit"></i> Verifikasi
+                        </a>
                     </div>
+
+                    <!-- Keterangan -->
+                    @if($absen->keterangan)
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #e5e7eb;">
+                            <p style="color: #6b7280; font-size: 0.875rem; margin: 0;">
+                                <strong>Topik:</strong> {{ $absen->keterangan }}
+                            </p>
+                        </div>
+                    @endif
                 </div>
+            @endforeach
+        </div>
+    @else
+        <div style="background: white; padding: 3rem 2rem; border-radius: 0.75rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-align: center;">
+            <i class="fas fa-inbox" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem; display: block;"></i>
+            <p style="color: #9ca3af; font-size: 1rem; margin: 0;">
+                Tidak ada pertemuan yang sesuai dengan filter. Buatlah pertemuan baru atau ubah filter.
+            </p>
+            <a href="{{ route('guru.absen.create') }}" style="display: inline-block; margin-top: 1.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600;">
+                <i class="fas fa-plus"></i> Buat Pertemuan Baru
             </a>
-        @empty
-            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
-                <p style="color: #9ca3af; font-size: 1.125rem;">Belum ada mata pelajaran yang tersedia</p>
+        </div>
+    @endif
+
+    <!-- Divider -->
+    <div style="margin: 3rem 0; text-align: center;">
+        <div style="color: #d1d5db; font-size: 0.875rem; font-weight: 600;">ATAU</div>
+    </div>
+
+    <!-- Link ke Laporan Per Bulan -->
+    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); padding: 1.5rem; border-radius: 0.75rem; border-left: 4px solid #f59e0b;">
+        <div style="display: flex; align-items: center; gap: 1.5rem; justify-content: space-between;">
+            <div>
+                <h3 style="margin: 0 0 0.5rem 0; color: #92400e; font-size: 1rem; font-weight: 700;">
+                    <i class="fas fa-file-pdf" style="margin-right: 0.5rem;"></i>Laporan Per Bulan Siswa
+                </h3>
+                <p style="margin: 0; color: #b45309; font-size: 0.9rem;">
+                    Lihat rekapitulasi kehadiran bulanan dengan filter dan download PDF
+                </p>
             </div>
-        @endforelse
+            <a href="{{ route('guru.laporan-per-bulan-siswa') }}" 
+               style="flex-shrink: 0; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 0.5rem; text-decoration: none; font-weight: 600; font-size: 0.875rem; white-space: nowrap;">
+                Akses Laporan <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+            </a>
+        </div>
     </div>
 </div>
 
 @endsection
+

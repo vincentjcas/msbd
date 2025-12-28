@@ -172,50 +172,126 @@ class AbsenController extends Controller
             }
         }
 
-        // Get mata_pelajaran dari guruKelasMapel
-        $mataPelajaran = $absen->guruKelasMapel?->mata_pelajaran;
-
-        return redirect()->route('guru.data-kehadiran-pertemuan', $mataPelajaran)
+        return redirect()->route('guru.data-kehadiran')
             ->with('success', 'Absen berhasil diperbarui');
     }
 
-    public function dataKehadiran()
+    public function dataKehadiran(Request $request)
     {
         $guru = Guru::where('id_user', auth()->user()->id_user)->first();
         
-        // Ambil semua mata pelajaran yang guru ajar
-        $mapels = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+        // Ambil semua jadwal guru untuk filter
+        $jadwal = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+            ->with('kelas')
             ->get()
-            ->pluck('mata_pelajaran')
-            ->unique()
+            ->unique(function ($item) {
+                return $item->id_kelas . '-' . $item->mata_pelajaran;
+            })
             ->values();
         
-        return view('guru.absen.data-kehadiran', compact('mapels'));
-    }
-
-    public function dataKehadiranPertemuan($mata_pelajaran)
-    {
-        $guru = Guru::where('id_user', auth()->user()->id_user)->first();
+        // Filter tanggal jika ada
+        $tanggalFilter = $request->get('tanggal');
+        $mataPelajaranFilter = $request->get('mata_pelajaran');
+        $kelasFilter = $request->get('kelas');
         
-        // Verify guru mengajar mapel ini
-        $jadwal = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
-            ->where('mata_pelajaran', $mata_pelajaran)
-            ->first();
+        // Query dasar absen guru
+        $query = Absen::where('guru_id', $guru->id_guru);
         
-        if (!$jadwal) {
-            abort(403, 'Anda tidak mengajar mata pelajaran ini');
+        // Filter tanggal jika ada
+        if ($tanggalFilter) {
+            $query->whereDate('jam_buka', $tanggalFilter);
         }
         
-        // Ambil semua absen untuk mata pelajaran ini
-        $absens = Absen::where('guru_id', $guru->id_guru)
-            ->whereHas('guruKelasMapel', function($query) use ($mata_pelajaran) {
-                $query->where('mata_pelajaran', $mata_pelajaran);
-            })
-            ->with(['kelas', 'absenSiswas.siswa'])
-            ->orderBy('id', 'asc')
+        // Filter mata pelajaran jika ada
+        if ($mataPelajaranFilter) {
+            $query->whereHas('guruKelasMapel', function($q) use ($mataPelajaranFilter) {
+                $q->where('mata_pelajaran', $mataPelajaranFilter);
+            });
+        }
+        
+        // Filter kelas jika ada
+        if ($kelasFilter) {
+            $query->where('kelas_id', $kelasFilter);
+        }
+        
+        $absens = $query->with(['kelas', 'absenSiswas.siswa.user'])->orderBy('jam_buka', 'desc')->get();
+        
+        return view('guru.absen.data-kehadiran', compact('jadwal', 'absens', 'tanggalFilter', 'mataPelajaranFilter', 'kelasFilter'));
+    }
+
+    public function laporanPerBulanSiswa(Request $request)
+    {
+        $guru = Guru::where('id_user', auth()->user()->id_user)->first();
+        $user = $guru->user;
+        
+        // Ambil semua kelas yang guru ajar
+        $kelas = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+            ->with('kelas')
+            ->get()
+            ->pluck('kelas')
+            ->unique('id_kelas')
+            ->values();
+        
+        // Filter bulan jika ada
+        $bulanFilter = $request->get('bulan', date('Y-m'));
+        $kelasFilter = $request->get('kelas');
+        
+        // Query dasar absen guru
+        $query = Absen::where('guru_id', $guru->id_guru)
+            ->with(['kelas', 'absenSiswas' => function($q) {
+                $q->with(['siswa' => function($sq) {
+                    $sq->with('user');
+                }]);
+            }]);
+        
+        // Filter bulan (format: YYYY-MM)
+        $query->whereYear('jam_buka', date('Y', strtotime($bulanFilter)))
+            ->whereMonth('jam_buka', date('m', strtotime($bulanFilter)));
+        
+        // Filter kelas jika ada
+        if ($kelasFilter) {
+            $query->where('kelas_id', $kelasFilter);
+        }
+        
+        $absens = $query->orderBy('jam_buka', 'desc')->get();
+        
+        // Collect semua student IDs dari absenSiswas
+        $allSiswaIds = [];
+        foreach ($absens as $absen) {
+            foreach ($absen->absenSiswas as $absenSiswa) {
+                if (!in_array($absenSiswa->id_siswa, $allSiswaIds)) {
+                    $allSiswaIds[] = $absenSiswa->id_siswa;
+                }
+            }
+        }
+        
+        // Load semua siswa dengan user relation
+        $allSiswa = Siswa::whereIn('id_siswa', $allSiswaIds)
+            ->with('user')
+            ->orderBy('id_siswa')
             ->get();
         
-        return view('guru.absen.data-kehadiran-pertemuan', compact('mata_pelajaran', 'absens'));
+        // Hitung statistik
+        $statistik = [];
+        foreach ($absens as $absen) {
+            $absenSiswas = $absen->absenSiswas;
+            $total = $absenSiswas->count();
+            $hadir = $absenSiswas->where('status', 'hadir')->count();
+            $izin = $absenSiswas->where('status', 'izin')->count();
+            $sakit = $absenSiswas->where('status', 'sakit')->count();
+            $tidakHadir = $absenSiswas->where('status', 'tidak_hadir')->count();
+            
+            $statistik[$absen->id] = [
+                'total' => $total,
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'tidak_hadir' => $tidakHadir,
+                'persen_hadir' => $total > 0 ? round(($hadir / $total) * 100, 2) : 0
+            ];
+        }
+        
+        return view('guru.absen.laporan-per-bulan-siswa', compact('kelas', 'absens', 'bulanFilter', 'kelasFilter', 'statistik', 'guru', 'user', 'allSiswa'));
     }
 
     public function destroy(Absen $absen)
@@ -228,5 +304,84 @@ class AbsenController extends Controller
 
         $absen->delete();
         return redirect()->route('guru.absen.index')->with('success', 'Absen berhasil dihapus');
+    }
+
+    public function downloadLaporanPerBulan(Request $request)
+    {
+        $guru = Guru::where('id_user', auth()->user()->id_user)->first();
+        $user = $guru->user;
+        
+        $bulanFilter = $request->get('bulan', date('Y-m'));
+        $kelasFilter = $request->get('kelas');
+        
+        // Query dasar absen guru dengan eager loading relasi siswa
+        $query = Absen::where('guru_id', $guru->id_guru)
+            ->with(['kelas', 'absenSiswas' => function($q) {
+                $q->with(['siswa' => function($sq) {
+                    $sq->with('user');
+                }]);
+            }]);
+        
+        // Filter bulan
+        $query->whereYear('jam_buka', date('Y', strtotime($bulanFilter)))
+            ->whereMonth('jam_buka', date('m', strtotime($bulanFilter)));
+        
+        // Filter kelas jika ada
+        if ($kelasFilter) {
+            $query->where('kelas_id', $kelasFilter);
+        }
+        
+        $absens = $query->orderBy('jam_buka', 'asc')->get();
+        
+        // Ambil semua kelas
+        $kelas = \App\Models\Jadwal::where('id_guru', $guru->id_guru)
+            ->with('kelas')
+            ->get()
+            ->pluck('kelas')
+            ->unique('id_kelas')
+            ->values();
+        
+        // Collect semua student IDs dari absenSiswas
+        $allSiswaIds = [];
+        foreach ($absens as $absen) {
+            foreach ($absen->absenSiswas as $absenSiswa) {
+                if (!in_array($absenSiswa->id_siswa, $allSiswaIds)) {
+                    $allSiswaIds[] = $absenSiswa->id_siswa;
+                }
+            }
+        }
+        
+        // Load semua siswa dengan user relation
+        $allSiswa = \App\Models\Siswa::whereIn('id_siswa', $allSiswaIds)
+            ->with('user')
+            ->orderBy('id_siswa')
+            ->get();
+        
+        // Hitung statistik
+        $statistik = [];
+        foreach ($absens as $absen) {
+            $absenSiswas = $absen->absenSiswas;
+            $total = $absenSiswas->count();
+            $hadir = $absenSiswas->where('status', 'hadir')->count();
+            $izin = $absenSiswas->where('status', 'izin')->count();
+            $sakit = $absenSiswas->where('status', 'sakit')->count();
+            $tidakHadir = $absenSiswas->where('status', 'tidak_hadir')->count();
+            
+            $statistik[$absen->id] = [
+                'total' => $total,
+                'hadir' => $hadir,
+                'izin' => $izin,
+                'sakit' => $sakit,
+                'tidak_hadir' => $tidakHadir,
+                'persen_hadir' => $total > 0 ? round(($hadir / $total) * 100, 2) : 0
+            ];
+        }
+        
+        // Generate PDF
+        $pdf = \PDF::loadView('guru.absen.pdf-kehadiran', compact('absens', 'bulanFilter', 'kelasFilter', 'statistik', 'kelas', 'guru', 'user', 'allSiswa'));
+        
+        $filename = 'kehadiran_' . $bulanFilter . ($kelasFilter ? '_kelas' . $kelasFilter : '') . '.pdf';
+        
+        return $pdf->download($filename);
     }
 }
