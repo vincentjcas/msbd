@@ -189,7 +189,7 @@
     
     <div class="header">
         <h1>LAPORAN KEHADIRAN BULANAN</h1>
-        <h2>SMK NEGERI 1 CONTOH - Periode {{ $namaBulan }} {{ $tahun }}</h2>
+        <h2>SMK YAPIM BIRU BIRU - Periode {{ $namaBulan }} {{ $tahun }}</h2>
     </div>
     
     <div class="info-section">
@@ -303,7 +303,7 @@
     
     <div class="footer">
         <p>Dokumen ini digenerate secara otomatis oleh Sistem Informasi Manajemen Akademik</p>
-        <p>© {{ date('Y') }} - SMK NEGERI 1 CONTOH</p>
+        <p>© {{ date('Y') }} - SMK YAPIM BIRU BIRU</p>
     </div>
 </body>
 </html>

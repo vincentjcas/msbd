@@ -158,12 +158,27 @@
                 <i class="fas fa-chart-bar"></i> Data Kehadiran
             </h4>
             <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
-                Melihat data kehadiran per kelas atau per bulan
+                Melihat daftar pertemuan dan data kehadiran per mata pelajaran
             </p>
             <div style="display: flex; gap: 0.5rem;">
-                <button class="btn btn-primary btn-sm" onclick="alert('Fitur data kehadiran akan tersedia')">
+                <a href="{{ route('guru.data-kehadiran') }}" class="btn btn-primary btn-sm">
                     <i class="fas fa-eye"></i> Lihat Data
-                </button>
+                </a>
+            </div>
+        </div>
+
+        <!-- 6b. Laporan Per Bulan Siswa -->
+        <div style="padding: 1.5rem; background: #f7fafc; border-radius: 10px; border-left: 4px solid #ea580c;">
+            <h4 style="color: #2d3748; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="fas fa-calendar-alt"></i> Laporan Per Bulan Siswa
+            </h4>
+            <p style="color: #718096; font-size: 0.9rem; margin-bottom: 1rem;">
+                Rekapitulasi kehadiran siswa per bulan dengan filter kelas
+            </p>
+            <div style="display: flex; gap: 0.5rem;">
+                <a href="{{ route('guru.laporan-per-bulan-siswa') }}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-file-alt"></i> Lihat Laporan
+                </a>
             </div>
         </div>
 

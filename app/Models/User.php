@@ -65,6 +65,14 @@ class User extends Authenticatable
     ];
 
     /**
+     * Accessor untuk kompatibilitas dengan $user->name
+     */
+    public function getNameAttribute()
+    {
+        return $this->nama_lengkap;
+    }
+
+    /**
      * RELASI
      */
     public function guru()

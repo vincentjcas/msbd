@@ -59,7 +59,7 @@ class PembinaController extends Controller
 
     public function dataPresensi(Request $request)
     {
-        $tipe = $request->input('tipe', 'guru');
+        $tipe = $request->input('tipe', 'siswa');
         $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
 

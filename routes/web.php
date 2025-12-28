@@ -120,9 +120,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/guru/absen/{absen}', [\App\Http\Controllers\Guru\AbsenController::class, 'update'])->name('guru.absen.update')->middleware('role:guru');
     Route::delete('/guru/absen/{absen}', [\App\Http\Controllers\Guru\AbsenController::class, 'destroy'])->name('guru.absen.destroy')->middleware('role:guru');
     
-    // Guru - Data Kehadiran
+    // Guru - Data Kehadiran (Verifikasi Kehadiran Siswa)
     Route::get('/guru/data-kehadiran', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiran'])->name('guru.data-kehadiran')->middleware('role:guru');
-    Route::get('/guru/data-kehadiran/{mata_pelajaran}', [\App\Http\Controllers\Guru\AbsenController::class, 'dataKehadiranPertemuan'])->name('guru.data-kehadiran-pertemuan')->middleware('role:guru');
+    
+    // Guru - Laporan Per Bulan Siswa
+    Route::get('/guru/laporan-per-bulan-siswa', [\App\Http\Controllers\Guru\AbsenController::class, 'laporanPerBulanSiswa'])->name('guru.laporan-per-bulan-siswa')->middleware('role:guru');
+    Route::get('/guru/laporan-per-bulan-siswa/download', [\App\Http\Controllers\Guru\AbsenController::class, 'downloadLaporanPerBulan'])->name('guru.laporan-per-bulan-siswa.download')->middleware('role:guru');
     
     // Guru - Laporan Bulanan
     Route::get('/guru/laporan-bulanan', [GuruController::class, 'laporanBulanan'])->name('guru.laporan-bulanan')->middleware('role:guru');
