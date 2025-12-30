@@ -44,6 +44,19 @@
                     <label class="form-label">Tanggal Akhir</label>
                     <input type="date" name="end_date" value="{{ $endDate }}" class="form-control">
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Filter Kelas Siswa (Opsional)</label>
+                    <select name="kelas_id" class="form-control">
+                        <option value="">-- Semua Kelas --</option>
+                        @forelse($daftarKelas as $kelas)
+                            <option value="{{ $kelas->id_kelas }}" {{ $kelasId == $kelas->id_kelas ? 'selected' : '' }}>
+                                {{ $kelas->nama_kelas }}
+                            </option>
+                        @empty
+                            <option disabled>Tidak ada kelas</option>
+                        @endforelse
+                    </select>
+                </div>
                 <div style="display: flex; gap: 0.5rem;">
                     <button type="submit" class="btn-primary">Filter</button>
                     <a href="{{ route('kepala_sekolah.grafik-kehadiran') }}" class="btn-secondary">Reset</a>
@@ -85,36 +98,49 @@
             </div>
         </div>
 
-        <!-- Grafik Kehadiran Siswa -->
-        <div class="data-card">
-            <div class="data-title">Kehadiran Siswa</div>
-            <div style="overflow-x: auto;">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Tanggal</th>
-                            <th style="text-align: right;">Hadir</th>
-                            <th style="text-align: right;">Persentase</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($grafikSiswa as $data)
-                            <tr>
-                                <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d M Y') }}</td>
-                                <td style="text-align: right; font-weight: 600;">{{ $data->jumlah_hadir ?? 0 }}</td>
-                                <td style="text-align: right;">
-                                    <span class="badge badge-success">{{ $data->persentase ?? 0 }}%</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" style="text-align: center; padding: 2rem; color: #718096;">Tidak ada data</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+        <!-- Grafik Kehadiran Siswa Per Kelas -->
+        @php
+            $grafikByKelas = $grafikSiswa->groupBy('nama_kelas');
+        @endphp
+        
+        @if(count($grafikSiswa) > 0)
+            @foreach($grafikByKelas as $namaKelas => $dataKelas)
+                <div class="data-card">
+                    <div class="data-title">Kehadiran Siswa - {{ $namaKelas }}</div>
+                    <div style="overflow-x: auto;">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th style="text-align: right;">Hadir</th>
+                                    <th style="text-align: right;">Persentase</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($dataKelas as $data)
+                                    <tr>
+                                        <td>{{ \Carbon\Carbon::parse($data->tanggal)->format('d M Y') }}</td>
+                                        <td style="text-align: right; font-weight: 600;">{{ $data->jumlah_hadir ?? 0 }}</td>
+                                        <td style="text-align: right;">
+                                            <span class="badge badge-success">{{ $data->persentase ?? 0 }}%</span>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" style="text-align: center; padding: 2rem; color: #718096;">Tidak ada data</td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endforeach
+        @else
+            <div class="data-card">
+                <div class="data-title">Kehadiran Siswa</div>
+                <div style="text-align: center; padding: 2rem; color: #718096;">Tidak ada data presensi siswa untuk periode ini</div>
             </div>
-        </div>
+        @endif
     </div>
 
     <!-- Summary -->

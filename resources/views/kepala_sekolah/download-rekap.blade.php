@@ -64,6 +64,19 @@
                         @endfor
                     </select>
                 </div>
+                <div class="form-group">
+                    <label class="form-label">Filter Guru (Opsional)</label>
+                    <select name="guru_id" class="form-control">
+                        <option value="">-- Semua Guru --</option>
+                        @forelse($daftarGuru as $guru)
+                            <option value="{{ $guru->id_user }}" {{ $guruId == $guru->id_user ? 'selected' : '' }}>
+                                {{ $guru->nama_lengkap }}
+                            </option>
+                        @empty
+                            <option disabled>Tidak ada guru</option>
+                        @endforelse
+                    </select>
+                </div>
             </div>
 
             <button type="submit" class="btn-primary" style="margin-top: 1rem;">
@@ -102,7 +115,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($rekap['guru'] as $index => $data)
+                            @forelse($rekap['guru'] as $index => $data)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $data->nama ?? 'N/A' }}</td>
@@ -113,53 +126,11 @@
                                     <td style="text-align: center; font-weight: 600;">{{ ($data->hadir ?? 0) + ($data->izin ?? 0) + ($data->sakit ?? 0) + ($data->alfa ?? 0) }}</td>
                                     <td style="text-align: center; font-weight: 600; color: {{ ($data->persentase ?? 0) >= 80 ? '#16a34a' : '#ea580c' }};">{{ $data->persentase ?? 0 }}%</td>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @endif
-
-        <!-- Rekap Siswa -->
-        @if(count($rekap['siswa']) > 0)
-            <div class="data-card">
-                <div class="data-header">
-                    <div>
-                        <div class="data-title">Rekap Presensi Siswa - {{ \Carbon\Carbon::createFromDate($tahun, $bulan, 1)->format('F Y') }}</div>
-                        <div class="data-subtitle">Total: {{ count($rekap['siswa']) }} orang</div>
-                    </div>
-                    <button onclick="window.print()" class="btn-print">
-                        <i class="fas fa-print"></i> Print
-                    </button>
-                </div>
-
-                <div style="overflow-x: auto;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th style="text-align: center;">Hadir</th>
-                                <th style="text-align: center;">Izin</th>
-                                <th style="text-align: center;">Sakit</th>
-                                <th style="text-align: center;">Alfa</th>
-                                <th style="text-align: center;">Total</th>
-                                <th style="text-align: center;">%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($rekap['siswa'] as $index => $data)
+                            @empty
                                 <tr>
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $data->nama ?? 'N/A' }}</td>
-                                    <td style="text-align: center;"><span class="badge badge-success">{{ $data->hadir ?? 0 }}</span></td>
-                                    <td style="text-align: center;"><span class="badge badge-info">{{ $data->izin ?? 0 }}</span></td>
-                                    <td style="text-align: center;"><span class="badge badge-warning">{{ $data->sakit ?? 0 }}</span></td>
-                                    <td style="text-align: center;"><span class="badge badge-danger">{{ $data->alfa ?? 0 }}</span></td>
-                                    <td style="text-align: center; font-weight: 600;">{{ ($data->hadir ?? 0) + ($data->izin ?? 0) + ($data->sakit ?? 0) + ($data->alfa ?? 0) }}</td>
-                                    <td style="text-align: center; font-weight: 600; color: {{ ($data->persentase ?? 0) >= 80 ? '#16a34a' : '#ea580c' }};">{{ $data->persentase ?? 0 }}%</td>
+                                    <td colspan="8" style="text-align: center; padding: 2rem;">Belum ada data presensi untuk periode ini</td>
                                 </tr>
-                            @endforeach
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -167,16 +138,18 @@
         @endif
 
         <!-- Export Options -->
-        <div class="data-card">
-            <div class="btn-group">
-                <button onclick="window.print()" class="btn-action btn-action-primary">
-                    <i class="fas fa-file-pdf"></i> Print PDF
-                </button>
+        @if(count($rekap['guru']) > 0)
+            <div class="data-card">
+                <div class="btn-group">
+                    <button onclick="window.print()" class="btn-action btn-action-primary">
+                        <i class="fas fa-file-pdf"></i> Print PDF
+                    </button>
+                </div>
             </div>
-        </div>
+        @endif
     @else
         <div class="empty-state">
-            <p class="empty-state-text">Pilih bulan dan tahun untuk melihat preview rekap presensi</p>
+            <p class="empty-state-text">Silakan pilih bulan dan tahun untuk melihat preview rekap presensi</p>
         </div>
     @endif
 </div>

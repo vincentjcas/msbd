@@ -14,17 +14,20 @@ use App\Models\Views\VRekapPresensiSiswa;
 use App\Models\Kegiatan;
 use App\Services\DatabaseProcedureService;
 use App\Services\LogActivityService;
+use App\Services\RekapPresensiService;
 use Illuminate\Support\Facades\DB;
 
 class KepalaSekolahController extends Controller
 {
     protected $dbProcedure;
     protected $logActivity;
+    protected $rekapPresensi;
 
-    public function __construct(DatabaseProcedureService $dbProcedure, LogActivityService $logActivity)
+    public function __construct(DatabaseProcedureService $dbProcedure, LogActivityService $logActivity, RekapPresensiService $rekapPresensi)
     {
         $this->dbProcedure = $dbProcedure;
         $this->logActivity = $logActivity;
+        $this->rekapPresensi = $rekapPresensi;
     }
 
     public function dashboard()
@@ -40,16 +43,49 @@ class KepalaSekolahController extends Controller
     {
         $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        $kelasId = $request->input('kelas_id');
 
-        $grafikGuru = VGrafikKehadiranHarian::whereBetween('tanggal', [$startDate, $endDate])
+        // Generate grafik guru dari presensi
+        $grafikGuru = DB::table('presensi')
+            ->select(
+                'tanggal',
+                DB::raw('COUNT(CASE WHEN status = "hadir" THEN 1 END) as jumlah_hadir'),
+                DB::raw('COUNT(id_presensi) as total'),
+                DB::raw('ROUND(COUNT(CASE WHEN status = "hadir" THEN 1 END) / COUNT(id_presensi) * 100, 2) as persentase')
+            )
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->groupBy('tanggal')
             ->orderBy('tanggal')
             ->get();
 
-        $grafikSiswa = VGrafikKehadiranSiswaHarian::whereBetween('tanggal', [$startDate, $endDate])
-            ->orderBy('tanggal')
+        // Generate grafik siswa per kelas dari presensi_siswa
+        $query = DB::table('presensi_siswa')
+            ->join('siswa', 'presensi_siswa.id_siswa', '=', 'siswa.id_siswa')
+            ->join('kelas', 'siswa.id_kelas', '=', 'kelas.id_kelas')
+            ->select(
+                'presensi_siswa.tanggal',
+                'kelas.id_kelas',
+                'kelas.nama_kelas',
+                DB::raw('COUNT(CASE WHEN presensi_siswa.status = "hadir" THEN 1 END) as jumlah_hadir'),
+                DB::raw('COUNT(presensi_siswa.id_presensi_siswa) as total'),
+                DB::raw('ROUND(COUNT(CASE WHEN presensi_siswa.status = "hadir" THEN 1 END) / COUNT(presensi_siswa.id_presensi_siswa) * 100, 2) as persentase')
+            )
+            ->whereBetween('presensi_siswa.tanggal', [$startDate, $endDate]);
+
+        if ($kelasId) {
+            $query->where('siswa.id_kelas', $kelasId);
+        }
+
+        $grafikSiswa = $query
+            ->groupBy('presensi_siswa.tanggal', 'kelas.id_kelas', 'kelas.nama_kelas')
+            ->orderBy('kelas.nama_kelas')
+            ->orderBy('presensi_siswa.tanggal')
             ->get();
 
-        return view('kepala_sekolah.grafik-kehadiran', compact('grafikGuru', 'grafikSiswa', 'startDate', 'endDate'));
+        // Get list kelas untuk dropdown
+        $daftarKelas = DB::table('kelas')->orderBy('nama_kelas')->get();
+
+        return view('kepala_sekolah.grafik-kehadiran', compact('grafikGuru', 'grafikSiswa', 'startDate', 'endDate', 'daftarKelas', 'kelasId'));
     }
 
     public function rekapPresensi(Request $request)
@@ -153,24 +189,21 @@ class KepalaSekolahController extends Controller
     {
         $bulan = $request->input('bulan', date('m'));
         $tahun = $request->input('tahun', date('Y'));
+        $guruId = $request->input('guru_id');
 
-        // Ambil data dari views yang sudah dibuat
-        $rekapGuru = VRekapPresensiGuru::where('bulan', $bulan)
-            ->where('tahun', $tahun)
-            ->get();
+        // Generate rekap data dari tabel presensi dengan filter jika ada
+        $rekapGuru = $this->rekapPresensi->generateRekapGuru($bulan, $tahun, $guruId);
 
-        $rekapSiswa = VRekapPresensiSiswa::where('bulan', $bulan)
-            ->where('tahun', $tahun)
-            ->get();
+        // Get list guru untuk dropdown
+        $daftarGuru = User::where('role', 'guru')->orderBy('nama_lengkap')->get();
 
         $rekap = [
             'guru' => $rekapGuru,
-            'siswa' => $rekapSiswa,
             'bulan' => $bulan,
             'tahun' => $tahun
         ];
 
-        return view('kepala_sekolah.download-rekap', compact('rekap', 'bulan', 'tahun'));
+        return view('kepala_sekolah.download-rekap', compact('rekap', 'bulan', 'tahun', 'daftarGuru', 'guruId'));
     }
 
     public function kegiatan()
