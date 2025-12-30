@@ -95,12 +95,51 @@ class KepalaSekolahController extends Controller
         $tipe = $request->input('tipe', 'guru');
 
         if ($tipe === 'guru') {
-            $rekap = VRekapPresensiGuru::where('bulan', $bulan)
-                ->where('tahun', $tahun)
+            // Generate rekap guru dari presensi
+            $rekap = DB::table('users')
+                ->leftJoin('presensi', function($join) use ($bulan, $tahun) {
+                    $join->on('users.id_user', '=', 'presensi.id_user')
+                        ->whereRaw('MONTH(presensi.tanggal) = ?', [$bulan])
+                        ->whereRaw('YEAR(presensi.tanggal) = ?', [$tahun]);
+                })
+                ->select(
+                    'users.id_user',
+                    'users.nama_lengkap as nama_lengkap',
+                    DB::raw('COUNT(CASE WHEN presensi.status = "hadir" THEN 1 END) as total_hadir'),
+                    DB::raw('COUNT(CASE WHEN presensi.status = "izin" THEN 1 END) as total_izin'),
+                    DB::raw('COUNT(CASE WHEN presensi.status = "sakit" THEN 1 END) as total_sakit'),
+                    DB::raw('COUNT(CASE WHEN presensi.status = "alpha" THEN 1 END) as total_alpha'),
+                    DB::raw('COUNT(presensi.id_presensi) as total_hari'),
+                    DB::raw('ROUND(COUNT(CASE WHEN presensi.status = "hadir" THEN 1 END) / NULLIF(COUNT(presensi.id_presensi), 0) * 100, 2) as persentase')
+                )
+                ->where('users.role', 'guru')
+                ->groupBy('users.id_user', 'users.nama_lengkap')
+                ->orderBy('users.nama_lengkap')
                 ->get();
         } else {
-            $rekap = VRekapPresensiSiswa::where('bulan', $bulan)
-                ->where('tahun', $tahun)
+            // Generate rekap siswa per kelas dari presensi_siswa
+            $rekap = DB::table('siswa')
+                ->join('users', 'siswa.id_user', '=', 'users.id_user')
+                ->join('kelas', 'siswa.id_kelas', '=', 'kelas.id_kelas')
+                ->leftJoin('presensi_siswa', function($join) use ($bulan, $tahun) {
+                    $join->on('siswa.id_siswa', '=', 'presensi_siswa.id_siswa')
+                        ->whereRaw('MONTH(presensi_siswa.tanggal) = ?', [$bulan])
+                        ->whereRaw('YEAR(presensi_siswa.tanggal) = ?', [$tahun]);
+                })
+                ->select(
+                    'siswa.id_siswa',
+                    'users.nama_lengkap as nama_lengkap',
+                    'kelas.nama_kelas',
+                    DB::raw('COUNT(CASE WHEN presensi_siswa.status = "hadir" THEN 1 END) as hadir'),
+                    DB::raw('COUNT(CASE WHEN presensi_siswa.status = "izin" THEN 1 END) as izin'),
+                    DB::raw('COUNT(CASE WHEN presensi_siswa.status = "sakit" THEN 1 END) as sakit'),
+                    DB::raw('COUNT(CASE WHEN presensi_siswa.status = "alpha" THEN 1 END) as alfa'),
+                    DB::raw('COUNT(presensi_siswa.id_presensi_siswa) as total_hari'),
+                    DB::raw('ROUND(COUNT(CASE WHEN presensi_siswa.status = "hadir" THEN 1 END) / NULLIF(COUNT(presensi_siswa.id_presensi_siswa), 0) * 100, 2) as persentase')
+                )
+                ->groupBy('siswa.id_siswa', 'users.nama_lengkap', 'kelas.nama_kelas', 'kelas.id_kelas')
+                ->orderBy('kelas.nama_kelas')
+                ->orderBy('users.nama_lengkap')
                 ->get();
         }
 

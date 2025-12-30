@@ -92,11 +92,11 @@
                 <tbody>
                     @forelse($rekap as $data)
                         <tr>
-                            <td>{{ $data->nama ?? 'N/A' }}</td>
-                            <td style="text-align: center;"><span class="badge badge-success">{{ $data->hadir ?? 0 }}</span></td>
-                            <td style="text-align: center;"><span class="badge badge-info">{{ $data->izin ?? 0 }}</span></td>
-                            <td style="text-align: center;"><span class="badge badge-warning">{{ $data->sakit ?? 0 }}</span></td>
-                            <td style="text-align: center;"><span class="badge badge-danger">{{ $data->alfa ?? 0 }}</span></td>
+                            <td>{{ $data->nama_lengkap ?? $data->nama ?? 'N/A' }}</td>
+                            <td style="text-align: center;"><span class="badge badge-success">{{ $data->total_hadir ?? $data->hadir ?? 0 }}</span></td>
+                            <td style="text-align: center;"><span class="badge badge-info">{{ $data->total_izin ?? $data->izin ?? 0 }}</span></td>
+                            <td style="text-align: center;"><span class="badge badge-warning">{{ $data->total_sakit ?? $data->sakit ?? 0 }}</span></td>
+                            <td style="text-align: center;"><span class="badge badge-danger">{{ $data->total_alpha ?? $data->alfa ?? 0 }}</span></td>
                             <td style="text-align: center; font-weight: 600;">{{ $data->total_hari ?? 0 }}</td>
                             <td style="text-align: center; font-weight: 600; color: {{ ($data->persentase ?? 0) >= 80 ? '#16a34a' : '#ea580c' }};">{{ $data->persentase ?? 0 }}%</td>
                         </tr>
